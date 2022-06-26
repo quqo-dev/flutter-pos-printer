@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sersoluciones.flutter_pos_printer_example">
+    package="com.sersoluciones.flutter_pos_printer_platform_example">
    <application
-        android:label="flutter_pos_printer_example"
+        android:label="flutter_pos_printer_platform_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -1,10 +1,10 @@
 import Flutter
 import UIKit
 
-public class SwiftFlutterPosPrinterPlugin: NSObject, FlutterPlugin {
+public class SwiftFlutterPosPrinterPlatformPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "flutter_pos_printer", binaryMessenger: registrar.messenger())
-    let instance = SwiftFlutterPosPrinterPlugin()
+    let channel = FlutterMethodChannel(name: "flutter_pos_printer_platform", binaryMessenger: registrar.messenger())
+    let instance = SwiftFlutterPosPrinterPlatformPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter_pos_printer_platform/flutter_pos_printer.dart';
+import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
 enum PrinterType { bluetooth, usb, network }
 

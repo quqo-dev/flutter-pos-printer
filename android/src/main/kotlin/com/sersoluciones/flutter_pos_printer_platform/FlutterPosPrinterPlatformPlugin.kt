@@ -1,5 +1,12 @@
 package com.sersoluciones.flutter_pos_printer_platform
 
+import androidx.annotation.NonNull
+
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import io.flutter.plugin.common.MethodChannel.Result
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -13,7 +20,6 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import com.sersoluciones.flutter_pos_printer_platform.bluetooth.BluetoothConnection
@@ -21,18 +27,13 @@ import com.sersoluciones.flutter_pos_printer_platform.bluetooth.BluetoothConstan
 import com.sersoluciones.flutter_pos_printer_platform.bluetooth.BluetoothService
 import com.sersoluciones.flutter_pos_printer_platform.bluetooth.BluetoothService.Companion.TAG
 import com.sersoluciones.flutter_pos_printer_platform.usb.USBPrinterService
-import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.EventChannel
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
 
-/** FlutterPosPrinterPlugin */
-class FlutterPosPrinterPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler, PluginRegistry.RequestPermissionsResultListener,
+/** FlutterPosPrinterPlatformPlugin */
+class FlutterPosPrinterPlatformPlugin: FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler, PluginRegistry.RequestPermissionsResultListener,
     PluginRegistry.ActivityResultListener,
     ActivityAware {
     /// The MethodChannel that will the communication between Flutter and native Android
@@ -143,10 +144,10 @@ class FlutterPosPrinterPlugin : FlutterPlugin, MethodCallHandler, EventChannel.S
 
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_pos_printer")
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_pos_printer_platform")
         channel.setMethodCallHandler(this)
 
-        messageChannel = EventChannel(flutterPluginBinding.binaryMessenger, "flutter_pos_printer_stream")
+        messageChannel = EventChannel(flutterPluginBinding.binaryMessenger, "flutter_pos_printer_platform_stream")
         messageChannel?.setStreamHandler(this)
 
         context = flutterPluginBinding.applicationContext

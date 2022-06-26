@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.15)
-set(PROJECT_NAME "flutter_pos_printer")
+set(PROJECT_NAME "flutter_pos_printer_platform")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
 # This value is used when generating builds using this plugin, so it must
 # not be changed
-set(PLUGIN_NAME "flutter_pos_printer_plugin")
+set(PLUGIN_NAME "flutter_pos_printer_platform_plugin")
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 add_library(${PLUGIN_NAME} SHARED
-  "flutter_pos_printer_plugin.cpp"
+  "flutter_pos_printer_platform_plugin.cpp"
   "include/printer.cpp"
   "include/printer.h"
   "include/utils.hpp"
@@ -23,7 +23,7 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
 
 # List of absolute paths to libraries that should be bundled with the plugin
-set(flutter_pos_printer_bundled_libraries
+set(flutter_pos_printer_platform_bundled_libraries
   ""
   PARENT_SCOPE
 )

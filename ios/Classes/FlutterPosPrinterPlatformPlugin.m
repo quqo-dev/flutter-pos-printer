@@ -1,20 +1,20 @@
-#import "FlutterPosPrinterPlugin.h"
+#import "FlutterPosPrinterPlatformPlugin.h"
 #import "ConnecterManager.h"
 
-@interface FlutterPosPrinterPlugin ()
+@interface FlutterPosPrinterPlatformPlugin ()
 @property(nonatomic, retain) NSObject<FlutterPluginRegistrar> *registrar;
 @property(nonatomic, retain) FlutterMethodChannel *channel;
 @property(nonatomic, retain) BluetoothPrintStreamHandler *stateStreamHandler;
 @property(nonatomic) NSMutableDictionary *scannedPeripherals;
 @end
 
-@implementation FlutterPosPrinterPlugin
+@implementation FlutterPosPrinterPlatformPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
       methodChannelWithName:NAMESPACE @"/methods"
             binaryMessenger:[registrar messenger]];
   FlutterEventChannel* stateChannel = [FlutterEventChannel eventChannelWithName:NAMESPACE @"/state" binaryMessenger:[registrar messenger]];
-  FlutterPosPrinterPlugin* instance = [[FlutterPosPrinterPlugin alloc] init];
+  FlutterPosPrinterPlatformPlugin* instance = [[FlutterPosPrinterPlatformPlugin alloc] init];
 
   instance.channel = channel;
   instance.scannedPeripherals = [NSMutableDictionary new];

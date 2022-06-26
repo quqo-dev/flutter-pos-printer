@@ -1,4 +1,4 @@
-#include "include/flutter_pos_printer/flutter_pos_printer_plugin.h"
+#include "include/flutter_pos_printer_platform/flutter_pos_printer_platform_plugin.h"
 
 // This must be included before many other Windows headers.
 #include <windows.h>
@@ -19,14 +19,14 @@ namespace
   using flutter::EncodableMap;
   using flutter::EncodableValue;
 
-  class FlutterPosPrinterPlugin : public flutter::Plugin
+  class FlutterPosPrinterPlatformPlugin: public flutter::Plugin
   {
   public:
     static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
 
-    FlutterPosPrinterPlugin();
+    FlutterPosPrinterPlatformPlugin();
 
-    virtual ~FlutterPosPrinterPlugin();
+    virtual ~FlutterPosPrinterPlatformPlugin();
 
   private:
     // Called when a method is called on this plugin's channel from Dart.
@@ -36,15 +36,15 @@ namespace
   };
 
   // static
-  void FlutterPosPrinterPlugin::RegisterWithRegistrar(
+  void FlutterPosPrinterPlatformPlugin::RegisterWithRegistrar(
       flutter::PluginRegistrarWindows *registrar)
   {
     auto channel =
         std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
-            registrar->messenger(), "flutter_pos_printer",
+            registrar->messenger(), "flutter_pos_printer_platform",
             &flutter::StandardMethodCodec::GetInstance());
 
-    auto plugin = std::make_unique<FlutterPosPrinterPlugin>();
+    auto plugin = std::make_unique<FlutterPosPrinterPlatformPlugin>();
 
     channel->SetMethodCallHandler(
         [plugin_pointer = plugin.get()](const auto &call, auto result)
@@ -55,11 +55,11 @@ namespace
     registrar->AddPlugin(std::move(plugin));
   }
 
-  FlutterPosPrinterPlugin::FlutterPosPrinterPlugin() {}
+  FlutterPosPrinterPlatformPlugin::FlutterPosPrinterPlatformPlugin() {}
 
-  FlutterPosPrinterPlugin::~FlutterPosPrinterPlugin() {}
+  FlutterPosPrinterPlatformPlugin::~FlutterPosPrinterPlatformPlugin() {}
 
-  void FlutterPosPrinterPlugin::HandleMethodCall(
+  void FlutterPosPrinterPlatformPlugin::HandleMethodCall(
       const flutter::MethodCall<EncodableValue> &method_call,
       std::unique_ptr<flutter::MethodResult<EncodableValue>> result)
   {
@@ -133,10 +133,10 @@ namespace
 
 } // namespace
 
-void FlutterPosPrinterPluginRegisterWithRegistrar(
+void FlutterPosPrinterPlatformPluginRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar)
 {
-  FlutterPosPrinterPlugin::RegisterWithRegistrar(
+  FlutterPosPrinterPlatformPlugin::RegisterWithRegistrar(
       flutter::PluginRegistrarManager::GetInstance()
           ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
 }

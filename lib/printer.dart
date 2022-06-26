@@ -2,10 +2,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
-final flutterPrinterChannel = const MethodChannel('flutter_pos_printer');
-final flutterPrinterEventChannel = const EventChannel('flutter_pos_printer_stream');
-final iosChannel = const MethodChannel('flutter_pos_printer/methods');
-final iosStateChannel = const EventChannel('flutter_pos_printer/state');
+final flutterPrinterChannel = const MethodChannel('flutter_pos_printer_platform');
+final flutterPrinterEventChannel = const EventChannel('flutter_pos_printer_platform_stream');
+final iosChannel = const MethodChannel('flutter_pos_printer_platform/methods');
+final iosStateChannel = const EventChannel('flutter_pos_printer_platform/state');
 
 enum BTStatus { none, connecting, connected, scanning, stopScanning }
 

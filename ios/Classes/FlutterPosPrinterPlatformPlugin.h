@@ -2,9 +2,9 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "ConnecterManager.h"
 
-#define NAMESPACE @"flutter_pos_printer"
+#define NAMESPACE @"flutter_pos_printer_platform"
 
-@interface FlutterPosPrinterPlugin : NSObject<FlutterPlugin, CBCentralManagerDelegate, CBPeripheralDelegate>
+@interface FlutterPosPrinterPlatformPlugin : NSObject<FlutterPlugin, CBCentralManagerDelegate, CBPeripheralDelegate>
 @property(nonatomic,copy)ConnectDeviceState state;
 @end
 
