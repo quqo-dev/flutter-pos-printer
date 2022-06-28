@@ -20,6 +20,8 @@ class _MyAppState extends State<MyApp> {
   // Printer Type [bluetooth, usb, network]
   var defaultPrinterType = PrinterType.bluetooth;
   var _isBle = false;
+  var _reconnect = false;
+  var _isConnected = false;
   var printerManager = PrinterManager.instance;
   var devices = <BluetoothPrinter>[];
   StreamSubscription<PrinterDevice>? _subscription;
@@ -43,7 +45,16 @@ class _MyAppState extends State<MyApp> {
     _subscriptionBtStatus = PrinterManager.instance.stateBluetooth.listen((status) {
       log(' ----------------- status bt $status ------------------ ');
       _currentStatus = status;
-
+      if (status == BTStatus.connected) {
+        setState(() {
+          _isConnected = true;
+        });
+      }
+      if (status == BTStatus.none) {
+        setState(() {
+          _isConnected = false;
+        });
+      }
       if (status == BTStatus.connected && pendingTask != null) {
         if (Platform.isAndroid) {
           Future.delayed(const Duration(milliseconds: 1000), () {
@@ -148,8 +159,11 @@ class _MyAppState extends State<MyApp> {
         bytes += generator.cut();
         await printerManager.connect(
             type: bluetoothPrinter.typePrinter,
-            model:
-                BluetoothPrinterInput(name: bluetoothPrinter.deviceName, address: bluetoothPrinter.address!, isBle: bluetoothPrinter.isBle ?? false));
+            model: BluetoothPrinterInput(
+                name: bluetoothPrinter.deviceName,
+                address: bluetoothPrinter.address!,
+                isBle: bluetoothPrinter.isBle ?? false,
+                autoConnect: _reconnect));
         pendingTask = null;
         if (Platform.isIOS || Platform.isAndroid) pendingTask = bytes;
         break;
@@ -170,6 +184,36 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  // conectar dispositivo
+  _connectDevice() async {
+    _isConnected = false;
+    if (selectedPrinter == null) return;
+    switch (selectedPrinter!.typePrinter) {
+      case PrinterType.usb:
+        await printerManager.connect(
+            type: selectedPrinter!.typePrinter,
+            model: UsbPrinterInput(name: selectedPrinter!.deviceName, productId: selectedPrinter!.productId, vendorId: selectedPrinter!.vendorId));
+        _isConnected = true;
+        break;
+      case PrinterType.bluetooth:
+        await printerManager.connect(
+            type: selectedPrinter!.typePrinter,
+            model: BluetoothPrinterInput(
+                name: selectedPrinter!.deviceName,
+                address: selectedPrinter!.address!,
+                isBle: selectedPrinter!.isBle ?? false,
+                autoConnect: _reconnect));
+        break;
+      case PrinterType.network:
+        await printerManager.connect(type: selectedPrinter!.typePrinter, model: TcpPrinterInput(ipAddress: selectedPrinter!.address!));
+        _isConnected = true;
+        break;
+      default:
+    }
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -185,6 +229,37 @@ class _MyAppState extends State<MyApp> {
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: selectedPrinter == null || _isConnected
+                                ? null
+                                : () {
+                                    _connectDevice();
+                                  },
+                            child: const Text("Connect", textAlign: TextAlign.center),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: selectedPrinter == null || !_isConnected
+                                ? null
+                                : () {
+                                    if (selectedPrinter != null) printerManager.disconnect(type: selectedPrinter!.typePrinter);
+                                    setState(() {
+                                      _isConnected = false;
+                                    });
+                                  },
+                            child: const Text("Disconnect", textAlign: TextAlign.center),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   DropdownButtonFormField<PrinterType>(
                     value: defaultPrinterType,
                     decoration: const InputDecoration(
@@ -220,6 +295,7 @@ class _MyAppState extends State<MyApp> {
                             defaultPrinterType = value;
                             selectedPrinter = null;
                             _isBle = false;
+                            _isConnected = false;
                             _scan();
                           });
                         }
@@ -239,7 +315,26 @@ class _MyAppState extends State<MyApp> {
                       onChanged: (bool? value) {
                         setState(() {
                           _isBle = value ?? false;
+                          _isConnected = false;
+                          selectedPrinter = null;
                           _scan();
+                        });
+                      },
+                    ),
+                  ),
+                  Visibility(
+                    visible: defaultPrinterType == PrinterType.bluetooth && Platform.isAndroid,
+                    child: SwitchListTile.adaptive(
+                      contentPadding: const EdgeInsets.only(bottom: 20.0, left: 20),
+                      title: const Text(
+                        "reconnect",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(fontSize: 19.0),
+                      ),
+                      value: _reconnect,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _reconnect = value ?? false;
                         });
                       },
                     ),

@@ -10,10 +10,12 @@ class BluetoothPrinterInput extends BasePrinterInput {
   final String address;
   final String? name;
   final bool isBle;
+  final bool autoConnect;
   BluetoothPrinterInput({
     required this.address,
     this.name,
     this.isBle = false,
+    this.autoConnect = false,
   });
 }
 
@@ -176,7 +178,11 @@ class BluetoothPrinterConnector implements PrinterConnector<BluetoothPrinterInpu
 
   Future<bool> _connect({BluetoothPrinterInput? model}) async {
     if (Platform.isAndroid) {
-      Map<String, dynamic> params = {"address": model?.address ?? address, "isBle": model?.isBle ?? isBle};
+      Map<String, dynamic> params = {
+        "address": model?.address ?? address,
+        "isBle": model?.isBle ?? isBle,
+        "autoConnect": model?.autoConnect ?? false
+      };
       return await flutterPrinterChannel.invokeMethod('onStartConnection', params);
     } else if (Platform.isIOS) {
       Map<String, dynamic> params = {"name": model?.name ?? name, "address": model?.address ?? address};

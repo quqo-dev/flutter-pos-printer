@@ -15,7 +15,8 @@ private const val TAG = "BluetoothBleConnection"
 
 class BluetoothBleConnection(
     private val mContext: Context,
-    private val mHandler: Handler
+    private val mHandler: Handler,
+    private var autoConnect: Boolean = false
 ) : IBluetoothConnection {
 
     private var bluetoothGatt: BluetoothGatt? = null
@@ -58,12 +59,12 @@ class BluetoothBleConnection(
                 bluetoothGatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     device.connectGatt(
                         mContext,
-                        false,
+                        autoConnect,
                         bluetoothGattCallback,
                         BluetoothDevice.TRANSPORT_LE
                     )
                 } else {
-                    device.connectGatt(mContext, false, bluetoothGattCallback)
+                    device.connectGatt(mContext, autoConnect, bluetoothGattCallback)
                 }
 
                 // Send the name of the connected device back to the UI Activity

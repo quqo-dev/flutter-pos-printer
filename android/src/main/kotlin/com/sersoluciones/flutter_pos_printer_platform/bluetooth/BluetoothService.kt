@@ -15,11 +15,15 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.Result
 
 
-class BluetoothService constructor(private val bluetoothHandler: Handler, private val channel: MethodChannel) {
+class BluetoothService(private val bluetoothHandler: Handler, private val channel: MethodChannel) {
     private var scanning = false
     private val handler = Handler(Looper.getMainLooper())
     private var devicesSink: EventChannel.EventSink? = null
     private var currentActivity: Activity? = null
+    private var mConnectedDeviceAddress: String? = ""
+    private val mHandlerAutoConnect = Handler(Looper.getMainLooper())
+    private var reconnectBluetooth = false
+    private var result: Result? = null
 
     val mBluetoothAdapter: BluetoothAdapter by lazy {
         BluetoothAdapter.getDefaultAdapter()
@@ -98,6 +102,10 @@ class BluetoothService constructor(private val bluetoothHandler: Handler, privat
         }
     }
 
+    fun cleanHandlerBtBle(){
+        handler.removeCallbacksAndMessages(null)
+    }
+
     // Device scan callback.
     private val leScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
@@ -134,15 +142,19 @@ class BluetoothService constructor(private val bluetoothHandler: Handler, privat
     fun bluetoothDisconnect() {
         bluetoothConnection?.stop()
         bluetoothConnection = null
+
+        mHandlerAutoConnect.removeCallbacks(reconnect)
     }
 
 
-    fun onStartConnection(context: Context, address: String?, result: Result, isBle: Boolean = false) {
+    fun onStartConnection(context: Context, address: String?, result: Result, isBle: Boolean = false, autoConnect: Boolean = false) {
         if (bluetoothConnection == null)
             bluetoothConnection =
-                if (isBle) BluetoothBleConnection(mContext = context, bluetoothHandler)
+                if (isBle) BluetoothBleConnection(mContext = context, bluetoothHandler, autoConnect = autoConnect)
                 else BluetoothConnection(bluetoothHandler)
-
+        this.result = result
+        reconnectBluetooth = bluetoothConnection is BluetoothConnection && autoConnect
+        mConnectedDeviceAddress = address
         if ("" != address && bluetoothConnection!!.state == BluetoothConstants.STATE_NONE) {
 //            Log.d(TAG, " ------------- mac Address BT: $address")
             bluetoothConnect(address, result)
@@ -151,6 +163,24 @@ class BluetoothService constructor(private val bluetoothHandler: Handler, privat
         } else {
             result.success(false)
         }
+    }
+
+    /// permite reconectar el dispositivo
+    private val reconnect = Runnable {
+        bluetoothConnection?.stop()
+        if (result != null)
+            bluetoothConnect(mConnectedDeviceAddress, result!!)
+    }
+
+    fun autoConnectBt() {
+        if (bluetoothConnection is BluetoothConnection && reconnectBluetooth) {
+            mHandlerAutoConnect.removeCallbacks(reconnect)
+            mHandlerAutoConnect.postDelayed(reconnect, (1000 + Math.random() * 4000).toLong())
+        }
+    }
+
+    fun removeReconnectHandlers() {
+        mHandlerAutoConnect.removeCallbacks(reconnect)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

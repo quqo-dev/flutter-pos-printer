@@ -1,12 +1,5 @@
 package com.sersoluciones.flutter_pos_printer_platform
 
-import androidx.annotation.NonNull
-
-import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -20,6 +13,7 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import com.sersoluciones.flutter_pos_printer_platform.bluetooth.BluetoothConnection
@@ -27,13 +21,18 @@ import com.sersoluciones.flutter_pos_printer_platform.bluetooth.BluetoothConstan
 import com.sersoluciones.flutter_pos_printer_platform.bluetooth.BluetoothService
 import com.sersoluciones.flutter_pos_printer_platform.bluetooth.BluetoothService.Companion.TAG
 import com.sersoluciones.flutter_pos_printer_platform.usb.USBPrinterService
+import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
 
 /** FlutterPosPrinterPlatformPlugin */
-class FlutterPosPrinterPlatformPlugin: FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler, PluginRegistry.RequestPermissionsResultListener,
+class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler, PluginRegistry.RequestPermissionsResultListener,
     PluginRegistry.ActivityResultListener,
     ActivityAware {
     /// The MethodChannel that will the communication between Flutter and native Android
@@ -70,6 +69,7 @@ class FlutterPosPrinterPlatformPlugin: FlutterPlugin, MethodCallHandler, EventCh
                                 } catch (e: Exception) {
                                 }
                             eventSink?.success(2)
+                            bluetoothService.removeReconnectHandlers()
                         }
                         BluetoothConstants.STATE_CONNECTING -> {
                             Log.w(TAG, " -------------------------- connection BT STATE_CONNECTING ")
@@ -78,6 +78,8 @@ class FlutterPosPrinterPlatformPlugin: FlutterPlugin, MethodCallHandler, EventCh
                         BluetoothConstants.STATE_NONE -> {
                             Log.w(TAG, " -------------------------- connection BT STATE_NONE ")
                             eventSink?.success(0)
+                            bluetoothService.autoConnectBt()
+
                         }
                         BluetoothConstants.STATE_FAILED -> {
                             Log.w(TAG, " -------------------------- connection BT STATE_FAILED ")
@@ -164,6 +166,7 @@ class FlutterPosPrinterPlatformPlugin: FlutterPlugin, MethodCallHandler, EventCh
                 isBle = false
                 isScan = true
                 if (verifyIsBluetoothIsOn()) {
+                    bluetoothService.cleanHandlerBtBle()
                     bluetoothService.scanBluDevice()
                     result.success(null)
                 }
@@ -180,8 +183,9 @@ class FlutterPosPrinterPlatformPlugin: FlutterPlugin, MethodCallHandler, EventCh
             call.method.equals("onStartConnection") -> {
                 val address: String? = call.argument("address")
                 val isBle: Boolean? = call.argument("isBle")
+                val autoConnect: Boolean = if (call.hasArgument("autoConnect")) call.argument("autoConnect")!! else false
                 if (verifyIsBluetoothIsOn()) {
-                    bluetoothService.onStartConnection(context!!, address!!, result, isBle = isBle!!)
+                    bluetoothService.onStartConnection(context!!, address!!, result, isBle = isBle!!, autoConnect = autoConnect)
                 } else {
                     result.success(false)
                 }
@@ -218,6 +222,7 @@ class FlutterPosPrinterPlatformPlugin: FlutterPlugin, MethodCallHandler, EventCh
                 }
             }
             call.method.equals("getList") -> {
+                bluetoothService.cleanHandlerBtBle()
                 getUSBDeviceList(result)
             }
             call.method.equals("connectPrinter") -> {
