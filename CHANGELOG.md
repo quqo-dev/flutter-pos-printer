@@ -1,3 +1,7 @@
-## 1.0.0 - 06/25/2022
+## 1.0.1
+
+* How to use it.
+
+## 1.0.0
 
 * Initial release.
