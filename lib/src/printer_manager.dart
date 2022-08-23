@@ -71,4 +71,5 @@ class PrinterManager {
   }
 
   Stream<BTStatus> get stateBluetooth => bluetoothPrinterConnector.currentStatus.cast<BTStatus>();
+  Stream<USBStatus> get stateUSB => usbPrinterConnector.currentStatus.cast<USBStatus>();
 }

@@ -1,3 +1,7 @@
+## 1.0.2
+
+* Bug android connection interface: USB 
+
 ## 1.0.1
 
 * How to use it.

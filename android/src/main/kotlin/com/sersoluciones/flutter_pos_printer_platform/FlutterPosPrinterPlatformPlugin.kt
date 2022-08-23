@@ -50,6 +50,28 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, EventC
     private var isScan: Boolean = false
     lateinit var adapter: USBPrinterService
     private lateinit var bluetoothService: BluetoothService
+
+
+    private val usbHandler = object : Handler(Looper.getMainLooper()) {
+
+        override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
+            when (msg.what) {
+
+                USBPrinterService.STATE_USB_CONNECTED -> {
+                    eventSink?.success(2)
+                }
+                USBPrinterService.STATE_USB_CONNECTING -> {
+                    eventSink?.success(1)
+                }
+                USBPrinterService.STATE_USB_NONE -> {
+                    eventSink?.success(0)
+                }
+            }
+        }
+    }
+
+
     private val bluetoothHandler = object : Handler(Looper.getMainLooper()) {
 
         private val bluetoothStatus: Int
@@ -153,7 +175,7 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, EventC
         messageChannel?.setStreamHandler(this)
 
         context = flutterPluginBinding.applicationContext
-        adapter = USBPrinterService.getInstance()
+        adapter = USBPrinterService.getInstance(usbHandler)
         adapter.init(context)
 
         bluetoothService = BluetoothService.getInstance(bluetoothHandler, channel)

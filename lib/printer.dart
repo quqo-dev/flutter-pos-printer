@@ -9,6 +9,8 @@ final iosStateChannel = const EventChannel('flutter_pos_printer_platform/state')
 
 enum BTStatus { none, connecting, connected, scanning, stopScanning }
 
+enum USBStatus { none, connecting, connected }
+
 abstract class Printer {
   Future<bool> image(Uint8List image, {int threshold = 150});
   Future<bool> beep();

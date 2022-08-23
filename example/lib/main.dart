@@ -26,7 +26,9 @@ class _MyAppState extends State<MyApp> {
   var devices = <BluetoothPrinter>[];
   StreamSubscription<PrinterDevice>? _subscription;
   StreamSubscription<BTStatus>? _subscriptionBtStatus;
+  StreamSubscription<USBStatus>? _subscriptionUsbStatus;
   BTStatus _currentStatus = BTStatus.none;
+  USBStatus _currentUsbStatus = USBStatus.none;
   List<int>? pendingTask;
   String _ipAddress = '';
   String _port = '9100';
@@ -67,12 +69,26 @@ class _MyAppState extends State<MyApp> {
         }
       }
     });
+
+    _subscriptionUsbStatus = PrinterManager.instance.stateUSB.listen((status) {
+      log(' ----------------- status usb $status ------------------ ');
+      _currentUsbStatus = status;
+      if (Platform.isAndroid) {
+        if (status == USBStatus.connected && pendingTask != null) {
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            PrinterManager.instance.send(type: PrinterType.usb, bytes: pendingTask!);
+            pendingTask = null;
+          });
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
     _subscription?.cancel();
     _subscriptionBtStatus?.cancel();
+    _subscriptionUsbStatus?.cancel();
     _portController.dispose();
     _ipController.dispose();
     super.dispose();
@@ -154,6 +170,8 @@ class _MyAppState extends State<MyApp> {
         await printerManager.connect(
             type: bluetoothPrinter.typePrinter,
             model: UsbPrinterInput(name: bluetoothPrinter.deviceName, productId: bluetoothPrinter.productId, vendorId: bluetoothPrinter.vendorId));
+        pendingTask = null;
+        if (Platform.isAndroid) pendingTask = bytes;
         break;
       case PrinterType.bluetooth:
         bytes += generator.cut();
@@ -176,6 +194,11 @@ class _MyAppState extends State<MyApp> {
     }
     if (bluetoothPrinter.typePrinter == PrinterType.bluetooth) {
       if (_currentStatus == BTStatus.connected) {
+        printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
+        pendingTask = null;
+      }
+    } else if (bluetoothPrinter.typePrinter == PrinterType.usb) {
+      if (_currentUsbStatus == USBStatus.connected) {
         printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
         pendingTask = null;
       }

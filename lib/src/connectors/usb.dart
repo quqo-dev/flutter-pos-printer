@@ -49,11 +49,23 @@ class UsbPrinterConnector implements PrinterConnector<UsbPrinterInput> {
   UsbPrinterConnector._()
       : vendorId = '',
         productId = '',
-        name = '';
+        name = '' {
+    if (Platform.isAndroid)
+      flutterPrinterEventChannel.receiveBroadcastStream().listen((data) {
+        if (data is int) {
+          // log('Received event status: $data');
+          var _status = USBStatus.values[data];
+          _statusStreamController.add(_status);
+        }
+      });
+  }
 
   static UsbPrinterConnector _instance = UsbPrinterConnector._();
 
   static UsbPrinterConnector get instance => _instance;
+
+  Stream<USBStatus> get _statusStream => _statusStreamController.stream;
+  final StreamController<USBStatus> _statusStreamController = StreamController.broadcast();
 
   UsbPrinterConnector.Android({required this.vendorId, required this.productId}) : name = '';
   UsbPrinterConnector.Windows({required this.name})
@@ -67,6 +79,13 @@ class UsbPrinterConnector implements PrinterConnector<UsbPrinterInput> {
   setVendor(String vendorId) => this.vendorId = vendorId;
   setProduct(String productId) => this.productId = productId;
   setName(String name) => this.name = name;
+
+  /// Gets the current state of the Bluetooth module
+  Stream<USBStatus> get currentStatus async* {
+    if (Platform.isAndroid) {
+      yield* _statusStream.cast<USBStatus>();
+    }
+  }
 
   static DiscoverResult<UsbPrinterInfo> discoverPrinters() async {
     if (Platform.isAndroid) {
