@@ -1,3 +1,7 @@
+## 1.0.3
+
+* Bug android notify events: Bluetooth 
+
 ## 1.0.2
 
 * Bug android connection interface: USB 

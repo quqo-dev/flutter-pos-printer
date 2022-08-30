@@ -40,9 +40,13 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, EventC
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
     private lateinit var channel: MethodChannel
+
     private var messageChannel: EventChannel? = null
+    private var messageUSBChannel: EventChannel? = null
     private var eventSink: EventChannel.EventSink? = null
-    private var devicesSink: EventChannel.EventSink? = null
+
+    // Declare our eventSink later it will be initialized
+    private var eventUSBSink: EventChannel.EventSink? = null
     private var context: Context? = null
     private var currentActivity: Activity? = null
     private var requestPermissionBT: Boolean = false
@@ -59,13 +63,13 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, EventC
             when (msg.what) {
 
                 USBPrinterService.STATE_USB_CONNECTED -> {
-                    eventSink?.success(2)
+                    eventUSBSink?.success(2)
                 }
                 USBPrinterService.STATE_USB_CONNECTING -> {
-                    eventSink?.success(1)
+                    eventUSBSink?.success(1)
                 }
                 USBPrinterService.STATE_USB_NONE -> {
-                    eventSink?.success(0)
+                    eventUSBSink?.success(0)
                 }
             }
         }
@@ -155,24 +159,35 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, EventC
 
     override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink?) {
         this.eventSink = eventSink
-        this.devicesSink = eventSink
         bluetoothService.setEventSink(eventSink)
     }
 
     override fun onCancel(arguments: Any?) {
         eventSink = null
-        devicesSink = null
         messageChannel = null
+        messageUSBChannel = null
         bluetoothService.setEventSink(null)
     }
 
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_pos_printer_platform")
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, methodChannel)
         channel.setMethodCallHandler(this)
 
-        messageChannel = EventChannel(flutterPluginBinding.binaryMessenger, "flutter_pos_printer_platform_stream")
+        messageChannel = EventChannel(flutterPluginBinding.binaryMessenger, eventChannelBT)
         messageChannel?.setStreamHandler(this)
+
+        messageUSBChannel = EventChannel(flutterPluginBinding.binaryMessenger, eventChannelUSB)
+        messageUSBChannel?.setStreamHandler(object : EventChannel.StreamHandler {
+
+            override fun onListen(p0: Any?, sink: EventChannel.EventSink) {
+                eventUSBSink = sink
+            }
+
+            override fun onCancel(p0: Any?) {
+                eventUSBSink = null
+            }
+        })
 
         context = flutterPluginBinding.applicationContext
         adapter = USBPrinterService.getInstance(usbHandler)
@@ -372,11 +387,6 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, EventC
         return true
     }
 
-    companion object {
-        const val PERMISSION_ALL = 1
-        const val PERMISSION_ENABLE_BLUETOOTH = 999
-
-    }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         currentActivity = binding.activity
@@ -443,5 +453,12 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, EventC
         return false
     }
 
+    companion object {
+        const val PERMISSION_ALL = 1
+        const val PERMISSION_ENABLE_BLUETOOTH = 999
+        const val methodChannel = "com.sersoluciones.flutter_pos_printer_platform"
+        const val eventChannelBT = "com.sersoluciones.flutter_pos_printer_platform/bt_state"
+        const val eventChannelUSB = "com.sersoluciones.flutter_pos_printer_platform/usb_state"
 
+    }
 }

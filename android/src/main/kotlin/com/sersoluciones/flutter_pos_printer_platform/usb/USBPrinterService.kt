@@ -110,7 +110,7 @@ class USBPrinterService private constructor(private val mHandler: Handler) {
 
     private fun openConnection(): Boolean {
         if (mUsbDevice == null) {
-            Log.e(LOG_TAG, "USB Deivce is not initialized")
+            Log.e(LOG_TAG, "USB Device is not initialized")
             return false
         }
         if (mUSBManager == null) {

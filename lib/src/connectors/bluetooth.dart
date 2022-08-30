@@ -41,7 +41,7 @@ class BluetoothPrinterConnector implements PrinterConnector<BluetoothPrinterInpu
       });
 
     if (Platform.isAndroid)
-      flutterPrinterEventChannel.receiveBroadcastStream().listen((data) {
+      flutterPrinterEventChannelBT.receiveBroadcastStream().listen((data) {
         if (data is int) {
           // log('Received event status: $data');
           var _status = BTStatus.values[data];

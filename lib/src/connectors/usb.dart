@@ -51,7 +51,7 @@ class UsbPrinterConnector implements PrinterConnector<UsbPrinterInput> {
         productId = '',
         name = '' {
     if (Platform.isAndroid)
-      flutterPrinterEventChannel.receiveBroadcastStream().listen((data) {
+      flutterPrinterEventChannelUSB.receiveBroadcastStream().listen((data) {
         if (data is int) {
           // log('Received event status: $data');
           var _status = USBStatus.values[data];
