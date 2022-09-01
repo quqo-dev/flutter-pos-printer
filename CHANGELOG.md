@@ -1,3 +1,7 @@
+## 1.0.4
+
+* Solved Bug windows: USB
+
 ## 1.0.3
 
 * Bug android notify events: Bluetooth 

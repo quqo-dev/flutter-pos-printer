@@ -41,7 +41,7 @@ namespace
   {
     auto channel =
         std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
-            registrar->messenger(), "flutter_pos_printer_platform",
+            registrar->messenger(), "com.sersoluciones.flutter_pos_printer_platform",
             &flutter::StandardMethodCodec::GetInstance());
 
     auto plugin = std::make_unique<FlutterPosPrinterPlatformPlugin>();

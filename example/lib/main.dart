@@ -28,6 +28,7 @@ class _MyAppState extends State<MyApp> {
   StreamSubscription<BTStatus>? _subscriptionBtStatus;
   StreamSubscription<USBStatus>? _subscriptionUsbStatus;
   BTStatus _currentStatus = BTStatus.none;
+  // _currentUsbStatus is only supports on Android
   USBStatus _currentUsbStatus = USBStatus.none;
   List<int>? pendingTask;
   String _ipAddress = '';
@@ -69,7 +70,7 @@ class _MyAppState extends State<MyApp> {
         }
       }
     });
-
+    //  PrinterManager.instance.stateUSB is only supports on Android
     _subscriptionUsbStatus = PrinterManager.instance.stateUSB.listen((status) {
       log(' ----------------- status usb $status ------------------ ');
       _currentUsbStatus = status;
@@ -197,7 +198,8 @@ class _MyAppState extends State<MyApp> {
         printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
         pendingTask = null;
       }
-    } else if (bluetoothPrinter.typePrinter == PrinterType.usb) {
+    } else if (bluetoothPrinter.typePrinter == PrinterType.usb && Platform.isAndroid) {
+      // _currentUsbStatus is only supports on Android
       if (_currentUsbStatus == USBStatus.connected) {
         printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
         pendingTask = null;
