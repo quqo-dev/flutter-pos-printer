@@ -44,10 +44,21 @@ class BluetoothPrinterConnector implements PrinterConnector<BluetoothPrinterInpu
       flutterPrinterEventChannelBT.receiveBroadcastStream().listen((data) {
         if (data is int) {
           // log('Received event status: $data');
-          var _status = BTStatus.values[data];
+          _status = BTStatus.values[data];
           _statusStreamController.add(_status);
         }
       });
+
+    if (Platform.isIOS) {
+      //  iosChannel.invokeMethod('state').then((s) => s);
+      iosStateChannel.receiveBroadcastStream().listen((data) {
+        if (data is int) {
+          // log('Received event status: $data');
+          _status = BTStatus.values[data];
+          _statusStreamController.add(_status);
+        }
+      });
+    }
   }
   static BluetoothPrinterConnector _instance = BluetoothPrinterConnector._();
 
@@ -76,6 +87,8 @@ class BluetoothPrinterConnector implements PrinterConnector<BluetoothPrinterInpu
   String address;
   String? name;
   bool isBle;
+  BTStatus _status = BTStatus.none;
+  BTStatus get status => _status;
 
   StreamController<String> devices = new StreamController.broadcast();
 
@@ -193,14 +206,10 @@ class BluetoothPrinterConnector implements PrinterConnector<BluetoothPrinterInpu
 
   /// Gets the current state of the Bluetooth module
   Stream<BTStatus> get currentStatus async* {
-    if (Platform.isAndroid) {
-      yield* _statusStream.cast<BTStatus>();
-      // await for (dynamic data in flutterPrinterEventChannel.receiveBroadcastStream().map((message) => message)) {
-      //   if (data is int) {
-      //     yield BTStatus.values[data];
-      //   }
-      // }
-    } else if (Platform.isIOS) {
+    // if (Platform.isAndroid) {
+    yield* _statusStream.cast<BTStatus>();
+
+    /*} else if (Platform.isIOS) {
       await iosChannel.invokeMethod('state').then((s) => s);
       await for (dynamic data in iosStateChannel.receiveBroadcastStream().map((s) => s)) {
         if (data is int) {
@@ -208,7 +217,7 @@ class BluetoothPrinterConnector implements PrinterConnector<BluetoothPrinterInpu
         }
       }
       // yield* iosStateChannel.receiveBroadcastStream().map((s) => s);
-    }
+    }*/
   }
 
   @override

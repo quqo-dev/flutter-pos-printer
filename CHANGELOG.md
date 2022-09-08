@@ -1,3 +1,7 @@
+## 1.0.5
+
+* Get current status bt
+
 ## 1.0.4
 
 * Solved Bug windows: USB
