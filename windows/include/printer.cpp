@@ -76,9 +76,8 @@ BOOL PrintManager::printBytes(std::vector<uint8_t> data)
 
     if (_hPrinter == INVALID_HANDLE_VALUE)
     {
-      //  throw std::exception("Printer handle is invalid.");
-                  success =  false;
-
+        //  throw std::exception("Printer handle is invalid.");
+        success =  false;
     }
 
     // Fill in default value of the print document
@@ -100,23 +99,23 @@ BOOL PrintManager::printBytes(std::vector<uint8_t> data)
         }
         else
         {
-        //    throw std::exception("StartPagePrinter error.");
-                    success =  false;
+            // throw std::exception("StartPagePrinter error.");
+            success =  false;
         }
         // Inform the spooler that the document hsa ended
         EndDocPrinter(_hPrinter);
     }
     else
     {
-       // throw std::exception("StartDocPrinterW error.");
-                   success = false;
+        // throw std::exception("StartDocPrinterW error.");
+        success = false;
     }
 
     // Check if all data are flushed
     if (written != data.size())
     {
-        //throw std::exception("Fail to send all bytes");
-            success =  false;
+        // throw std::exception("Fail to send all bytes");
+        success =  false;
     }
 
     return success;

@@ -1,6 +1,6 @@
 # flutter_pos_printer_platform
 
-[![Pub Version](https://img.shields.io/badge/pub-v1.0.5-green)](https://pub.dev/packages/flutter_pos_printer_platform)
+[![Pub Version](https://img.shields.io/badge/pub-v1.0.6-green)](https://pub.dev/packages/flutter_pos_printer_platform)
 
 A library to discover printers, and send printer commands.
 
@@ -52,6 +52,7 @@ Allow to connect bluetooth (classic and BLE), USB and network devices
 ### Change the minSdkVersion for Android
 
 flutter_pos_printer_platform is compatible only from version 21 of Android SDK so you should change this in android/app/build.gradle:
+Note targetSdkVersion must be 30
 
 In build.gradle set
 ```

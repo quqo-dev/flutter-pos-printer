@@ -1,3 +1,7 @@
+## 1.0.6
+
+* Resolve minor bug windows printer
+
 ## 1.0.5
 
 * Get current status bt
