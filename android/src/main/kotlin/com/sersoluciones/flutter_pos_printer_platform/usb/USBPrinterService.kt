@@ -22,6 +22,8 @@ class USBPrinterService private constructor(private val mHandler: Handler) {
     private var mUsbDeviceConnection: UsbDeviceConnection? = null
     private var mUsbInterface: UsbInterface? = null
     private var mEndPoint: UsbEndpoint? = null
+    var state: Int = STATE_USB_NONE
+
     private val mUsbDeviceReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
@@ -34,10 +36,12 @@ class USBPrinterService private constructor(private val mHandler: Handler) {
                             "Success get permission for device " + usbDevice!!.deviceId + ", vendor_id: " + usbDevice.vendorId + " product_id: " + usbDevice.productId
                         )
                         mUsbDevice = usbDevice
+                        state = STATE_USB_CONNECTED
                         mHandler.obtainMessage(STATE_USB_CONNECTED).sendToTarget()
                     } else {
                         Toast.makeText(context, "User refused to give USB device permission: " + usbDevice!!.deviceName, Toast.LENGTH_LONG)
                             .show()
+                        state = STATE_USB_NONE
                         mHandler.obtainMessage(STATE_USB_NONE).sendToTarget()
                     }
                 }
@@ -46,6 +50,7 @@ class USBPrinterService private constructor(private val mHandler: Handler) {
                 if (mUsbDevice != null) {
                     Toast.makeText(context, "USB device has been turned off", Toast.LENGTH_LONG).show()
                     closeConnectionIfExists()
+                    state = STATE_USB_NONE
                     mHandler.obtainMessage(STATE_USB_NONE).sendToTarget()
                 }
 
@@ -89,6 +94,7 @@ class USBPrinterService private constructor(private val mHandler: Handler) {
         }
 
     fun selectDevice(vendorId: Int, productId: Int): Boolean {
+//        Log.v(LOG_TAG, " status usb ______ $state")
         if ((mUsbDevice == null) || (mUsbDevice!!.vendorId != vendorId) || (mUsbDevice!!.productId != productId)) {
             synchronized(printLock) {
                 closeConnectionIfExists()
@@ -98,12 +104,15 @@ class USBPrinterService private constructor(private val mHandler: Handler) {
                         Log.v(LOG_TAG, "Request for device: vendor_id: " + usbDevice.vendorId + ", product_id: " + usbDevice.productId)
                         closeConnectionIfExists()
                         mUSBManager!!.requestPermission(usbDevice, mPermissionIndent)
+                        state = STATE_USB_CONNECTING
                         mHandler.obtainMessage(STATE_USB_CONNECTING).sendToTarget()
                         return true
                     }
                 }
                 return false
             }
+        } else {
+            mHandler.obtainMessage(state).sendToTarget()
         }
         return true
     }

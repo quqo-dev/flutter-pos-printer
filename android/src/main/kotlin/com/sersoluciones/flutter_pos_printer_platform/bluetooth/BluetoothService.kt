@@ -160,8 +160,10 @@ class BluetoothService(private val bluetoothHandler: Handler, private val channe
             bluetoothConnect(address, result)
         } else if (bluetoothConnection!!.state == BluetoothConstants.STATE_CONNECTED) {
             result.success(true)
+            bluetoothHandler.obtainMessage(BluetoothConstants.MESSAGE_STATE_CHANGE, bluetoothConnection!!.state, -1).sendToTarget()
         } else {
             result.success(false)
+            bluetoothHandler.obtainMessage(BluetoothConstants.MESSAGE_STATE_CHANGE, bluetoothConnection!!.state, -1).sendToTarget()
         }
     }
 

@@ -148,10 +148,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future _printReceiveTest() async {
-    final profile = await CapabilityProfile.load();
-    final generator = Generator(PaperSize.mm58, profile);
     List<int> bytes = [];
 
+    // Xprinter XP-N160I
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+    // PaperSize.mm80 or PaperSize.mm58
+    final generator = Generator(PaperSize.mm80, profile);
+    bytes += generator.setGlobalCodeTable('CP1252');
     bytes += generator.text('Test Print', styles: const PosStyles(align: PosAlign.center));
     bytes += generator.text('Product 1');
     bytes += generator.text('Product 2');
@@ -184,7 +187,7 @@ class _MyAppState extends State<MyApp> {
                 isBle: bluetoothPrinter.isBle ?? false,
                 autoConnect: _reconnect));
         pendingTask = null;
-        if (Platform.isIOS || Platform.isAndroid) pendingTask = bytes;
+        if (Platform.isAndroid) pendingTask = bytes;
         break;
       case PrinterType.network:
         bytes += generator.feed(2);
@@ -193,7 +196,7 @@ class _MyAppState extends State<MyApp> {
         break;
       default:
     }
-    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth) {
+    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth && Platform.isAndroid) {
       if (_currentStatus == BTStatus.connected) {
         printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
         pendingTask = null;

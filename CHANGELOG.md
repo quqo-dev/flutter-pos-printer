@@ -1,5 +1,9 @@
 ## 1.0.6
 
+* Resolve minor bug [Android] connection
+
+## 1.0.6
+
 * Resolve minor bug windows printer
 
 ## 1.0.5
