@@ -11,10 +11,12 @@ import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import com.sersoluciones.flutter_pos_printer_platform.R
+import io.flutter.plugin.common.MethodChannel
 import java.nio.charset.Charset
 import java.util.*
 
-class USBPrinterService private constructor(private val mHandler: Handler) {
+class USBPrinterService private constructor(private var mHandler: Handler) {
     private var mContext: Context? = null
     private var mUSBManager: UsbManager? = null
     private var mPermissionIndent: PendingIntent? = null
@@ -23,6 +25,10 @@ class USBPrinterService private constructor(private val mHandler: Handler) {
     private var mUsbInterface: UsbInterface? = null
     private var mEndPoint: UsbEndpoint? = null
     var state: Int = STATE_USB_NONE
+
+    fun setHandler(handler: Handler) {
+        mHandler = handler
+    }
 
     private val mUsbDeviceReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -111,9 +117,9 @@ class USBPrinterService private constructor(private val mHandler: Handler) {
                 }
                 return false
             }
-        } else {
-            mHandler.obtainMessage(state).sendToTarget()
         }
+        mHandler.obtainMessage(state).sendToTarget()
+
         return true
     }
 
@@ -256,6 +262,8 @@ class USBPrinterService private constructor(private val mHandler: Handler) {
         fun getInstance(handler: Handler): USBPrinterService {
             if (mInstance == null) {
                 mInstance = USBPrinterService(handler)
+            } else {
+                mInstance?.setHandler(handler)
             }
             return mInstance!!
         }

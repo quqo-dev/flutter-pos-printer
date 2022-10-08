@@ -175,7 +175,6 @@ class _MyAppState extends State<MyApp> {
             type: bluetoothPrinter.typePrinter,
             model: UsbPrinterInput(name: bluetoothPrinter.deviceName, productId: bluetoothPrinter.productId, vendorId: bluetoothPrinter.vendorId));
         pendingTask = null;
-        if (Platform.isAndroid) pendingTask = bytes;
         break;
       case PrinterType.bluetooth:
         bytes += generator.cut();
@@ -198,12 +197,6 @@ class _MyAppState extends State<MyApp> {
     }
     if (bluetoothPrinter.typePrinter == PrinterType.bluetooth && Platform.isAndroid) {
       if (_currentStatus == BTStatus.connected) {
-        printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
-        pendingTask = null;
-      }
-    } else if (bluetoothPrinter.typePrinter == PrinterType.usb && Platform.isAndroid) {
-      // _currentUsbStatus is only supports on Android
-      if (_currentUsbStatus == USBStatus.connected) {
         printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
         pendingTask = null;
       }

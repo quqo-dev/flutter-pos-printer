@@ -15,7 +15,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.Result
 
 
-class BluetoothService(private val bluetoothHandler: Handler, private val channel: MethodChannel) {
+class BluetoothService(private var bluetoothHandler: Handler, private var mChannel: MethodChannel) {
     private var scanning = false
     private val handler = Handler(Looper.getMainLooper())
     private var devicesSink: EventChannel.EventSink? = null
@@ -35,7 +35,12 @@ class BluetoothService(private val bluetoothHandler: Handler, private val channe
     private var devicesBle: MutableList<LocalBluetoothDevice> = mutableListOf()
 
     init {
-        scanning = false;
+        scanning = false
+    }
+
+    fun setChannel(handler: Handler, channel: MethodChannel) {
+        mChannel = channel
+        bluetoothHandler = handler
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +61,7 @@ class BluetoothService(private val bluetoothHandler: Handler, private val channe
             list.add(deviceMap)
             Log.d(TAG, "deviceName $deviceName deviceHardwareAddress $deviceHardwareAddress")
 
-            channel.invokeMethod("ScanResult", deviceMap)
+            mChannel.invokeMethod("ScanResult", deviceMap)
 
 //            currentActivity?.runOnUiThread { channel.invokeMethod("ScanResult", deviceMap) }
 //            devicesSink?.success(deviceMap)
@@ -102,7 +107,7 @@ class BluetoothService(private val bluetoothHandler: Handler, private val channe
         }
     }
 
-    fun cleanHandlerBtBle(){
+    fun cleanHandlerBtBle() {
         handler.removeCallbacksAndMessages(null)
     }
 
@@ -124,7 +129,7 @@ class BluetoothService(private val bluetoothHandler: Handler, private val channe
                 deviceMap["name"] = deviceName
                 deviceMap["address"] = deviceHardwareAddress
                 if (result.device?.name != null)
-                    channel.invokeMethod("ScanResult", deviceMap)
+                    mChannel.invokeMethod("ScanResult", deviceMap)
                 devicesBle.add(deviceBT)
                 Log.d(TAG, "deviceName ${result.device.name} deviceHardwareAddress ${result.device.address}")
 
@@ -231,6 +236,8 @@ class BluetoothService(private val bluetoothHandler: Handler, private val channe
         fun getInstance(bluetoothHandler: Handler, channel: MethodChannel): BluetoothService {
             if (mInstance == null) {
                 mInstance = BluetoothService(bluetoothHandler, channel)
+            } else {
+                mInstance?.setChannel(bluetoothHandler, channel)
             }
             return mInstance!!
         }
