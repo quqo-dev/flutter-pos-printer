@@ -11,12 +11,10 @@ import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
-import com.sersoluciones.flutter_pos_printer_platform.R
-import io.flutter.plugin.common.MethodChannel
 import java.nio.charset.Charset
 import java.util.*
 
-class USBPrinterService private constructor(private var mHandler: Handler) {
+class USBPrinterService private constructor(private var mHandler: Handler?) {
     private var mContext: Context? = null
     private var mUSBManager: UsbManager? = null
     private var mPermissionIndent: PendingIntent? = null
@@ -26,7 +24,7 @@ class USBPrinterService private constructor(private var mHandler: Handler) {
     private var mEndPoint: UsbEndpoint? = null
     var state: Int = STATE_USB_NONE
 
-    fun setHandler(handler: Handler) {
+    fun setHandler(handler: Handler?) {
         mHandler = handler
     }
 
@@ -43,12 +41,12 @@ class USBPrinterService private constructor(private var mHandler: Handler) {
                         )
                         mUsbDevice = usbDevice
                         state = STATE_USB_CONNECTED
-                        mHandler.obtainMessage(STATE_USB_CONNECTED).sendToTarget()
+                        mHandler?.obtainMessage(STATE_USB_CONNECTED)?.sendToTarget()
                     } else {
                         Toast.makeText(context, "User refused to give USB device permission: " + usbDevice!!.deviceName, Toast.LENGTH_LONG)
                             .show()
                         state = STATE_USB_NONE
-                        mHandler.obtainMessage(STATE_USB_NONE).sendToTarget()
+                        mHandler?.obtainMessage(STATE_USB_NONE)?.sendToTarget()
                     }
                 }
             } else if ((UsbManager.ACTION_USB_DEVICE_DETACHED == action)) {
@@ -57,7 +55,7 @@ class USBPrinterService private constructor(private var mHandler: Handler) {
                     Toast.makeText(context, "USB device has been turned off", Toast.LENGTH_LONG).show()
                     closeConnectionIfExists()
                     state = STATE_USB_NONE
-                    mHandler.obtainMessage(STATE_USB_NONE).sendToTarget()
+                    mHandler?.obtainMessage(STATE_USB_NONE)?.sendToTarget()
                 }
 
             } else if ((UsbManager.ACTION_USB_DEVICE_ATTACHED == action)) {
@@ -111,14 +109,15 @@ class USBPrinterService private constructor(private var mHandler: Handler) {
                         closeConnectionIfExists()
                         mUSBManager!!.requestPermission(usbDevice, mPermissionIndent)
                         state = STATE_USB_CONNECTING
-                        mHandler.obtainMessage(STATE_USB_CONNECTING).sendToTarget()
+                        mHandler?.obtainMessage(STATE_USB_CONNECTING)?.sendToTarget()
                         return true
                     }
                 }
                 return false
             }
+        } else {
+            mHandler?.obtainMessage(state)?.sendToTarget()
         }
-        mHandler.obtainMessage(state).sendToTarget()
 
         return true
     }
@@ -262,8 +261,6 @@ class USBPrinterService private constructor(private var mHandler: Handler) {
         fun getInstance(handler: Handler): USBPrinterService {
             if (mInstance == null) {
                 mInstance = USBPrinterService(handler)
-            } else {
-                mInstance?.setHandler(handler)
             }
             return mInstance!!
         }

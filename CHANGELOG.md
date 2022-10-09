@@ -1,3 +1,7 @@
+## 1.0.9
+
+* Resolve minor bug [Android] connection
+
 ## 1.0.8
 
 * Resolve minor bug [Android] connection
