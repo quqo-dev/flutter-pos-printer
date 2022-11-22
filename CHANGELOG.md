@@ -1,3 +1,7 @@
+## 1.0.10
+
+* Now android supports targetSdkVersion 31
+
 ## 1.0.9
 
 * Resolve minor bug [Android] connection

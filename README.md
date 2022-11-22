@@ -52,14 +52,13 @@ Allow to connect bluetooth (classic and BLE), USB and network devices
 ### Change the minSdkVersion for Android
 
 flutter_pos_printer_platform is compatible only from version 21 of Android SDK so you should change this in android/app/build.gradle:
-Note targetSdkVersion must be 30
 
 In build.gradle set
 ```
     defaultConfig {
         ...
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 31
         ...
 ```
 

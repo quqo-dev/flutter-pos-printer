@@ -29,6 +29,7 @@ class _MyAppState extends State<MyApp> {
   StreamSubscription<USBStatus>? _subscriptionUsbStatus;
   BTStatus _currentStatus = BTStatus.none;
   // _currentUsbStatus is only supports on Android
+  // ignore: unused_field
   USBStatus _currentUsbStatus = USBStatus.none;
   List<int>? pendingTask;
   String _ipAddress = '';
