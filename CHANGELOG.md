@@ -1,3 +1,7 @@
+## 1.0.11
+
+* Resolve minor bug dependecies
+
 ## 1.0.10
 
 * Now android supports targetSdkVersion 31
