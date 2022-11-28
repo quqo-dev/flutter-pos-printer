@@ -1,3 +1,7 @@
+## 1.0.12
+
+* Resolve minor bug [Android] 12
+
 ## 1.0.11
 
 * Resolve minor bug dependecies
