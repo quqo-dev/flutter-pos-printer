@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Toast msgs english locale default
+
 ## 1.0.12
 
 * Resolve minor bug [Android] 12

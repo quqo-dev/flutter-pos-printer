@@ -11,6 +11,7 @@ import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import com.sersoluciones.flutter_pos_printer_platform.R
 import java.nio.charset.Charset
 import java.util.*
 
@@ -43,7 +44,7 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
                         state = STATE_USB_CONNECTED
                         mHandler?.obtainMessage(STATE_USB_CONNECTED)?.sendToTarget()
                     } else {
-                        Toast.makeText(context, "User refused to give USB device permission: ${usbDevice?.deviceName}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, mContext?.getString(R.string.user_refuse_perm) + ": ${usbDevice!!.deviceName}", Toast.LENGTH_LONG).show()
                         state = STATE_USB_NONE
                         mHandler?.obtainMessage(STATE_USB_NONE)?.sendToTarget()
                     }
@@ -51,7 +52,7 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
             } else if ((UsbManager.ACTION_USB_DEVICE_DETACHED == action)) {
 
                 if (mUsbDevice != null) {
-                    Toast.makeText(context, "USB device has been turned off", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, mContext?.getString(R.string.device_off), Toast.LENGTH_LONG).show()
                     closeConnectionIfExists()
                     state = STATE_USB_NONE
                     mHandler?.obtainMessage(STATE_USB_NONE)?.sendToTarget()
@@ -94,7 +95,7 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
     val deviceList: List<UsbDevice>
         get() {
             if (mUSBManager == null) {
-                Toast.makeText(mContext, "USB Manager is not initialized while trying to get devices list", Toast.LENGTH_LONG).show()
+                Toast.makeText(mContext, mContext?.getString(R.string.not_usb_manager), Toast.LENGTH_LONG).show()
                 return emptyList()
             }
             return ArrayList(mUSBManager!!.deviceList.values)
@@ -148,7 +149,7 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
                         Log.e(LOG_TAG, "Failed to open USB Connection")
                         return false
                     }
-                    Toast.makeText(mContext, "Device connected", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mContext, mContext?.getString(R.string.connected_device), Toast.LENGTH_SHORT).show()
                     return if (usbDeviceConnection.claimInterface(usbInterface, true)) {
                         mEndPoint = ep
                         mUsbInterface = usbInterface

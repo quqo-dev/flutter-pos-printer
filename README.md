@@ -1,6 +1,6 @@
 # flutter_pos_printer_platform
 
-[![Pub Version](https://img.shields.io/badge/pub-v1.0.12-green)](https://pub.dev/packages/flutter_pos_printer_platform)
+[![Pub Version](https://img.shields.io/badge/pub-v1.1.0-green)](https://pub.dev/packages/flutter_pos_printer_platform)
 
 A library to discover printers, and send printer commands.
 
