@@ -1,8 +1,7 @@
 import 'dart:core';
 import 'dart:typed_data';
-
 import 'package:flutter_pos_printer_platform/printer.dart';
-import 'package:image/image.dart';
+import 'package:image/image.dart' as img;
 
 import '../utils.dart';
 
@@ -183,7 +182,7 @@ class TsplPrinter<T> extends GenericPrinter<T> {
 
   @override
   Future<bool> image(Uint8List image, {int threshold = 150}) async {
-    final decodedImage = decodeImage(image)!;
+    final decodedImage = img.decodeImage(image)!;
     final rasterizeImage = _toRaster(decodedImage, dpi: int.parse(dpi));
     final converted = toPixel(ImageData(width: decodedImage.width, height: decodedImage.height),
         paperWidth: int.parse(_sizeWidth), dpi: int.parse(dpi), isTspl: true);
@@ -207,18 +206,18 @@ class TsplPrinter<T> extends GenericPrinter<T> {
     }, delayMs: ms);
   }
 
-  ImageRaster _toRaster(Image imgSrc, {int dpi = 200}) {
+  ImageRaster _toRaster(img.Image imgSrc, {int dpi = 200}) {
     // 200 DPI : 1 mm = 8 dots
     // 300 DPI : 1 mm = 12 dots
     // width 35mm = 280px
     // height 25mm = 200px
     final int multiplier = dpi == 200 ? 8 : 12;
-    final Image image = copyResize(imgSrc,
-        width: int.parse(this._sizeWidth) * multiplier, height: int.parse(this._sizeHeight) * multiplier, interpolation: Interpolation.linear);
+    final img.Image image = img.copyResize(imgSrc,
+        width: int.parse(this._sizeWidth) * multiplier, height: int.parse(this._sizeHeight) * multiplier, interpolation: img.Interpolation.linear);
     final int widthPx = image.width;
     final int heightPx = image.height;
     final int widthBytes = widthPx ~/ 8; // one byte is 8 bits
-    final List<int> imageBytes = image.getBytes(format: Format.argb);
+    final List<int> imageBytes = image.getBytes(order: img.ChannelOrder.argb);
 
     List<int> monoPixel = [];
     for (int i = 0; i < imageBytes.length; i += 4) {

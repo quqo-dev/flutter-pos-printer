@@ -1,3 +1,7 @@
+## 1.1.1
+
+* update dependencies
+
 ## 1.1.0
 
 * Toast msgs english locale default

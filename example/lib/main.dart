@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
 void main() {
@@ -153,12 +153,27 @@ class _MyAppState extends State<MyApp> {
 
     // Xprinter XP-N160I
     final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
     // PaperSize.mm80 or PaperSize.mm58
-    final generator = Generator(PaperSize.mm80, profile);
+    final generator = Generator(PaperSize.mm58, profile);
     bytes += generator.setGlobalCodeTable('CP1252');
-    bytes += generator.text('Test Print', styles: const PosStyles(align: PosAlign.center));
-    bytes += generator.text('Product 1');
-    bytes += generator.text('Product 2');
+    // bytes += generator.text('Test Print', styles: const PosStyles(align: PosAlign.left));
+    // bytes += generator.text('Product 1');
+    // bytes += generator.text('Product 2');
+
+    bytes += generator.text('豚肉・木耳と玉子炒め弁当', containsChinese: true, styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.emptyLines(1);
+
+    // bytes += generator.customRow([
+    //   PosColumn(width: 8, text: '豚肉・木耳と玉子炒め弁当', styles: PosStyles(align: PosAlign.left), containsChinese: true),
+    //   PosColumn(width: 4, text: '￥1,990', styles: PosStyles(align: PosAlign.right), containsChinese: true),
+    // ]);
+
+    // bytes += generator.customRow([
+    //   PosColumn(
+    //       width: 8, text: 'Lima limon calidad exportacion por libra x 5 unidades', styles: PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    //   PosColumn(width: 4, text: 'USD 2.00', styles: PosStyles(align: PosAlign.right, codeTable: 'CP1252')),
+    // ]);
 
     _printEscPos(bytes, generator);
   }
@@ -178,7 +193,7 @@ class _MyAppState extends State<MyApp> {
         pendingTask = null;
         break;
       case PrinterType.bluetooth:
-        bytes += generator.cut();
+        // bytes += generator.cut();
         await printerManager.connect(
             type: bluetoothPrinter.typePrinter,
             model: BluetoothPrinterInput(
