@@ -23,12 +23,8 @@ class PosColumn {
     if (width < 1 || width > 12) {
       throw Exception('Column width must be between 1..12');
     }
-    if (text != null &&
-        text.length > 0 &&
-        textEncoded != null &&
-        textEncoded!.length > 0) {
-      throw Exception(
-          'Only one parameter - text or textEncoded - should be passed');
+    if (text.length > 0 && textEncoded != null && textEncoded!.length > 0) {
+      throw Exception('Only one parameter - text or textEncoded - should be passed');
     }
   }
 

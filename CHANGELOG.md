@@ -1,3 +1,8 @@
+## 1.2.0
+
+* update image dependency to 4.x.x
+* using custom generator library
+
 ## 1.1.1
 
 * update dependencies

@@ -42,7 +42,7 @@ class CapabilityProfile {
   List<CodePage> codePages;
 
   int getCodePageId(String? codePage) {
-    if (codePages == null || codePages.isEmpty) {
+    if (codePages.isEmpty) {
       throw Exception("The CapabilityProfile isn't initialized");
     }
 

@@ -51,15 +51,15 @@ class Generator {
 
   int _getCharsPerLine(PosStyles styles, int? maxCharsPerLine) {
     int charsPerLine;
-    // if (maxCharsPerLine != null) {
-    //   charsPerLine = maxCharsPerLine;
-    // } else {
-    if (styles.fontType != null) {
-      charsPerLine = _getMaxCharsPerLine(styles.fontType);
+    if (maxCharsPerLine != null) {
+      charsPerLine = maxCharsPerLine;
     } else {
-      charsPerLine = _maxCharsPerLine ?? _getMaxCharsPerLine(_styles.fontType);
+      if (styles.fontType != null) {
+        charsPerLine = _getMaxCharsPerLine(styles.fontType);
+      } else {
+        charsPerLine = _maxCharsPerLine ?? _getMaxCharsPerLine(_styles.fontType);
+      }
     }
-    // }
     return charsPerLine;
   }
 
@@ -137,7 +137,7 @@ class Generator {
 
     // Create a black bottom layer
     final biggerImage = img.copyResize(image, width: widthPx, height: heightPx);
-    img.fill(biggerImage, color: img.ColorRgb8(0, 0, 0));
+    img.fill(biggerImage, color: img.ColorRgb8(255, 255, 255));
     // Insert source image into bigger one
     drawImage(biggerImage, image, dstX: 0, dstY: 0);
 
@@ -299,12 +299,12 @@ class Generator {
     }
 
     // Set local code table
-    if (styles.codeTable != null) {
+    if (styles.codeTable != null && _styles.codeTable != styles.codeTable) {
       bytes += Uint8List.fromList(
         List.from(cCodeTable.codeUnits)..add(_profile.getCodePageId(styles.codeTable)),
       );
       _styles = _styles.copyWith(align: styles.align, codeTable: styles.codeTable);
-    } else if (_codeTable != null) {
+    } else if (_codeTable != null && _styles.codeTable != _codeTable) {
       bytes += Uint8List.fromList(
         List.from(cCodeTable.codeUnits)..add(_profile.getCodePageId(_codeTable)),
       );
@@ -441,7 +441,7 @@ class Generator {
   ///
   /// A row contains up to 12 columns. A column has a width between 1 and 12.
   /// Total width of columns in one row must be equal 12.
-  List<int> row(List<PosColumn> cols) {
+  List<int> oldRrow(List<PosColumn> cols) {
     List<int> bytes = [];
     final isSumValid = cols.fold(0, (int sum, col) => sum + col.width) == 12;
     if (!isSumValid) {
@@ -535,11 +535,32 @@ class Generator {
     return bytes;
   }
 
+  List<int> textLeftRight(String leftText, String rightText, {bool containsChinese = false}) {
+    /// Portuguese
+    // var encTxt1 = await CharsetConverter.encode("UTF-8", leftText);
+    return row([
+      PosColumn(
+          text: leftText,
+          // textEncoded: encTxt1,
+          width: 8,
+          containsChinese: containsChinese,
+          styles: const PosStyles(
+            align: PosAlign.left,
+          )),
+      PosColumn(
+        text: rightText,
+        width: 4,
+        containsChinese: containsChinese,
+        styles: const PosStyles(align: PosAlign.right),
+      ),
+    ]);
+  }
+
   /// Print a row.
   ///
   /// A row contains up to 12 columns. A column has a width between 1 and 12.
   /// Total width of columns in one row must be equal 12.
-  List<int> customRow(List<PosColumn> cols) {
+  List<int> row(List<PosColumn> cols) {
     List<int> bytes = [];
     final isSumValid = cols.fold(0, (int sum, col) => sum + col.width) == 12;
     if (!isSumValid) {
@@ -550,6 +571,7 @@ class Generator {
 
     for (int i = 0; i < cols.length; ++i) {
       int colInd = cols.sublist(0, i).fold(0, (int sum, col) => sum + col.width);
+      // print(' ---------- colInd $colInd col.width ${cols[0].width}');
       double charWidth = _getCharWidth(cols[i].styles);
       double fromPos = _colIndToPosition(colInd);
       double toPos = _colIndToPosition(colInd + cols[i].width) - spaceBetweenRows;
@@ -562,10 +584,6 @@ class Generator {
         // If the col's content is too long, split it to the next row
         int realCharactersNb = encodedToPrint.length;
         if (realCharactersNb > maxCharactersNb) {
-          fromPos = _colIndToPosition(colInd);
-          toPos = _colIndToPosition(colInd + 11) - spaceBetweenRows;
-          maxCharactersNb = ((toPos - fromPos) / charWidth).floor();
-
           // Print max possible and split to the next row
           Uint8List encodedToPrintNextRow = realCharactersNb < maxCharactersNb ? encodedToPrint : encodedToPrint.sublist(maxCharactersNb);
           encodedToPrint = realCharactersNb < maxCharactersNb ? encodedToPrint : encodedToPrint.sublist(0, maxCharactersNb);
@@ -577,22 +595,25 @@ class Generator {
             nextRow.add(PosColumn(text: '', width: cols[i].width, styles: cols[i].styles));
           }
 
-          // if (isNextRow)
           // end rows splitting
-          bytes += text(
-            ' ${String.fromCharCodes(encodedToPrint)}',
+          bytes += _text(
+            encodedToPrint,
             styles: cols[i].styles,
-            linesAfter: 0,
+            colInd: colInd,
+            colWidth: cols[i].width,
             // maxCharsPerLine: maxCharactersNb,
           );
           isNextRow = true;
         } else {
-          if (i == cols.length - 1) {
-            nextRow.add(PosColumn(text: cols[i].text, width: cols[i].width, styles: cols[i].styles));
-          } else {
-            // Insert an empty col
-            nextRow.add(PosColumn(text: '', width: cols[i].width, styles: cols[i].styles));
-          }
+          bytes += _text(
+            _encode(cols[i].text),
+            styles: cols[i].styles,
+            colInd: colInd,
+            colWidth: cols[i].width,
+            // maxCharsPerLine: maxCharactersNb,
+          );
+          // Insert an empty col
+          nextRow.add(PosColumn(text: '', width: cols[i].width, styles: cols[i].styles));
         }
       } else {
         // CASE 1: containsChinese = true
@@ -600,9 +621,7 @@ class Generator {
         var splitPos = _spltChineseCharacters(maxCharactersNb, originalText);
 
         String toPrint = originalText.substring(0, splitPos);
-        print('----------- toPrint $toPrint splitPos $splitPos');
         String toPrintNextRow = originalText.substring(splitPos);
-        // print('----------- toPrintNextRow $toPrintNextRow splitPos $splitPos');
         //  '豚肉・木耳と玉子炒め弁当'
         if (toPrintNextRow.isNotEmpty) {
           isNextRow = true;
@@ -613,34 +632,23 @@ class Generator {
         }
         if (toPrint.isNotEmpty) {
           // Print current row
-          final list = _getLexemes(toPrint);
-          final List<String> lexemes = list[0];
-          final List<bool> isLexemeChinese = list[1];
-
-          // Print each lexeme using codetable OR kanji
-          for (var j = 0; j < lexemes.length; ++j) {
-            bytes += _text(
-              _encode(lexemes[j], isKanji: isLexemeChinese[j]),
-              styles: cols[i].styles,
-              colInd: colInd,
-              colWidth: cols[i].width,
-              isKanji: isLexemeChinese[j],
-            );
-            // Define the absolute position only once (we print one line only)
-            // colInd = null;
-          }
+          bytes += _text(
+            _encode(toPrint, isKanji: true),
+            styles: cols[i].styles,
+            colInd: colInd,
+            colWidth: cols[i].width,
+            isKanji: true,
+          );
         }
       }
     }
 
-    // bytes += emptyLines(1);
+    bytes += emptyLines(1);
 
     if (isNextRow) {
-      // bytes += emptyLines(1);
-      bytes += customRow(nextRow);
-    } else {
-      bytes += row(cols);
+      bytes += row(nextRow);
     }
+
     return bytes;
   }
 
@@ -676,6 +684,7 @@ class Generator {
     img.flip(image, direction: img.FlipDirection.horizontal);
     final img.Image imageRotated = img.copyRotate(image, angle: 270);
 
+    // ignore: dead_code
     const int lineHeight = highDensityVertical ? 3 : 1;
     final List<List<int>> blobs = _toColumnFormat(imageRotated, lineHeight * 8);
 
@@ -688,6 +697,7 @@ class Generator {
     }
 
     final int heightPx = imageRotated.height;
+    // ignore: dead_code
     const int densityByte = (highDensityHorizontal ? 1 : 0) + (highDensityVertical ? 32 : 0);
 
     final List<int> header = List.from(cBitImg.codeUnits);
@@ -913,7 +923,6 @@ class Generator {
     // Print each lexeme using codetable OR kanji
     int? colInd = 0;
     for (var i = 0; i < lexemes.length; ++i) {
-      print(' ----------- text ${lexemes[i]} ----------- ');
       bytes += _text(
         _encode(lexemes[i], isKanji: isLexemeChinese[i]),
         styles: styles,

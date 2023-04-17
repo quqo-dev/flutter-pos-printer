@@ -1,6 +1,6 @@
 # flutter_pos_printer_platform
 
-[![Pub Version](https://img.shields.io/badge/pub-v1.1.1-green)](https://pub.dev/packages/flutter_pos_printer_platform)
+[![Pub Version](https://img.shields.io/badge/pub-v1.2.0-green)](https://pub.dev/packages/flutter_pos_printer_platform)
 
 A library to discover printers, and send printer commands.
 
@@ -68,6 +68,21 @@ if select bluetooth you can send optional params
 
 - isBle -> allow to connect with bluetooth that supports this technology
 - autoconnect -> allow to reconnect when state of device is None
+
+USB: you can enable the native broadcast receiver to notify connected usb devices
+put the following code in AndroidManifest
+```
+   <receiver
+        android:name="com.sersoluciones.flutter_pos_printer_platform.usb.UsbReceiver"
+        android:exported="false">
+
+        <intent-filter>
+            <action android:name="android.hardware.usb.action.ACTION_USB_PERMISSION" />
+            <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            
+        </intent-filter>
+    </receiver>
+```
 
 ## iOS
 Allow to connect bluetooth (BLE) and network devices
