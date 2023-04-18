@@ -6,10 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 import 'package:image/image.dart' as img;
-
+import 'package:dart_ping_ios/dart_ping_ios.dart';
 import 'image_utils.dart';
 
 void main() {
+  // Register DartPingIOS
+  if (Platform.isIOS) {
+    DartPingIOS.register();
+  }
   runApp(const MyApp());
 }
 
@@ -31,7 +35,10 @@ class _MyAppState extends State<MyApp> {
   StreamSubscription<PrinterDevice>? _subscription;
   StreamSubscription<BTStatus>? _subscriptionBtStatus;
   StreamSubscription<USBStatus>? _subscriptionUsbStatus;
+  StreamSubscription<TCPStatus>? _subscriptionTCPStatus;
   BTStatus _currentStatus = BTStatus.none;
+  // ignore: unused_field
+  TCPStatus _currentTCPStatus = TCPStatus.none;
   // _currentUsbStatus is only supports on Android
   // ignore: unused_field
   USBStatus _currentUsbStatus = USBStatus.none;
@@ -88,6 +95,12 @@ class _MyAppState extends State<MyApp> {
         }
       }
     });
+
+    //  PrinterManager.instance.stateUSB is only supports on Android
+    _subscriptionTCPStatus = PrinterManager.instance.stateTCP.listen((status) {
+      log(' ----------------- status tcp $status ------------------ ');
+      _currentTCPStatus = status;
+    });
   }
 
   @override
@@ -95,6 +108,7 @@ class _MyAppState extends State<MyApp> {
     _subscription?.cancel();
     _subscriptionBtStatus?.cancel();
     _subscriptionUsbStatus?.cancel();
+    _subscriptionTCPStatus?.cancel();
     _portController.dispose();
     _ipController.dispose();
     super.dispose();
@@ -170,10 +184,7 @@ class _MyAppState extends State<MyApp> {
 
     // sum width total column must be 12
     bytes += generator.row([
-      PosColumn(
-          width: 8,
-          text: 'Lima limon calidad exportacion por libra x 5 unidades',
-          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(width: 8, text: 'Lemon lime export quality per pound x 5 units', styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
       PosColumn(width: 4, text: 'USD 2.00', styles: const PosStyles(align: PosAlign.right, codeTable: 'CP1252')),
     ]);
 
@@ -203,7 +214,7 @@ class _MyAppState extends State<MyApp> {
       bytes += generator.feed(1);
     }
 
-    // Chinese characters
+    // // Chinese characters
     bytes += generator.row([
       PosColumn(width: 8, text: '豚肉・木耳と玉子炒め弁当', styles: const PosStyles(align: PosAlign.left), containsChinese: true),
       PosColumn(width: 4, text: '￥1,990', styles: const PosStyles(align: PosAlign.right), containsChinese: true),
@@ -213,6 +224,7 @@ class _MyAppState extends State<MyApp> {
 
   /// print ticket
   void _printEscPos(List<int> bytes, Generator generator) async {
+    var connectedTCP = false;
     if (selectedPrinter == null) return;
     var bluetoothPrinter = selectedPrinter!;
 
@@ -240,7 +252,8 @@ class _MyAppState extends State<MyApp> {
       case PrinterType.network:
         bytes += generator.feed(2);
         bytes += generator.cut();
-        await printerManager.connect(type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+        connectedTCP = await printerManager.connect(type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+        if (!connectedTCP) print(' --- please review your connection ---');
         break;
       default:
     }

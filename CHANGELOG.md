@@ -1,3 +1,7 @@
+## 1.3.0
+
+* listen stream tcp connection
+
 ## 1.2.0
 
 * update image dependency to 4.x.x
