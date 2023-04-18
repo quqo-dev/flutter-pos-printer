@@ -144,14 +144,20 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
   /// [delayMs]: milliseconds to wait after destroying the socket
   @override
   Future<bool> disconnect({int? delayMs}) async {
-    // _socket.destroy();
-    await _socket?.flush();
-    _socket?.destroy();
+    try {
+      // await _socket?.flush();
+      _socket?.destroy();
 
-    if (delayMs != null) {
-      await Future.delayed(Duration(milliseconds: delayMs), () => null);
+      if (delayMs != null) {
+        await Future.delayed(Duration(milliseconds: delayMs), () => null);
+      }
+      return true;
+    } catch (e) {
+      _socket?.destroy();
+      status = TCPStatus.none;
+      _statusStreamController.add(status);
+      return false;
     }
-    return true;
   }
 
   /// Gets the current state of the TCP module

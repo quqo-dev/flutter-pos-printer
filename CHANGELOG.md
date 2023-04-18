@@ -1,3 +1,7 @@
+## 1.3.1
+
+* bug disconnect tcp
+
 ## 1.3.0
 
 * listen stream tcp connection
