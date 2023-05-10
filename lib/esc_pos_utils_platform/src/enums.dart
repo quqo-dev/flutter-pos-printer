@@ -7,8 +7,11 @@
  */
 
 enum PosAlign { left, center, right }
+
 enum PosCutMode { full, partial }
+
 enum PosFontType { fontA, fontB }
+
 enum PosDrawer { pin2, pin5 }
 
 /// Choose image printing function
@@ -29,7 +32,7 @@ class PosTextSize {
   static const size8 = PosTextSize._internal(8);
 
   static int decSize(PosTextSize height, PosTextSize width) =>
-      16 * (width.value - 1) + (height.value - 1);
+      12 * (width.value - 1) + (height.value - 1);
 }
 
 class PaperSize {
@@ -37,8 +40,26 @@ class PaperSize {
   final int value;
   static const mm58 = PaperSize._internal(1);
   static const mm80 = PaperSize._internal(2);
+  static const mmCustom = PaperSize._internal(3);
 
-  int get width => value == PaperSize.mm58.value ? 372 : 558;
+  int get width {
+    switch (value) {
+      case 1:
+        return 372;
+      case 2:
+        return 558;
+      case 3:
+        return 500;
+      default:
+        return 0;
+    }
+  }
+
+  // int get width => value == PaperSize.mm58.value
+  //     ? 372
+  //     : value == PaperSize.mm80.value
+  //         ? 558
+  //         : 455;
 }
 
 class PosBeepDuration {

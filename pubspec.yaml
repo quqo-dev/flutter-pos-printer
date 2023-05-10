@@ -4,7 +4,7 @@ version: 1.3.1
 homepage: https://github.com/arthas1888/flutter_pos_printer_platform
 
 environment:
-  sdk: '>=2.18.4 <3.3.10'
+  sdk: ">=2.18.4 <3.3.10"
   flutter: ">=1.20.0"
 
 dependencies:
@@ -24,7 +24,7 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
-    sdk: flutter  
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -48,7 +48,7 @@ flutter:
   assets:
     - assets/resources/capabilities.json
     - packages/flutter_pos_printer_platform/resources/capabilities.json
-    
+
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

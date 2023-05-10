@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  charset_converter
   flutter_pos_printer_platform
   network_info_plus
 )

@@ -9,4 +9,8 @@ export './src/printers/star.dart';
 export './src/printers/tspl.dart';
 export './printer.dart';
 export './src/printer_manager.dart';
+export './src/printer_commander.dart';
 export './src/models/printer_device.dart';
+export './src/models/bluetooth_printer.dart';
+export './src/models/dksh_bill.dart';
+export './src/models/sample_models.dart';
