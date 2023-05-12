@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/capability_profile.dart';
+import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/commands.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/enums.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/generator.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_column.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styles.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
-enum BillType { Dksh }
+import 'models/ddc_bill.dart';
+
+enum BillType { Dksh, Ddc }
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -19,7 +22,16 @@ class PrinterCommander {
   }) {
     switch (billType) {
       case BillType.Dksh:
+        if (!(data is DkshBillModel)) {
+          throw FormatException('Error. Type is invalid');
+        }
         _printDkshBill(data, bluetoothPrinter);
+        break;
+      case BillType.Ddc:
+        if (!(data is DdcBillModel)) {
+          throw FormatException('Error. Type is invalid');
+        }
+        _printDdcBill(data, bluetoothPrinter);
         break;
       default:
         throw UnimplementedError();
@@ -235,6 +247,306 @@ class PrinterCommander {
 
     bytes += generator.text(getTabs(4) + data.deliveryAt);
     bytes += generator.text(getTabs(4) + data.deliveryAddress);
+
+    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+  }
+
+  static void _printDdcBill(
+    DdcBillModel data,
+    BluetoothPrinter bluetoothPrinter,
+  ) async {
+    List<int> bytes = [];
+
+    // Xprinter XP-N160I
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
+    final generator = Generator(PaperSize.mmCustom, profile);
+    generator.setGlobalFont(
+      PosFontType.fontA,
+      maxCharsPerLine: 1000,
+      isSmallFont: true,
+    );
+
+    bytes += generator.emptyLines(1);
+
+    // Header section
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page ${data.page}', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(19) + 'BILL REGISTER REPORT (DDC)',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(12) +
+            'Date Created From ${data.dateCreatedFrom} To ${data.dateCreatedTo} | Status ALL',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'NO'),
+      PosColumn(width: 1, text: 'DATE'),
+      PosColumn(width: 1, text: getTabs(3) + ' ' + 'CUST'),
+      PosColumn(width: 1, text: getTabs(2) + ' ' + 'NAME'),
+      PosColumn(width: 1, text: getTabs(7) + getRightAlignedText('PRICE', 11)),
+      PosColumn(
+          width: 1, text: getTabs(8) + ' ' + getRightAlignedText('D/I', 8)),
+      PosColumn(
+          width: 1, text: getTabs(6) + ' ' + getRightAlignedText('D/O', 8)),
+      PosColumn(
+          width: 1, text: getTabs(5) + getRightAlignedText('NET_AMT', 10)),
+      PosColumn(
+          width: 1, text: getTabs(5) + ' ' + getRightAlignedText('TAX', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TOT', 9)),
+      PosColumn(width: 1, text: getTabs(4) + ' ' + 'ST'),
+      PosColumn(width: 1, text: ' ' + 'L'),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    // 1st table
+    for (final customerPrice in data.customerPriceList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: customerPrice.no),
+        PosColumn(width: 1, text: customerPrice.date),
+        PosColumn(width: 1, text: getTabs(3) + ' ' + customerPrice.customerId),
+        PosColumn(
+            width: 1, text: getTabs(2) + ' ' + customerPrice.customerName),
+        PosColumn(
+            width: 1,
+            text: getTabs(7) + getRightAlignedText(customerPrice.price, 11)),
+        PosColumn(
+            width: 1,
+            text: getTabs(8) +
+                ' ' +
+                getRightAlignedText(customerPrice.diValue, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(6) +
+                ' ' +
+                getRightAlignedText(customerPrice.doValue, 8)),
+        PosColumn(
+            width: 1,
+            text:
+                getTabs(5) + getRightAlignedText(customerPrice.netAmount, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + ' ' + getRightAlignedText(customerPrice.tax, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(customerPrice.total, 9)),
+        PosColumn(width: 1, text: ' ' + getTabs(4) + customerPrice.st),
+        PosColumn(width: 1, text: ' ' + customerPrice.l),
+      ]);
+    }
+
+    bytes += generator.hr(len: 120);
+
+    // 2nd table
+    for (final bill in data.billStatusList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: 'STATUS ${bill.name}'),
+        PosColumn(width: 1, text: '${bill.quantity} BILL'),
+        PosColumn(width: 1, text: getTabs(3) + ' ' + 'TOTAL==>'),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1, text: getTabs(7) + getRightAlignedText(bill.price, 11)),
+        PosColumn(
+            width: 1,
+            text: getTabs(8) + ' ' + getRightAlignedText(bill.diValue, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(6) + ' ' + getRightAlignedText(bill.doValue, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(bill.netAmount, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + ' ' + getRightAlignedText(bill.tax, 8)),
+        PosColumn(
+            width: 1, text: getTabs(5) + getRightAlignedText(bill.total, 9)),
+        PosColumn(width: 1),
+        PosColumn(width: 1, text: ' ' + getRightAlignedText(bill.quantity, 3)),
+      ]);
+    }
+
+    bytes += generator.hr(len: 120);
+
+    // 3rd table
+    for (final payment in data.paymentTypeList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: payment.name),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1,
+            text: getTabs(3) + ' TOTAL==>BATCH NO.:${payment.batchNo}'),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1,
+            text: getTabs(7) + getRightAlignedText(payment.price, 11)),
+        PosColumn(
+            width: 1,
+            text: getTabs(8) + ' ' + getRightAlignedText(payment.diValue, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(6) + ' ' + getRightAlignedText(payment.doValue, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(payment.netAmount, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + ' ' + getRightAlignedText(payment.tax, 8)),
+        PosColumn(
+            width: 1, text: getTabs(5) + getRightAlignedText(payment.total, 9)),
+        PosColumn(width: 1),
+        PosColumn(width: 1, text: ' ' + getRightAlignedText(payment.l, 3)),
+      ]);
+    }
+
+    for (final visitCustomer in data.visitCustomerList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: visitCustomer.name),
+        PosColumn(width: 1),
+        PosColumn(width: 1, text: getTabs(3) + ' TOTAL==>'),
+        PosColumn(width: 1),
+        PosColumn(
+          width: 8,
+          text: getRightAlignedText(visitCustomer.soldAmount, 4) +
+              getRightAlignedText('(${visitCustomer.soldPercent}%)', 9) +
+              'SOLD  ' +
+              getRightAlignedText(visitCustomer.orderAmount, 4) +
+              getRightAlignedText('(${visitCustomer.orderPercent}%)', 9) +
+              'ORDER  ' +
+              getRightAlignedText(visitCustomer.notSoldAmount, 4) +
+              getRightAlignedText('(${visitCustomer.notSoldPercent}%)', 9) +
+              'NOT SOLD/ ' +
+              visitCustomer.total,
+        ),
+      ]);
+    }
+
+    bytes += generator.hr(len: 120);
+
+    // 4th table
+    bytes += generator.text(
+      'ADJ = ${data.adjCode}' +
+          getTabs(2) +
+          'BILL = ${data.billCode}' +
+          getTabs(2) +
+          'BILLD = ${data.billDCode}' +
+          getTabs(2) +
+          'INT = ${data.intCode}' +
+          getTabs(2) +
+          'TRN = ${data.trnCode}',
+    );
+
+    bytes += generator.text('*** Payment by Transporter(s) ***');
+
+    for (final paymentByTransporter in data.paymentByTransporterList) {
+      // last row
+      if (paymentByTransporter.secondName == 'Total') {
+        bytes += generator.hr(len: 120);
+      }
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: paymentByTransporter.firstName),
+        PosColumn(width: 1, text: paymentByTransporter.secondName),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1,
+            text: paymentByTransporter.quantity.isEmpty
+                ? ''
+                : '(${paymentByTransporter.quantity})'),
+        PosColumn(
+            width: 1,
+            text: getRightAlignedText(paymentByTransporter.price, 12)),
+        PosColumn(
+            width: 7, text: getTabs(4) + '(${paymentByTransporter.total})'),
+      ]);
+    }
+
+    bytes += generator.text('*** Order Summary(s) ***');
+
+    for (final orderSummary in data.orderSummaryList) {
+      // last row
+      if (orderSummary.secondName == 'Total') {
+        bytes += generator.hr(len: 120);
+      }
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: orderSummary.firstName),
+        PosColumn(width: 1, text: orderSummary.secondName),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1,
+            text: orderSummary.quantity.isEmpty
+                ? ''
+                : '(${orderSummary.quantity})'),
+        PosColumn(width: 1, text: getRightAlignedText(orderSummary.price, 12)),
+        PosColumn(width: 7, text: getTabs(4) + '(${orderSummary.total})'),
+      ]);
+    }
+
+    bytes += generator.hr(len: 120);
+
+    // templates
+    bytes += generator.text(
+        'CASH SALES   - Running Number FORM-USAGE FROM.................. TO .................. TOTAL...... BILL(S)');
+    bytes += generator.text(
+        '             - Running Number FORM-CANCELATION NO.................................... TOTAL...... BILL(S)');
+    bytes += generator.text(
+        'CREDIT SALES - Running Number FORM-USAGE FROM.................. TO .................. TOTAL...... BILL(S)');
+    bytes += generator.text(
+        '             - Running Number FORM-CANCELATION NO.................................... TOTAL...... BILL(S)');
+    bytes += generator.text(
+        'NOTE: THE RUNNING NUMBER FROM IS AT THE RIGHT BOTTOM OF INVOICE');
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.text(
+        'Collection Sheet.............A' + getTabs(2) + 'Text.............A');
+    bytes += generator.text(
+        'Sample text.............text.............text.............A Text.............text   Sample text.............bath');
+    bytes += generator.text(
+        'Sample text.............text.............text.............A Text.............text');
+    bytes +=
+        generator.text('Sample text.............Sample text.............bath');
+    bytes += generator.text(
+        'Sample text.............Sample text.............bath Sample text.............bath Sample text.............');
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.text('Total balance  ${data.totalBalance}  bath');
+    bytes += generator.text('Total cash balance  ${data.totalCashBalance}  bath' +
+        getTabs(2) +
+        'Cash payment........................................................bath');
+    bytes += generator.text('Total credit balance  ${data.creditBalance}  bath' +
+        getTabs(2) +
+        'Credit card payment slip amount........  Leaves value...............bath');
+    bytes += generator.text(
+        'Pay by............................  Get paid by............................');
+
+    bytes += generator.hr(len: 120);
 
     _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
   }

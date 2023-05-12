@@ -54,12 +54,6 @@ class PaperSize {
         return 0;
     }
   }
-
-  // int get width => value == PaperSize.mm58.value
-  //     ? 372
-  //     : value == PaperSize.mm80.value
-  //         ? 558
-  //         : 455;
 }
 
 class PosBeepDuration {
