@@ -1,3 +1,5 @@
+import 'package:flutter_pos_printer_platform/src/models/dssr_bill.dart';
+
 import 'ddc_bill.dart';
 import 'dksh_bill.dart';
 
@@ -277,4 +279,60 @@ final sampleDdcBillModel = DdcBillModel(
   totalBalance: '26,036.10',
   totalCashBalance: '26,036.10',
   creditBalance: '0.00',
+);
+
+final sampleDssrBillModel = DssrBillModel(
+  page: '1',
+  smNumber: 'S/M 10351241',
+  date: '08/02/02023',
+  time: '08:34:37',
+  selectedDate: '08/02/2023',
+  stockList: <StockModel>[
+    StockModel(
+      id: '100845611',
+      name: 'ADVANCE 2T SX2 12X1L',
+      wh: '8A64',
+      perPack: '12',
+      openBal: '2/3',
+      sale: '0/0',
+      goodsReturn: '0/0',
+      transfIn: '0/0',
+      transfOut: '0/0',
+      focX: '0/0',
+      focY: '0/0',
+      closeBal: '2/3',
+      onhand: '2/3',
+    ),
+    StockModel(
+      id: '100845224',
+      name: 'ADVANCE 4T AX3 40SF 12X0.8L',
+      wh: '8A64',
+      perPack: '12',
+      openBal: '5/0',
+      sale: '0/0',
+      goodsReturn: '0/0',
+      transfIn: '0/0',
+      transfOut: '0/0',
+      focX: '0/0',
+      focY: '0/0',
+      closeBal: '5/0',
+      onhand: '5/0',
+    ),
+    StockModel(
+      id: '100845224',
+      name: 'ADVANCE 4T AX3 40SF 12X0.8L.3X',
+      wh: '8A64',
+      perPack: '24',
+      openBal: '2/16',
+      sale: '0/0',
+      goodsReturn: '0/0',
+      transfIn: '0/0',
+      transfOut: '0/0',
+      focX: '0/0',
+      focY: '0/0',
+      closeBal: '2/16',
+      onhand: '2/16',
+    ),
+  ],
+  total: '3',
 );

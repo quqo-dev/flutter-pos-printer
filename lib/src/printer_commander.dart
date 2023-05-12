@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/capability_profile.dart';
-import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/commands.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/enums.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/generator.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_column.dart';
@@ -9,8 +8,15 @@ import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styl
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
 import 'models/ddc_bill.dart';
+import 'models/dssr_bill.dart';
 
-enum BillType { Dksh, Ddc }
+/*
+  BILL TYPE DESCRIPTION:
+    "Dksh": DKSH
+    "Ddc" : BILL REGISTER REPORT
+    "Dssr": DAILY STOCK SUMMARY REPORT
+ */
+enum BillType { Dksh, Ddc, Dssr }
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -32,6 +38,12 @@ class PrinterCommander {
           throw FormatException('Error. Type is invalid');
         }
         _printDdcBill(data, bluetoothPrinter);
+        break;
+      case BillType.Dssr:
+        if (!(data is DssrBillModel)) {
+          throw FormatException('Error. Type is invalid');
+        }
+        _printDssrBill(data, bluetoothPrinter);
         break;
       default:
         throw UnimplementedError();
@@ -547,6 +559,133 @@ class PrinterCommander {
         'Pay by............................  Get paid by............................');
 
     bytes += generator.hr(len: 120);
+
+    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+  }
+
+  static void _printDssrBill(
+    DssrBillModel data,
+    BluetoothPrinter bluetoothPrinter,
+  ) async {
+    List<int> bytes = [];
+
+    // Xprinter XP-N160I
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
+    final generator = Generator(PaperSize.mmCustom, profile);
+    generator.setGlobalFont(
+      PosFontType.fontA,
+      maxCharsPerLine: 1000,
+      isSmallFont: true,
+    );
+
+    bytes += generator.emptyLines(1);
+
+    // Header section
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page ${data.page}', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(19) + 'BILL REGISTER REPORT (DDC)',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(16) + 'Selected Date : ${data.selectedDate} All Products',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'PRODUCT'),
+      PosColumn(width: 2, text: 'NAME'),
+      PosColumn(
+        width: 9,
+        text: getTabs(5) +
+            ' ' +
+            getRightAlignedText('W/H', 6) +
+            getRightAlignedText('PER', 5) +
+            getRightAlignedText('OPEN', 6) +
+            getRightAlignedText('SALE', 6) +
+            getRightAlignedText('GOODS', 8) +
+            getRightAlignedText('TRANSF', 7) +
+            getRightAlignedText('TRANSF', 7) +
+            getRightAlignedText('FOC', 5) +
+            getRightAlignedText('', 5) +
+            getRightAlignedText('CLOSE', 6) +
+            getRightAlignedText('ONHAND', 6),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(width: 2),
+      PosColumn(
+        width: 9,
+        text: getTabs(5) +
+            ' ' +
+            getRightAlignedText('', 6) +
+            getRightAlignedText('PACK', 5) +
+            getRightAlignedText('BAL', 6) +
+            getRightAlignedText('', 6) +
+            getRightAlignedText('RETURNS', 8) +
+            getRightAlignedText('IN', 7) +
+            getRightAlignedText('OUT', 7) +
+            getRightAlignedText('X', 5) +
+            getRightAlignedText('Y', 5) +
+            getRightAlignedText('BAL', 6),
+      ),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    // 1st table
+    for (final stock in data.stockList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: stock.id),
+        PosColumn(width: 2, text: stock.name),
+        PosColumn(
+          width: 9,
+          text: getTabs(5) +
+              ' ' +
+              getRightAlignedText(stock.wh, 6) +
+              getRightAlignedText(stock.perPack, 5) +
+              getRightAlignedText(stock.openBal, 6) +
+              getRightAlignedText(stock.sale, 6) +
+              getRightAlignedText(stock.goodsReturn, 8) +
+              getRightAlignedText(stock.transfIn, 7) +
+              getRightAlignedText(stock.transfOut, 7) +
+              getRightAlignedText(stock.focX, 5) +
+              getRightAlignedText(stock.focY, 5) +
+              getRightAlignedText(stock.closeBal, 6) +
+              getRightAlignedText(stock.onhand, 6),
+        ),
+      ]);
+    }
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    bytes += generator.text('NO OF PRODUCT : ${data.total} LIST');
+
+    bytes += generator.hr(len: 120, ch: '=');
 
     _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
   }
