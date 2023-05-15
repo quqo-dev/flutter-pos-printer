@@ -7,6 +7,7 @@ import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_colu
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styles.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
+import 'models/cclr_bill.dart';
 import 'models/ddc_bill.dart';
 import 'models/dssr_bill.dart';
 
@@ -15,8 +16,9 @@ import 'models/dssr_bill.dart';
     "Dksh": DKSH
     "Ddc" : BILL REGISTER REPORT
     "Dssr": DAILY STOCK SUMMARY REPORT
+    "Cclr": CUSTOMER CALLING LISTING REPORT
  */
-enum BillType { Dksh, Ddc, Dssr }
+enum BillType { Dksh, Ddc, Dssr, Cclr }
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -44,6 +46,12 @@ class PrinterCommander {
           throw FormatException('Error. Type is invalid');
         }
         _printDssrBill(data, bluetoothPrinter);
+        break;
+      case BillType.Cclr:
+        if (!(data is CclrBillModel)) {
+          throw FormatException('Error. Type is invalid');
+        }
+        _printCclrBill(data, bluetoothPrinter);
         break;
       default:
         throw UnimplementedError();
@@ -686,6 +694,91 @@ class PrinterCommander {
     bytes += generator.text('NO OF PRODUCT : ${data.total} LIST');
 
     bytes += generator.hr(len: 120, ch: '=');
+
+    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+  }
+
+  static void _printCclrBill(
+    CclrBillModel data,
+    BluetoothPrinter bluetoothPrinter,
+  ) async {
+    List<int> bytes = [];
+
+    // Xprinter XP-N160I
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
+    final generator = Generator(PaperSize.mmCustom, profile);
+    generator.setGlobalFont(
+      PosFontType.fontA,
+      maxCharsPerLine: 1000,
+      isSmallFont: true,
+    );
+
+    bytes += generator.emptyLines(1);
+
+    // Header section
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page ${data.page}', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(19) + 'CUSTOMER CALLING LISTING REPORT',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(16) +
+            'Date Selected From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DATE'),
+      PosColumn(width: 1, text: getTabs(1) + 'CUST.CODE'),
+      PosColumn(width: 4, text: getTabs(1) + 'CUSTOMER NAME'),
+      PosColumn(width: 2, text: getTabs(1) + 'REASON'),
+      PosColumn(width: 2, text: getTabs(2) + 'TYPE OF SHOP'),
+      PosColumn(width: 2, text: getTabs(3) + ' ' + 'TIME'),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    for (final callingItem in data.callingList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: callingItem.date),
+        PosColumn(width: 1, text: getTabs(1) + callingItem.custCode),
+        PosColumn(width: 4, text: getTabs(1) + callingItem.custName),
+        PosColumn(width: 2, text: getTabs(1) + callingItem.reason),
+        PosColumn(width: 2, text: getTabs(2) + callingItem.typeOfShop),
+        PosColumn(width: 2, text: getTabs(3) + ' ' + callingItem.time),
+      ]);
+    }
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    bytes += generator.text('Total ${data.total}');
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    bytes += generator.text('Grand Total ${data.grandTotal}');
 
     _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
   }

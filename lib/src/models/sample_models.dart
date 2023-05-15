@@ -1,3 +1,4 @@
+import 'package:flutter_pos_printer_platform/src/models/cclr_bill.dart';
 import 'package:flutter_pos_printer_platform/src/models/dssr_bill.dart';
 
 import 'ddc_bill.dart';
@@ -335,4 +336,33 @@ final sampleDssrBillModel = DssrBillModel(
     ),
   ],
   total: '3',
+);
+
+final sampleCclrBillModel = CclrBillModel(
+  page: '1',
+  smNumber: 'S/M 10351241',
+  date: '08/02/02023',
+  time: '08:34:37',
+  dateSelectedFrom: '07/02/2023',
+  dateSelectedTo: '07/02/2023',
+  callingList: <CallingModel>[
+    CallingModel(
+      date: '07/02/2023',
+      custCode: 'CA244687',
+      custName: 'This is a name 2018 257',
+      reason: '8 A sample reason',
+      typeOfShop: 'C6 Branded IWS Car6',
+      time: '11:36:11',
+    ),
+    CallingModel(
+      date: '07/02/2023',
+      custCode: 'CA244599',
+      custName: 'This is a name 2018 257',
+      reason: '2 A sample reason',
+      typeOfShop: 'D0 Agriculture Shop',
+      time: '14:55:44',
+    ),
+  ],
+  total: '12',
+  grandTotal: '12',
 );
