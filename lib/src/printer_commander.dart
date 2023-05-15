@@ -7,6 +7,7 @@ import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_colu
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styles.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
+import 'models/btr_bill.dart';
 import 'models/cclr_bill.dart';
 import 'models/ddc_bill.dart';
 import 'models/dssr_bill.dart';
@@ -17,8 +18,9 @@ import 'models/dssr_bill.dart';
     "Ddc" : BILL REGISTER REPORT
     "Dssr": DAILY STOCK SUMMARY REPORT
     "Cclr": CUSTOMER CALLING LISTING REPORT
+    "Btr": BILL TRANSACTION REPORT
  */
-enum BillType { Dksh, Ddc, Dssr, Cclr }
+enum BillType { Dksh, Ddc, Dssr, Cclr, Btr }
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -52,6 +54,12 @@ class PrinterCommander {
           throw FormatException('Error. Type is invalid');
         }
         _printCclrBill(data, bluetoothPrinter);
+        break;
+      case BillType.Btr:
+        if (!(data is BtrBillModel)) {
+          throw FormatException('Error. Type is invalid');
+        }
+        _printBtrBill(data, bluetoothPrinter);
         break;
       default:
         throw UnimplementedError();
@@ -779,6 +787,203 @@ class PrinterCommander {
     bytes += generator.hr(len: 120, ch: '=');
 
     bytes += generator.text('Grand Total ${data.grandTotal}');
+
+    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+  }
+
+  static void _printBtrBill(
+    BtrBillModel data,
+    BluetoothPrinter bluetoothPrinter,
+  ) async {
+    List<int> bytes = [];
+
+    // Xprinter XP-N160I
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
+    final generator = Generator(PaperSize.mmCustom, profile);
+    generator.setGlobalFont(
+      PosFontType.fontA,
+      maxCharsPerLine: 1000,
+      isSmallFont: true,
+    );
+
+    bytes += generator.emptyLines(1);
+
+    // Header section
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page ${data.page}', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(20) + 'BILL TRANSACTION REPORT',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(17) +
+            'Date From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'NO PRODUCT'),
+      PosColumn(width: 1, text: ' ' + 'EFF. DATE'),
+      PosColumn(width: 1, text: getTabs(1) + ' ' + 'CRT. DATE'),
+      PosColumn(width: 1, text: getTabs(2) + ' ' + 'CUST. NAME'),
+      PosColumn(width: 1),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('PRICE', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/O', 8)),
+      PosColumn(
+          width: 1, text: getTabs(4) + ' ' + getRightAlignedText('TAX', 7)),
+      PosColumn(width: 1, text: getTabs(4) + getRightAlignedText('TOTAL', 8)),
+      PosColumn(
+          width: 2, text: getTabs(3) + ' ' + getRightAlignedText('STS', 8)),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'PRODUCT'),
+      PosColumn(width: 1, text: ' ' + 'NAME'),
+      PosColumn(width: 1),
+      PosColumn(width: 1),
+      PosColumn(
+          width: 1,
+          text: getTabs(3) +
+              getRightAlignedText('PACK', 5) +
+              getTabs(1) +
+              getRightAlignedText('ORDER', 5)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('FOC', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('PRC/U', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('PRICE', 8)),
+      PosColumn(
+          width: 1, text: getTabs(4) + ' ' + getRightAlignedText('%DI', 7)),
+      PosColumn(
+          width: 1, text: getTabs(4) + getRightAlignedText('DISCOUNT', 8)),
+      PosColumn(
+          width: 2, text: getTabs(3) + ' ' + getRightAlignedText('TOTAL', 8)),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    for (final transaction in data.transactionList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: transaction.firstRowData.noProduct),
+        PosColumn(width: 1, text: ' ' + transaction.firstRowData.effectiveDate),
+        PosColumn(
+            width: 1,
+            text: getTabs(1) + ' ' + transaction.firstRowData.createdDate),
+        PosColumn(
+            width: 1,
+            text: getTabs(2) + ' ' + transaction.firstRowData.customerName),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) +
+                getRightAlignedText(transaction.firstRowData.price, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) +
+                getRightAlignedText(transaction.firstRowData.discount, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) +
+                getRightAlignedText(
+                    transaction.firstRowData.deliveryOrderFee, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(4) +
+                ' ' +
+                getRightAlignedText(transaction.firstRowData.tax, 7)),
+        PosColumn(
+            width: 1,
+            text: getTabs(4) +
+                getRightAlignedText(transaction.firstRowData.total, 8)),
+        PosColumn(
+            width: 2,
+            text: getTabs(3) +
+                ' ' +
+                getRightAlignedText(transaction.firstRowData.sts, 8)),
+      ]);
+
+      for (final tableItem in transaction.tableData) {
+        bytes += generator.row([
+          PosColumn(width: 1, text: tableItem.product),
+          PosColumn(width: 1, text: ' ' + tableItem.name),
+          PosColumn(width: 1),
+          PosColumn(width: 1),
+          PosColumn(
+              width: 1,
+              text: getTabs(3) +
+                  getRightAlignedText(tableItem.pack, 5) +
+                  getTabs(1) +
+                  getRightAlignedText(tableItem.order, 5)),
+          PosColumn(
+              width: 1,
+              text: getTabs(5) + getRightAlignedText(tableItem.foc, 8)),
+          PosColumn(
+              width: 1,
+              text:
+                  getTabs(5) + getRightAlignedText(tableItem.pricePerUnit, 8)),
+          PosColumn(
+              width: 1,
+              text: getTabs(5) + getRightAlignedText(tableItem.price, 8)),
+          PosColumn(
+              width: 1,
+              text: getTabs(4) +
+                  ' ' +
+                  getRightAlignedText(tableItem.percentDiscount, 7)),
+          PosColumn(
+              width: 1,
+              text: getTabs(4) + getRightAlignedText(tableItem.discount, 8)),
+          PosColumn(
+              width: 2,
+              text: getTabs(3) + ' ' + getRightAlignedText(tableItem.total, 8)),
+        ]);
+      }
+
+      bytes += generator.hr(len: 120);
+    }
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'TOTAL ==>'),
+      PosColumn(width: 4),
+      PosColumn(
+          width: 1,
+          text: getTabs(5) + getRightAlignedText(data.totalRow.price, 8)),
+      PosColumn(
+          width: 1,
+          text: getTabs(5) + getRightAlignedText(data.totalRow.discount, 8)),
+      PosColumn(
+          width: 1,
+          text: getTabs(5) +
+              getRightAlignedText(data.totalRow.deliveryOrderFee, 8)),
+      PosColumn(
+          width: 1,
+          text: getTabs(4) + ' ' + getRightAlignedText(data.totalRow.tax, 7)),
+      PosColumn(
+          width: 3,
+          text: getTabs(4) + getRightAlignedText(data.totalRow.total, 8)),
+    ]);
+
+    bytes += generator.hr(len: 120);
 
     _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
   }

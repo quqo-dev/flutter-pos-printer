@@ -1,3 +1,4 @@
+import 'package:flutter_pos_printer_platform/src/models/btr_bill.dart';
 import 'package:flutter_pos_printer_platform/src/models/cclr_bill.dart';
 import 'package:flutter_pos_printer_platform/src/models/dssr_bill.dart';
 
@@ -365,4 +366,67 @@ final sampleCclrBillModel = CclrBillModel(
   ],
   total: '12',
   grandTotal: '12',
+);
+
+final sampleBtrBillModel = BtrBillModel(
+  page: '1',
+  smNumber: 'S/M 10351241',
+  date: '08/02/02023',
+  time: '08:34:37',
+  dateSelectedFrom: '07/02/2023',
+  dateSelectedTo: '07/02/2023',
+  transactionList: <TransactionModel>[
+    TransactionModel(
+      firstRowData: FirstRowModel(
+        noProduct: 'S32467-27',
+        effectiveDate: '07/02/2023',
+        createdDate: '07/02/2023',
+        customerName: 'A700743 This is a name',
+        price: '2,760.00',
+        discount: '883.20',
+        deliveryOrderFee: '0.00',
+        tax: '131.38',
+        total: '2,008.18',
+        sts: 'C',
+      ),
+      tableData: <TableModel>[
+        TableModel(
+          product: '100845598',
+          name: '4AT AX5 15W40 SL MB 12X0.8L',
+          pack: '12',
+          order: '1/0',
+          foc: '0/0',
+          pricePerUnit: '1,380.00',
+          price: '1,380.00',
+          percentDiscount: '32.00',
+          discount: '441.60',
+          total: '1,004.09',
+        ),
+        TableModel(
+          product: '100974445',
+          name: '4AT AX5 15W40 SL MB 12X0.8L',
+          pack: '12',
+          order: '1/0',
+          foc: '0/0',
+          pricePerUnit: '1,380.00',
+          price: '1,380.00',
+          percentDiscount: '32.00',
+          discount: '441.60',
+          total: '1,004.09',
+        ),
+      ],
+    ),
+  ],
+  totalRow: FirstRowModel(
+    noProduct: 'TOTAL ==>',
+    effectiveDate: '',
+    createdDate: '',
+    customerName: '',
+    price: '28,448.64',
+    discount: '4,115.84',
+    deliveryOrderFee: '0.00',
+    tax: '1,703.30',
+    total: '26,036.10',
+    sts: '',
+  ),
 );
