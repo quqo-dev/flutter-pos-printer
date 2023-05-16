@@ -69,11 +69,14 @@ class Command {
     return createLine(SHIFT, [shiftLeft, shiftTop]);
   }
 
-  static String imageString(String x, String y, String widthByte, String heightDot, {String mode = "0"}) {
+  static String imageString(
+      String x, String y, String widthByte, String heightDot,
+      {String mode = "0"}) {
     return createString(BITMAP, [x, y, widthByte, heightDot, mode, ""]);
   }
 
-  static String reverse(String x, String y, String widthByte, String heightDot) {
+  static String reverse(
+      String x, String y, String widthByte, String heightDot) {
     return createLine(REVERSE, [x, y, widthByte, heightDot]);
   }
 
@@ -164,14 +167,18 @@ class TsplPrinter<T> extends GenericPrinter<T> {
   @override
   Future<bool> beep() async {
     return await sendToConnector(() {
-      return [Command.clearCache(), Command.beep(), Command.close()].join().codeUnits;
+      return [Command.clearCache(), Command.beep(), Command.close()]
+          .join()
+          .codeUnits;
     });
   }
 
   @override
   Future<bool> selfTest() async {
     return await sendToConnector(() {
-      return [Command.clearCache(), Command.selfTest(), Command.close()].join().codeUnits;
+      return [Command.clearCache(), Command.selfTest(), Command.close()]
+          .join()
+          .codeUnits;
     });
   }
 
@@ -183,9 +190,12 @@ class TsplPrinter<T> extends GenericPrinter<T> {
   @override
   Future<bool> image(Uint8List image, {int threshold = 150}) async {
     final decodedImage = img.decodeImage(image)!;
-    final rasterizeImage = _toRaster(decodedImage, dpi: int.parse(dpi));
-    final converted = toPixel(ImageData(width: decodedImage.width, height: decodedImage.height),
-        paperWidth: int.parse(_sizeWidth), dpi: int.parse(dpi), isTspl: true);
+    // final rasterizeImage = _toRaster(decodedImage, dpi: int.parse(dpi));
+    final converted = toPixel(
+        ImageData(width: decodedImage.width, height: decodedImage.height),
+        paperWidth: int.parse(_sizeWidth),
+        dpi: int.parse(dpi),
+        isTspl: true);
 
     final ms = 1000 + (converted.height * 0.5).toInt();
 
@@ -194,8 +204,11 @@ class TsplPrinter<T> extends GenericPrinter<T> {
         List<int> buffer = [];
         buffer += this._config.codeUnits;
         buffer += Command.clearCache().codeUnits;
-        buffer += Command.imageString('0', '0', converted.width.toString(), converted.height.toString(), mode: '0').codeUnits;
-        buffer += rasterizeImage.data;
+        buffer += Command.imageString('0', '0', converted.width.toString(),
+                converted.height.toString(),
+                mode: '0')
+            .codeUnits;
+        // buffer += rasterizeImage.data;
         buffer += Command.EOL_HEX;
         buffer += Command.printIt('1', repeat: '1').codeUnits;
         buffer += Command.close().codeUnits;
@@ -206,36 +219,39 @@ class TsplPrinter<T> extends GenericPrinter<T> {
     }, delayMs: ms);
   }
 
-  ImageRaster _toRaster(img.Image imgSrc, {int dpi = 200}) {
-    // 200 DPI : 1 mm = 8 dots
-    // 300 DPI : 1 mm = 12 dots
-    // width 35mm = 280px
-    // height 25mm = 200px
-    final int multiplier = dpi == 200 ? 8 : 12;
-    final img.Image image = img.copyResize(imgSrc,
-        width: int.parse(this._sizeWidth) * multiplier, height: int.parse(this._sizeHeight) * multiplier, interpolation: img.Interpolation.linear);
-    final int widthPx = image.width;
-    final int heightPx = image.height;
-    final int widthBytes = widthPx ~/ 8; // one byte is 8 bits
-    final List<int> imageBytes = image.getBytes(order: img.ChannelOrder.argb);
+  /* 
+    COMMENT OUT TO RESOLVE CONFLICT ISSUE
+  */
+  // ImageRaster _toRaster(img.Image imgSrc, {int dpi = 200}) {
+  //   // 200 DPI : 1 mm = 8 dots
+  //   // 300 DPI : 1 mm = 12 dots
+  //   // width 35mm = 280px
+  //   // height 25mm = 200px
+  //   final int multiplier = dpi == 200 ? 8 : 12;
+  //   final img.Image image = img.copyResize(imgSrc,
+  //       width: int.parse(this._sizeWidth) * multiplier, height: int.parse(this._sizeHeight) * multiplier, interpolation: img.Interpolation.linear);
+  //   final int widthPx = image.width;
+  //   final int heightPx = image.height;
+  //   final int widthBytes = widthPx ~/ 8; // one byte is 8 bits
+  //   final List<int> imageBytes = image.getBytes(order: img.ChannelOrder.argb);
 
-    List<int> monoPixel = [];
-    for (int i = 0; i < imageBytes.length; i += 4) {
-      bool shouldBeWhite = imageBytes[i + 3] == 0 || (imageBytes[i] > 100 && imageBytes[i + 1] > 100 && imageBytes[i + 2] > 100);
-      monoPixel.add(shouldBeWhite ? 1 : 0);
-    }
+  //   List<int> monoPixel = [];
+  //   for (int i = 0; i < imageBytes.length; i += 4) {
+  //     bool shouldBeWhite = imageBytes[i + 3] == 0 || (imageBytes[i] > 100 && imageBytes[i + 1] > 100 && imageBytes[i + 2] > 100);
+  //     monoPixel.add(shouldBeWhite ? 1 : 0);
+  //   }
 
-    List<int> rasterizeImage = [];
-    for (int i = 0; i < monoPixel.length; i += 8) {
-      if (i + 8 <= monoPixel.length) {
-        String oneByte = monoPixel.sublist(i, i + 8).join();
-        int packed = int.parse(oneByte, radix: 2);
-        rasterizeImage.add(packed);
-      }
-    }
+  //   List<int> rasterizeImage = [];
+  //   for (int i = 0; i < monoPixel.length; i += 8) {
+  //     if (i + 8 <= monoPixel.length) {
+  //       String oneByte = monoPixel.sublist(i, i + 8).join();
+  //       int packed = int.parse(oneByte, radix: 2);
+  //       rasterizeImage.add(packed);
+  //     }
+  //   }
 
-    return new ImageRaster(data: rasterizeImage, width: widthBytes.toString(), height: heightPx.toString());
-  }
+  //   return new ImageRaster(data: rasterizeImage, width: widthBytes.toString(), height: heightPx.toString());
+  // }
 
   @override
   Future<bool> pulseDrawer() async {
