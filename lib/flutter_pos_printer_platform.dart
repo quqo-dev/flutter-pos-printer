@@ -13,4 +13,8 @@ export './src/printer_commander.dart';
 export './src/models/printer_device.dart';
 export './src/models/bluetooth_printer.dart';
 export './src/models/dksh_bill.dart';
+export './src/models/btr_bill.dart';
+export './src/models/cclr_bill.dart';
+export './src/models/ddc_bill.dart';
+export './src/models/dssr_bill.dart';
 export './src/models/sample_models.dart';
