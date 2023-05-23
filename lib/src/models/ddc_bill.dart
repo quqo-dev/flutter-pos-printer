@@ -52,6 +52,44 @@ class BillStatusModel {
     required this.st,
     required this.l,
   });
+
+  factory BillStatusModel.empty() => BillStatusModel(
+        name: "",
+        quantity: "",
+        price: "",
+        diValue: "",
+        doValue: "",
+        netAmount: "",
+        tax: "",
+        total: "",
+        st: "",
+        l: "",
+      );
+
+  BillStatusModel copyWith({
+    String? name,
+    String? quantity,
+    String? price,
+    String? diValue,
+    String? doValue,
+    String? netAmount,
+    String? tax,
+    String? total,
+    String? st,
+    String? l,
+  }) =>
+      BillStatusModel(
+        name: name ?? this.name,
+        quantity: quantity ?? this.quantity,
+        price: price ?? this.price,
+        diValue: diValue ?? this.diValue,
+        doValue: doValue ?? this.doValue,
+        netAmount: netAmount ?? this.netAmount,
+        tax: tax ?? this.tax,
+        total: total ?? this.total,
+        st: st ?? this.st,
+        l: l ?? this.l,
+      );
 }
 
 class PaymentTypeModel {
@@ -76,6 +114,41 @@ class PaymentTypeModel {
     required this.total,
     required this.l,
   });
+
+  factory PaymentTypeModel.empty() => PaymentTypeModel(
+        name: "",
+        batchNo: "",
+        price: "",
+        diValue: "",
+        doValue: "",
+        netAmount: "",
+        tax: "",
+        total: "",
+        l: "",
+      );
+
+  PaymentTypeModel copyWith({
+    String? name,
+    String? batchNo,
+    String? price,
+    String? diValue,
+    String? doValue,
+    String? netAmount,
+    String? tax,
+    String? total,
+    String? l,
+  }) =>
+      PaymentTypeModel(
+        name: name ?? this.name,
+        batchNo: batchNo ?? this.batchNo,
+        price: price ?? this.price,
+        diValue: diValue ?? this.diValue,
+        doValue: doValue ?? this.doValue,
+        netAmount: netAmount ?? this.netAmount,
+        tax: tax ?? this.tax,
+        total: total ?? this.total,
+        l: l ?? this.l,
+      );
 }
 
 class VisitCustomerModel {
@@ -98,6 +171,38 @@ class VisitCustomerModel {
     required this.notSoldPercent,
     required this.total,
   });
+
+  factory VisitCustomerModel.empty() => VisitCustomerModel(
+        name: "",
+        soldAmount: "",
+        soldPercent: "",
+        orderAmount: "",
+        orderPercent: "",
+        notSoldAmount: "",
+        notSoldPercent: "",
+        total: "",
+      );
+
+  VisitCustomerModel copyWith({
+    String? name,
+    String? soldAmount,
+    String? soldPercent,
+    String? orderAmount,
+    String? orderPercent,
+    String? notSoldAmount,
+    String? notSoldPercent,
+    String? total,
+  }) =>
+      VisitCustomerModel(
+        name: name ?? this.name,
+        soldAmount: soldAmount ?? this.soldAmount,
+        soldPercent: soldPercent ?? this.soldPercent,
+        orderAmount: orderAmount ?? this.orderAmount,
+        orderPercent: orderPercent ?? this.orderPercent,
+        notSoldAmount: notSoldAmount ?? this.notSoldAmount,
+        notSoldPercent: notSoldPercent ?? this.notSoldPercent,
+        total: total ?? this.total,
+      );
 }
 
 class SummaryModel {
@@ -114,6 +219,29 @@ class SummaryModel {
     required this.price,
     required this.total,
   });
+
+  factory SummaryModel.empty() => SummaryModel(
+        firstName: "",
+        secondName: "",
+        quantity: "",
+        price: "",
+        total: "",
+      );
+
+  SummaryModel copyWith({
+    String? firstName,
+    String? secondName,
+    String? quantity,
+    String? price,
+    String? total,
+  }) =>
+      SummaryModel(
+        firstName: firstName ?? this.firstName,
+        secondName: secondName ?? this.secondName,
+        quantity: quantity ?? this.quantity,
+        price: price ?? this.price,
+        total: total ?? this.total,
+      );
 }
 
 class DdcBillModel {
