@@ -26,6 +26,10 @@ class CustomerPriceModel {
     required this.st,
     required this.l,
   });
+
+  @override
+  String toString() =>
+      "${no};${date};${customerId};${customerName};${price};${diValue};${doValue};${netAmount};${tax};${total};${st};${l};";
 }
 
 class BillStatusModel {
@@ -90,6 +94,10 @@ class BillStatusModel {
         st: st ?? this.st,
         l: l ?? this.l,
       );
+
+  @override
+  String toString() =>
+      "${name};${quantity};${price};${diValue};${doValue};${netAmount};${tax};${total};${st};${l};";
 }
 
 class PaymentTypeModel {
@@ -149,6 +157,10 @@ class PaymentTypeModel {
         total: total ?? this.total,
         l: l ?? this.l,
       );
+
+  @override
+  String toString() =>
+      "${name};${batchNo};${price};${diValue};${doValue};${netAmount};${tax};${total};${l};";
 }
 
 class VisitCustomerModel {
@@ -203,6 +215,10 @@ class VisitCustomerModel {
         notSoldPercent: notSoldPercent ?? this.notSoldPercent,
         total: total ?? this.total,
       );
+
+  @override
+  String toString() =>
+      "${name};${soldAmount};${soldPercent};${orderAmount};${orderPercent};${notSoldAmount};${notSoldPercent};${total};";
 }
 
 class SummaryModel {
@@ -242,6 +258,10 @@ class SummaryModel {
         price: price ?? this.price,
         total: total ?? this.total,
       );
+
+  @override
+  String toString() =>
+      "${firstName};${secondName};${quantity};${price};${total};";
 }
 
 class DdcBillModel {
@@ -290,4 +310,8 @@ class DdcBillModel {
     required this.totalCashBalance,
     required this.creditBalance,
   });
+
+  @override
+  String toString() =>
+      "${page}; ${smNumber}; ${date}; ${time}; ${dateCreatedFrom}; ${dateCreatedTo}; ${status}; ${customerPriceList}; ${billStatusList}; ${paymentTypeList}; ${visitCustomerList}; ${adjCode}; ${billCode}; ${billDCode}; ${intCode}; ${trnCode}; ${paymentByTransporterList}; ${orderSummaryList}; ${totalBalance}; ${totalCashBalance}; ${creditBalance};";
 }
