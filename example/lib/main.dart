@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:dart_ping_ios/dart_ping_ios.dart';
+// import 'package:dart_ping_ios/dart_ping_ios.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
 void main() {
   // Register DartPingIOS
-  if (Platform.isIOS) {
-    DartPingIOS.register();
-  }
+  // if (Platform.isIOS) {
+  //   DartPingIOS.register();
+  // }
   runApp(const MyApp());
 }
 
@@ -176,8 +176,8 @@ class _MyAppState extends State<MyApp> {
     if (selectedPrinter == null) return;
 
     PrinterCommander.printBill(
-      billType: BillType.Btr,
-      data: sampleBtrBillModel,
+      billType: BillType.Dksh,
+      data: sampleDkshBillModel,
       bluetoothPrinter: selectedPrinter!,
     );
   }

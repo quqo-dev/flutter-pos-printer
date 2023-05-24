@@ -347,6 +347,9 @@ class Generator {
       bytes += cBoldOff.codeUnits;
     }
 
+    // ======== TEST HERE ========
+    bytes += cLineSpace.codeUnits;
+
     return bytes;
   }
 
