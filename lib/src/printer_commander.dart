@@ -7,11 +7,6 @@ import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_colu
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styles.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
-import 'models/btr_bill.dart';
-import 'models/cclr_bill.dart';
-import 'models/ddc_bill.dart';
-import 'models/dssr_bill.dart';
-
 /*
   BILL TYPE DESCRIPTION:
     "Dksh": DKSH
@@ -19,8 +14,9 @@ import 'models/dssr_bill.dart';
     "Dssr": DAILY STOCK SUMMARY REPORT
     "Cclr": CUSTOMER CALLING LISTING REPORT
     "Btr": BILL TRANSACTION REPORT
+    "Btl": BILL TRANSFER LISTING
  */
-enum BillType { Dksh, Ddc, Dssr, Cclr, Btr }
+enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl }
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -33,33 +29,39 @@ class PrinterCommander {
     switch (billType) {
       case BillType.Dksh:
         if (!(data is DkshBillModel)) {
-          throw FormatException('Error. Type is invalid');
+          throw FormatException('Error! Type must be DkshBillModel');
         }
         _printDkshBill(data, bluetoothPrinter);
         break;
       case BillType.Ddc:
         if (!(data is DdcBillModel)) {
-          throw FormatException('Error. Type is invalid');
+          throw FormatException('Error! Type must be DdcBillModel');
         }
         _printDdcBill(data, bluetoothPrinter);
         break;
       case BillType.Dssr:
         if (!(data is DssrBillModel)) {
-          throw FormatException('Error. Type is invalid');
+          throw FormatException('Error! Type must be DssrBillModel');
         }
         _printDssrBill(data, bluetoothPrinter);
         break;
       case BillType.Cclr:
         if (!(data is CclrBillModel)) {
-          throw FormatException('Error. Type is invalid');
+          throw FormatException('Error! Type must be CclrBillModel');
         }
         _printCclrBill(data, bluetoothPrinter);
         break;
       case BillType.Btr:
         if (!(data is BtrBillModel)) {
-          throw FormatException('Error. Type is invalid');
+          throw FormatException('Error! Type must be BtrBillModel');
         }
         _printBtrBill(data, bluetoothPrinter);
+        break;
+      case BillType.Btl:
+        if (!(data is BtlBillModel)) {
+          throw FormatException('Error! Type must be BtlBillModel');
+        }
+        _printBtlBill(data, bluetoothPrinter);
         break;
       default:
         throw UnimplementedError();
@@ -981,6 +983,137 @@ class PrinterCommander {
       PosColumn(
           width: 3,
           text: getTabs(4) + getRightAlignedText(data.totalRow.total, 8)),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+  }
+
+  static void _printBtlBill(
+    BtlBillModel data,
+    BluetoothPrinter bluetoothPrinter,
+  ) async {
+    List<int> bytes = [];
+
+    // Xprinter XP-N160I
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
+    final generator = Generator(PaperSize.mmCustom, profile);
+    generator.setGlobalFont(
+      PosFontType.fontA,
+      maxCharsPerLine: 1000,
+      isSmallFont: true,
+    );
+
+    bytes += generator.emptyLines(1);
+
+    // Header section
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page ${data.page}', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(21) + 'BILL TRANSFER LISTING',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(23) + 'No. ${data.reportNo}',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'TRN NO'),
+      PosColumn(width: 1, text: getTabs(1) + ' ' + 'LOC.FROM'),
+      PosColumn(width: 1, text: getTabs(1) + ' ' + 'TO'),
+      PosColumn(width: 1, text: 'PRODUCT'),
+      PosColumn(width: 1, text: ' ' + 'DESCRIPTION'),
+      PosColumn(
+          width: 1,
+          text: getTabs(8) + ' ' + getRightAlignedText('UNIT CODE', 10)),
+      PosColumn(
+          width: 1, text: getTabs(8) + ' ' + getRightAlignedText('PERPACK', 8)),
+      PosColumn(
+          width: 1, text: getTabs(6) + ' ' + getRightAlignedText('QTY', 8)),
+      PosColumn(
+          width: 1, text: getTabs(6) + ' ' + getRightAlignedText('UNIT P', 8)),
+      PosColumn(
+          width: 1, text: getTabs(5) + ' ' + getRightAlignedText('AMOUNT', 10)),
+      PosColumn(
+          width: 1, text: getTabs(3) + ' ' + getRightAlignedText('STA', 8)),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    for (final transferData in data.transferList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: transferData.transferNo),
+        PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locFrom),
+        PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locTo),
+        PosColumn(width: 1, text: transferData.productCode),
+        PosColumn(width: 1, text: ' ' + transferData.description),
+        PosColumn(
+            width: 1,
+            text: getTabs(6) +
+                '     ' +
+                getRightAlignedText(transferData.unitCode, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(6) +
+                '     ' +
+                getRightAlignedText(transferData.perPack, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(4) +
+                '     ' +
+                getRightAlignedText(transferData.quantity, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(4) +
+                '     ' +
+                getRightAlignedText(transferData.unitPrice, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) +
+                ' ' +
+                getRightAlignedText(transferData.amount, 10)),
+        PosColumn(
+            width: 1,
+            text:
+                getTabs(3) + ' ' + getRightAlignedText(transferData.status, 8)),
+        PosColumn(width: 1),
+      ]);
+    }
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Total ${data.totalRecord} Record(s)'),
+      PosColumn(width: 8, text: ''),
+      PosColumn(
+          width: 1,
+          text: getTabs(5) + ' ' + getRightAlignedText(data.totalAmount, 10)),
+      PosColumn(width: 2, text: ''),
     ]);
 
     bytes += generator.hr(len: 120);

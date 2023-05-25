@@ -1,3 +1,4 @@
+import 'package:flutter_pos_printer_platform/src/models/btl_bill.dart';
 import 'package:flutter_pos_printer_platform/src/models/btr_bill.dart';
 import 'package:flutter_pos_printer_platform/src/models/cclr_bill.dart';
 import 'package:flutter_pos_printer_platform/src/models/dssr_bill.dart';
@@ -429,4 +430,29 @@ final sampleBtrBillModel = BtrBillModel(
     total: '26,036.10',
     sts: '',
   ),
+);
+
+final sampleBtlBillModel = BtlBillModel(
+  page: '1',
+  smNumber: 'S/M 10351241',
+  date: '08/02/02023',
+  time: '08:34:37',
+  reportNo: "M520001",
+  transferList: <TransferItem>[
+    TransferItem(
+      transferNo: '4902577551',
+      locFrom: '8A66',
+      locTo: '8A64',
+      productCode: '100540060',
+      description: 'This is a description',
+      unitCode: 'TIN',
+      perPack: '12',
+      quantity: '2/0',
+      unitPrice: '1,698.00',
+      amount: '3,396.00',
+      status: 'C',
+    ),
+  ],
+  totalRecord: '8',
+  totalAmount: '55,656.29',
 );

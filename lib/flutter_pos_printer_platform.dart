@@ -17,4 +17,5 @@ export './src/models/btr_bill.dart';
 export './src/models/cclr_bill.dart';
 export './src/models/ddc_bill.dart';
 export './src/models/dssr_bill.dart';
+export './src/models/btl_bill.dart';
 export './src/models/sample_models.dart';
