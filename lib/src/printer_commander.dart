@@ -7,8 +7,6 @@ import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_colu
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styles.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
-import 'models/osr_bill.dart';
-
 /*
   BILL TYPE DESCRIPTION:
     "Dksh": DKSH
@@ -18,8 +16,9 @@ import 'models/osr_bill.dart';
     "Btr": BILL TRANSACTION REPORT
     "Btl": BILL TRANSFER LISTING
     "Osr": ORDER SUMMARY REPORT
+    "Csr": CHECKING STOCK REPORT
  */
-enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl, Osr }
+enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl, Osr, Csr }
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -31,46 +30,52 @@ class PrinterCommander {
   }) {
     switch (billType) {
       case BillType.Dksh:
-        if (!(data is DkshBillModel)) {
+        if (data is! DkshBillModel) {
           throw FormatException('Error! Type must be DkshBillModel');
         }
         _printDkshBill(data, bluetoothPrinter);
         break;
       case BillType.Ddc:
-        if (!(data is DdcBillModel)) {
+        if (data is! DdcBillModel) {
           throw FormatException('Error! Type must be DdcBillModel');
         }
         _printDdcBill(data, bluetoothPrinter);
         break;
       case BillType.Dssr:
-        if (!(data is DssrBillModel)) {
+        if (data is! DssrBillModel) {
           throw FormatException('Error! Type must be DssrBillModel');
         }
         _printDssrBill(data, bluetoothPrinter);
         break;
       case BillType.Cclr:
-        if (!(data is CclrBillModel)) {
+        if (data is! CclrBillModel) {
           throw FormatException('Error! Type must be CclrBillModel');
         }
         _printCclrBill(data, bluetoothPrinter);
         break;
       case BillType.Btr:
-        if (!(data is BtrBillModel)) {
+        if (data is! BtrBillModel) {
           throw FormatException('Error! Type must be BtrBillModel');
         }
         _printBtrBill(data, bluetoothPrinter);
         break;
       case BillType.Btl:
-        if (!(data is BtlBillModel)) {
+        if (data is! BtlBillModel) {
           throw FormatException('Error! Type must be BtlBillModel');
         }
         _printBtlBill(data, bluetoothPrinter);
         break;
       case BillType.Osr:
-        if (!(data is OsrBillModel)) {
+        if (data is! OsrBillModel) {
           throw FormatException('Error! Type must be OsrBillModel');
         }
         _printOsrBill(data, bluetoothPrinter);
+        break;
+      case BillType.Csr:
+        if (data is! CsrBillModel) {
+          throw FormatException('Error! Type must be CsrBillModel');
+        }
+        _printCsrBill(data, bluetoothPrinter);
         break;
       default:
         throw UnimplementedError();
@@ -1260,6 +1265,107 @@ class PrinterCommander {
     bytes += generator.text(data.referenceList);
     bytes += generator.emptyLines(1);
     bytes += generator.text('Order');
+
+    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+  }
+
+  static void _printCsrBill(
+    CsrBillModel data,
+    BluetoothPrinter bluetoothPrinter,
+  ) async {
+    List<int> bytes = [];
+
+    // Xprinter XP-N160I
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
+    final generator = Generator(PaperSize.mmCustom, profile);
+    generator.setGlobalFont(
+      PosFontType.fontA,
+      maxCharsPerLine: 1000,
+      isSmallFont: true,
+    );
+
+    bytes += generator.emptyLines(1);
+
+    // Header section
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page ${data.page}', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(21) + 'ORDER SUMMARY REPORT',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(21) + 'Product Group: To',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'PRODUCT'),
+      PosColumn(width: 3, text: 'DESCRIPTION'),
+      PosColumn(width: 1, text: getRightAlignedText('PERPACK', 8)),
+      PosColumn(width: 1, text: getRightAlignedText('UNIT CODE', 10)),
+      PosColumn(
+          width: 2,
+          text: getTabs(3) + ' ' + getRightAlignedText('ON_HAND_GOOD', 12)),
+      PosColumn(
+          width: 2,
+          text: getTabs(2) + ' ' + getRightAlignedText('ON_CAR_GOOD', 12)),
+      PosColumn(
+          width: 1,
+          text: getTabs(1) + ' ' + getRightAlignedText('LOCATION', 10)),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    for (final stockData in data.stockList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: stockData.productCode),
+        PosColumn(width: 3, text: stockData.description),
+        PosColumn(width: 1, text: getRightAlignedText(stockData.perPack, 8)),
+        PosColumn(width: 1, text: getRightAlignedText(stockData.unitCode, 10)),
+        PosColumn(
+            width: 2,
+            text: getTabs(3) +
+                ' ' +
+                getRightAlignedText(stockData.onHandGood, 12)),
+        PosColumn(
+            width: 2,
+            text: getTabs(2) +
+                ' ' +
+                getRightAlignedText(stockData.onCarGood, 12)),
+        PosColumn(
+            width: 1,
+            text:
+                getTabs(1) + ' ' + getRightAlignedText(stockData.location, 10)),
+        PosColumn(width: 1),
+      ]);
+    }
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.text("Total: ${data.totalRecord} Record(s)");
 
     _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
   }
