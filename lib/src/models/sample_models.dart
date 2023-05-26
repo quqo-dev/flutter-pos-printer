@@ -2,6 +2,7 @@ import 'package:flutter_pos_printer_platform/src/models/btl_bill.dart';
 import 'package:flutter_pos_printer_platform/src/models/btr_bill.dart';
 import 'package:flutter_pos_printer_platform/src/models/cclr_bill.dart';
 import 'package:flutter_pos_printer_platform/src/models/dssr_bill.dart';
+import 'package:flutter_pos_printer_platform/src/models/osr_bill.dart';
 
 import 'ddc_bill.dart';
 import 'dksh_bill.dart';
@@ -455,4 +456,32 @@ final sampleBtlBillModel = BtlBillModel(
   ],
   totalRecord: '8',
   totalAmount: '55,656.29',
+);
+
+final sampleOsrBillModel = OsrBillModel(
+  page: '1',
+  smNumber: 'S/M 10351241',
+  date: '08/02/02023',
+  time: '08:34:37',
+  dateSelectedFrom: '07/02/2023',
+  dateSelectedTo: '07/02/2023',
+  orderList: <OrderSummanyItem>[
+    OrderSummanyItem(
+      partNo: '100844799',
+      description: 'ADVANCE 4T ULTRA10W40 12X1L',
+      unit: 'TIN',
+      perPack: '12',
+      price: '4,010.821',
+      sum: '',
+      quantity: '1/0',
+      foc: '0/0',
+      discount: '895.62',
+      tax: '209.88',
+      amount: '3,208.26',
+      lite: '12',
+    ),
+  ],
+  totalAmount: '100,432.44',
+  totalLit: '866.00',
+  referenceList: '\'S4745166\',\'S4745266\'',
 );

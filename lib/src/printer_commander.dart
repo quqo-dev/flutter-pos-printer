@@ -7,6 +7,8 @@ import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_colu
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styles.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 
+import 'models/osr_bill.dart';
+
 /*
   BILL TYPE DESCRIPTION:
     "Dksh": DKSH
@@ -15,8 +17,9 @@ import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
     "Cclr": CUSTOMER CALLING LISTING REPORT
     "Btr": BILL TRANSACTION REPORT
     "Btl": BILL TRANSFER LISTING
+    "Osr": ORDER SUMMARY REPORT
  */
-enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl }
+enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl, Osr }
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -62,6 +65,12 @@ class PrinterCommander {
           throw FormatException('Error! Type must be BtlBillModel');
         }
         _printBtlBill(data, bluetoothPrinter);
+        break;
+      case BillType.Osr:
+        if (!(data is OsrBillModel)) {
+          throw FormatException('Error! Type must be OsrBillModel');
+        }
+        _printOsrBill(data, bluetoothPrinter);
         break;
       default:
         throw UnimplementedError();
@@ -1117,6 +1126,140 @@ class PrinterCommander {
     ]);
 
     bytes += generator.hr(len: 120);
+
+    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+  }
+
+  static void _printOsrBill(
+    OsrBillModel data,
+    BluetoothPrinter bluetoothPrinter,
+  ) async {
+    List<int> bytes = [];
+
+    // Xprinter XP-N160I
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
+    final generator = Generator(PaperSize.mmCustom, profile);
+    generator.setGlobalFont(
+      PosFontType.fontA,
+      maxCharsPerLine: 1000,
+      isSmallFont: true,
+    );
+
+    bytes += generator.emptyLines(1);
+
+    // Header section
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page ${data.page}', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(21) + 'ORDER SUMMARY REPORT',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(16) +
+            'Date Selected From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'PART NO'),
+      PosColumn(width: 1, text: 'DESCRIPTION'),
+      PosColumn(width: 1, text: getTabs(12) + ' ' + 'UNIT'),
+      PosColumn(
+          width: 1, text: getTabs(10) + getRightAlignedText('PERPACK', 8)),
+      PosColumn(width: 1, text: getTabs(10) + getRightAlignedText('PRICE', 10)),
+      PosColumn(
+          width: 1, text: getTabs(9) + ' ' + getRightAlignedText('QTY', 6)),
+      PosColumn(width: 1, text: getTabs(7) + getRightAlignedText('FOC', 6)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 10)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TAX', 10)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('AMOUNT', 10)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('LITE', 5)),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    for (final orderData in data.orderList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: orderData.partNo),
+        PosColumn(width: 1, text: orderData.description),
+        PosColumn(width: 1, text: getTabs(12) + ' ' + orderData.unit),
+        PosColumn(
+            width: 1,
+            text: getTabs(10) + getRightAlignedText(orderData.perPack, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(10) + getRightAlignedText(orderData.price, 10)),
+        PosColumn(
+            width: 1,
+            text:
+                getTabs(9) + ' ' + getRightAlignedText(orderData.quantity, 6)),
+        PosColumn(
+            width: 1, text: getTabs(7) + getRightAlignedText(orderData.foc, 6)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(orderData.discount, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(orderData.tax, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(orderData.amount, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(orderData.lite, 5)),
+        PosColumn(width: 1),
+      ]);
+    }
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.row([
+      PosColumn(width: 2, text: 'Total Amount'),
+      PosColumn(
+        width: 1,
+        text: getTabs(2) + getRightAlignedText(data.totalAmount, 12),
+      ),
+      PosColumn(width: 9, text: ''),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 2, text: 'Total Lit:'),
+      PosColumn(
+        width: 1,
+        text: getTabs(2) + getRightAlignedText(data.totalLit, 12),
+      ),
+      PosColumn(width: 9, text: ''),
+    ]);
+
+    bytes += generator.emptyLines(1);
+    bytes += generator.text('Reference in ==>');
+    bytes += generator.text('Bill');
+    bytes += generator.text(data.referenceList);
+    bytes += generator.emptyLines(1);
+    bytes += generator.text('Order');
 
     _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
   }
