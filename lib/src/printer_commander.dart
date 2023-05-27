@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/capability_profile.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/enums.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/generato
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_column.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styles.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
+import 'package:charset_converter/charset_converter.dart';
 
 /*
   BILL TYPE DESCRIPTION:
@@ -107,7 +109,12 @@ class PrinterCommander {
       ),
     ]);
 
-    bytes += generator.text(getTabs(6) + data.contactInfo);
+    Uint8List encThai = await CharsetConverter.encode(
+      'TIS-620',
+      'Thai: แกงจืดเต้าหู้หมูสับ แกงป่า',
+    );
+
+    bytes += generator.textEncoded(encThai);
 
     bytes += generator.emptyLines(1);
 

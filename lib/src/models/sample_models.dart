@@ -4,7 +4,7 @@ final sampleDkshBillModel = DkshBillModel(
   page: '1',
   time: '08:51:23',
   issuedBranch: '00122',
-  contactInfo: 'Sample text 091-890-3153',
+  contactInfo: 'สำนักงานใหญ่ 091-890-3153',
   storeName: 'Sample text',
   address: '499/7 This is a sample text',
   taxPayerIdNumber: '1650200025093 / sample text',
