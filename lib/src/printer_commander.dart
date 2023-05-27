@@ -90,8 +90,8 @@ class PrinterCommander {
   ) async {
     List<int> bytes = [];
 
-    // Xprinter XP-N160I
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+    // Xprinter default
+    final profile = await CapabilityProfile.load(name: 'default');
 
     final generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(PosFontType.fontA, maxCharsPerLine: 1000);
@@ -308,8 +308,8 @@ class PrinterCommander {
   ) async {
     List<int> bytes = [];
 
-    // Xprinter XP-N160I
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+    // Xprinter default
+    final profile = await CapabilityProfile.load(name: 'default');
 
     final generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(
@@ -608,8 +608,8 @@ class PrinterCommander {
   ) async {
     List<int> bytes = [];
 
-    // Xprinter XP-N160I
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+    // Xprinter default
+    final profile = await CapabilityProfile.load(name: 'default');
 
     final generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(
@@ -735,8 +735,8 @@ class PrinterCommander {
   ) async {
     List<int> bytes = [];
 
-    // Xprinter XP-N160I
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+    // Xprinter default
+    final profile = await CapabilityProfile.load(name: 'default');
 
     final generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(
@@ -820,8 +820,8 @@ class PrinterCommander {
   ) async {
     List<int> bytes = [];
 
-    // Xprinter XP-N160I
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+    // Xprinter default
+    final profile = await CapabilityProfile.load(name: 'default');
 
     final generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(
@@ -1017,8 +1017,8 @@ class PrinterCommander {
   ) async {
     List<int> bytes = [];
 
-    // Xprinter XP-N160I
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+    // Xprinter default
+    final profile = await CapabilityProfile.load(name: 'default');
 
     final generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(
@@ -1148,8 +1148,8 @@ class PrinterCommander {
   ) async {
     List<int> bytes = [];
 
-    // Xprinter XP-N160I
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+    // Xprinter default
+    final profile = await CapabilityProfile.load(name: 'default');
 
     final generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(
@@ -1282,8 +1282,8 @@ class PrinterCommander {
   ) async {
     List<int> bytes = [];
 
-    // Xprinter XP-N160I
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+    // Xprinter default
+    final profile = await CapabilityProfile.load(name: 'default');
 
     final generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(
