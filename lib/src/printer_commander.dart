@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/capability_profile.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/enums.dart';
@@ -7,7 +6,6 @@ import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/generato
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_column.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styles.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
-import 'package:charset_converter/charset_converter.dart';
 
 /*
   BILL TYPE DESCRIPTION:
@@ -109,12 +107,8 @@ class PrinterCommander {
       ),
     ]);
 
-    Uint8List encThai = await CharsetConverter.encode(
-      'TIS-620',
-      'Thai: แกงจืดเต้าหู้หมูสับ แกงป่า',
-    );
-
-    bytes += generator.textEncoded(encThai);
+    bytes += generator
+        .textEncoded(await getThaiEncoded(getTabs(6) + data.contactInfo));
 
     bytes += generator.emptyLines(1);
 
@@ -122,7 +116,7 @@ class PrinterCommander {
       PosColumn(width: 1),
       PosColumn(
         width: 5,
-        text: data.storeName,
+        textEncoded: await getThaiEncoded(data.storeName),
       ),
       PosColumn(width: 2),
       PosColumn(width: 2),
@@ -136,7 +130,7 @@ class PrinterCommander {
       PosColumn(width: 1),
       PosColumn(
         width: 5,
-        text: data.address,
+        textEncoded: await getThaiEncoded(data.address),
       ),
       PosColumn(
         width: 2,
@@ -166,7 +160,7 @@ class PrinterCommander {
       PosColumn(width: 2),
       PosColumn(
         width: 4,
-        text: data.taxPayerIdNumber,
+        textEncoded: await getThaiEncoded(data.taxPayerIdNumber),
       ),
       PosColumn(
         width: 2,
@@ -189,7 +183,8 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(
           width: 3,
-          text: ' ${item.productCode} ${item.productList}',
+          textEncoded:
+              await getThaiEncoded(' ${item.productCode} ${item.productList}'),
           styles: const PosStyles(align: PosAlign.left),
         ),
         PosColumn(
@@ -252,7 +247,7 @@ class PrinterCommander {
       PosColumn(width: 1),
       PosColumn(
         width: 6,
-        text: data.totalMoneyByLetters,
+        textEncoded: await getThaiEncoded(data.totalMoneyByLetters),
       ),
       PosColumn(
         width: 1,
@@ -296,8 +291,10 @@ class PrinterCommander {
 
     bytes += generator.emptyLines(2);
 
-    bytes += generator.text(getTabs(4) + data.deliveryAt);
-    bytes += generator.text(getTabs(4) + data.deliveryAddress);
+    bytes += generator
+        .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAt));
+    bytes += generator
+        .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAddress));
 
     _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
   }
@@ -382,7 +379,10 @@ class PrinterCommander {
         PosColumn(width: 1, text: customerPrice.date),
         PosColumn(width: 1, text: getTabs(3) + ' ' + customerPrice.customerId),
         PosColumn(
-            width: 1, text: getTabs(2) + ' ' + customerPrice.customerName),
+          width: 1,
+          textEncoded: await getThaiEncoded(
+              getTabs(2) + ' ' + customerPrice.customerName),
+        ),
         PosColumn(
             width: 1,
             text: getTabs(7) + getRightAlignedText(customerPrice.price, 11)),
@@ -700,7 +700,7 @@ class PrinterCommander {
     for (final stock in data.stockList) {
       bytes += generator.row([
         PosColumn(width: 1, text: stock.id),
-        PosColumn(width: 2, text: stock.name),
+        PosColumn(width: 2, textEncoded: await getThaiEncoded(stock.name)),
         PosColumn(
           width: 9,
           text: getTabs(5) +
@@ -796,9 +796,19 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(width: 1, text: callingItem.date),
         PosColumn(width: 1, text: getTabs(1) + callingItem.custCode),
-        PosColumn(width: 4, text: getTabs(1) + callingItem.custName),
-        PosColumn(width: 2, text: getTabs(1) + callingItem.reason),
-        PosColumn(width: 2, text: getTabs(2) + callingItem.typeOfShop),
+        PosColumn(
+          width: 4,
+          textEncoded: await getThaiEncoded(getTabs(1) + callingItem.custName),
+        ),
+        PosColumn(
+          width: 2,
+          textEncoded: await getThaiEncoded(getTabs(1) + callingItem.reason),
+        ),
+        PosColumn(
+          width: 2,
+          textEncoded:
+              await getThaiEncoded(getTabs(2) + callingItem.typeOfShop),
+        ),
         PosColumn(width: 2, text: getTabs(3) + ' ' + callingItem.time),
       ]);
     }
@@ -914,8 +924,10 @@ class PrinterCommander {
             width: 1,
             text: getTabs(1) + ' ' + transaction.firstRowData.createdDate),
         PosColumn(
-            width: 1,
-            text: getTabs(2) + ' ' + transaction.firstRowData.customerName),
+          width: 1,
+          textEncoded: await getThaiEncoded(
+              getTabs(2) + ' ' + transaction.firstRowData.customerName),
+        ),
         PosColumn(width: 1),
         PosColumn(
             width: 1,
@@ -949,7 +961,10 @@ class PrinterCommander {
       for (final tableItem in transaction.tableData) {
         bytes += generator.row([
           PosColumn(width: 1, text: tableItem.product),
-          PosColumn(width: 1, text: ' ' + tableItem.name),
+          PosColumn(
+            width: 1,
+            textEncoded: await getThaiEncoded(' ' + tableItem.name),
+          ),
           PosColumn(width: 1),
           PosColumn(width: 1),
           PosColumn(
@@ -1092,26 +1107,30 @@ class PrinterCommander {
         PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locFrom),
         PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locTo),
         PosColumn(width: 1, text: transferData.productCode),
-        PosColumn(width: 1, text: ' ' + transferData.description),
+        PosColumn(
+          width: 1,
+          textEncoded: await getThaiEncoded(' ' + transferData.description),
+        ),
+        PosColumn(
+          width: 1,
+          textEncoded: await getThaiEncoded(getTabs(8) +
+              ' ' +
+              getRightAlignedText(transferData.unitCode, 10)),
+        ),
         PosColumn(
             width: 1,
-            text: getTabs(6) +
-                '     ' +
-                getRightAlignedText(transferData.unitCode, 10)),
-        PosColumn(
-            width: 1,
-            text: getTabs(6) +
-                '     ' +
+            text: getTabs(8) +
+                ' ' +
                 getRightAlignedText(transferData.perPack, 8)),
         PosColumn(
             width: 1,
-            text: getTabs(4) +
-                '     ' +
+            text: getTabs(6) +
+                ' ' +
                 getRightAlignedText(transferData.quantity, 8)),
         PosColumn(
             width: 1,
-            text: getTabs(4) +
-                '     ' +
+            text: getTabs(6) +
+                ' ' +
                 getRightAlignedText(transferData.unitPrice, 8)),
         PosColumn(
             width: 1,
@@ -1216,8 +1235,14 @@ class PrinterCommander {
     for (final orderData in data.orderList) {
       bytes += generator.row([
         PosColumn(width: 1, text: orderData.partNo),
-        PosColumn(width: 1, text: orderData.description),
-        PosColumn(width: 1, text: getTabs(12) + ' ' + orderData.unit),
+        PosColumn(
+          width: 1,
+          textEncoded: await getThaiEncoded(orderData.description),
+        ),
+        PosColumn(
+          width: 1,
+          textEncoded: await getThaiEncoded(getTabs(12) + ' ' + orderData.unit),
+        ),
         PosColumn(
             width: 1,
             text: getTabs(10) + getRightAlignedText(orderData.perPack, 8)),
@@ -1308,7 +1333,7 @@ class PrinterCommander {
       PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
       PosColumn(
         width: 9,
-        text: getTabs(21) + 'ORDER SUMMARY REPORT',
+        text: getTabs(21) + 'CHECKING STOCK REPORT',
       ),
       PosColumn(
         width: 2,
@@ -1349,9 +1374,16 @@ class PrinterCommander {
     for (final stockData in data.stockList) {
       bytes += generator.row([
         PosColumn(width: 1, text: stockData.productCode),
-        PosColumn(width: 3, text: stockData.description),
+        PosColumn(
+          width: 3,
+          textEncoded: await getThaiEncoded(stockData.description),
+        ),
         PosColumn(width: 1, text: getRightAlignedText(stockData.perPack, 8)),
-        PosColumn(width: 1, text: getRightAlignedText(stockData.unitCode, 10)),
+        PosColumn(
+          width: 1,
+          textEncoded:
+              await getThaiEncoded(getRightAlignedText(stockData.unitCode, 10)),
+        ),
         PosColumn(
             width: 2,
             text: getTabs(3) +
