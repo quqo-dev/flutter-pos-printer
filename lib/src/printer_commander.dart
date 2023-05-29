@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:charset_converter/charset_converter.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/capability_profile.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/enums.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/generator.dart';
@@ -107,8 +109,12 @@ class PrinterCommander {
       ),
     ]);
 
-    bytes += generator
-        .textEncoded(await getThaiEncoded(getTabs(6) + data.contactInfo));
+    Uint8List encThai = await CharsetConverter.encode(
+      'TIS-620',
+      getTabs(6) + data.contactInfo,
+    );
+
+    bytes += generator.textEncoded(encThai);
 
     bytes += generator.emptyLines(1);
 
@@ -698,9 +704,14 @@ class PrinterCommander {
 
     // 1st table
     for (final stock in data.stockList) {
+      Uint8List encThai = await CharsetConverter.encode(
+        'TIS-620',
+        stock.name,
+      );
+
       bytes += generator.row([
         PosColumn(width: 1, text: stock.id),
-        PosColumn(width: 2, textEncoded: await getThaiEncoded(stock.name)),
+        PosColumn(width: 2, textEncoded: encThai),
         PosColumn(
           width: 9,
           text: getTabs(5) +
