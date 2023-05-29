@@ -437,7 +437,7 @@ class PrinterCommander {
         PosColumn(
             width: 1, text: getTabs(5) + getRightAlignedText(bill.total, 9)),
         PosColumn(width: 1),
-        PosColumn(width: 1, text: ' ' + getRightAlignedText(bill.quantity, 3)),
+        PosColumn(width: 1, text: ' ' + getRightAlignedText(bill.quantity, 2)),
       ]);
     }
 
