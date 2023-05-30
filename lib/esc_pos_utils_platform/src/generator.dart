@@ -673,7 +673,7 @@ class Generator {
           isNextRow = true;
         } else {
           bytes += _text(
-            _encode(cols[i].text),
+            encodedToPrint,
             styles: cols[i].styles,
             colInd: colInd,
             colWidth: cols[i].width,

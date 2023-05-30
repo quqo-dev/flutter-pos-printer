@@ -109,12 +109,8 @@ class PrinterCommander {
       ),
     ]);
 
-    Uint8List encThai = await CharsetConverter.encode(
-      'TIS-620',
-      getTabs(6) + data.contactInfo,
-    );
-
-    bytes += generator.textEncoded(encThai);
+    bytes += generator
+        .textEncoded(await getThaiEncoded(getTabs(6) + data.contactInfo));
 
     bytes += generator.emptyLines(1);
 
