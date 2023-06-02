@@ -96,8 +96,6 @@ class PrinterCommander {
     final generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(PosFontType.fontA, maxCharsPerLine: 1000);
 
-    bytes += generator.emptyLines(1);
-
     bytes += generator.row([
       PosColumn(width: 3),
       PosColumn(
@@ -132,7 +130,11 @@ class PrinterCommander {
       PosColumn(width: 1),
       PosColumn(
         width: 5,
-        textEncoded: await getThaiEncoded(data.address),
+        textEncoded: await getThaiEncoded(
+          data.address.length <= 40
+              ? data.address
+              : data.address.substring(0, 40),
+        ),
       ),
       PosColumn(
         width: 2,
@@ -150,13 +152,15 @@ class PrinterCommander {
     ]);
 
     // address 2
-    bytes += generator.row([
-      PosColumn(width: 1),
-      PosColumn(
-        width: 11,
-        text: 'A sample text',
-      ),
-    ]);
+    if (data.address.length > 40) {
+      bytes += generator.row([
+        PosColumn(width: 1),
+        PosColumn(
+          width: 11,
+          textEncoded: await getThaiEncoded(data.address.substring(40)),
+        ),
+      ]);
+    }
 
     bytes += generator.row([
       PosColumn(width: 2),
