@@ -77,13 +77,13 @@ BOOL PrintManager::printBytes(std::vector<uint8_t> data)
     if (_hPrinter == INVALID_HANDLE_VALUE)
     {
         //  throw std::exception("Printer handle is invalid.");
-        success =  false;
+        success = false;
     }
 
     // Fill in default value of the print document
     docInfo.pDocName = L"FeedMe POS Print Job";
     docInfo.pOutputFile = NULL;
-    docInfo.pDatatype = L"RAW";
+    docInfo.pDatatype = L"XPS_PASS";
 
     // Inform the spooler there is a new document
     dwJob = StartDocPrinterW(_hPrinter, 1, (LPBYTE)&docInfo);
@@ -100,7 +100,7 @@ BOOL PrintManager::printBytes(std::vector<uint8_t> data)
         else
         {
             // throw std::exception("StartPagePrinter error.");
-            success =  false;
+            success = false;
         }
         // Inform the spooler that the document hsa ended
         EndDocPrinter(_hPrinter);
@@ -115,7 +115,7 @@ BOOL PrintManager::printBytes(std::vector<uint8_t> data)
     if (written != data.size())
     {
         // throw std::exception("Fail to send all bytes");
-        success =  false;
+        success = false;
     }
 
     return success;

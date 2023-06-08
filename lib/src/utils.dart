@@ -54,6 +54,6 @@ String getRightAlignedText(String text, int maxLength) {
 
 Future<Uint8List> getThaiEncoded(String text) async =>
     await CharsetConverter.encode(
-      'TIS-620',
+      'Windows-874',
       text,
     );

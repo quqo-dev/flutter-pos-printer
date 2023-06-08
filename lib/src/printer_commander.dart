@@ -302,7 +302,7 @@ class PrinterCommander {
     bytes += generator
         .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAddress));
 
-    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+    _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
   static void _printDdcBill(
@@ -605,7 +605,7 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120);
 
-    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+    _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
   static void _printDssrBill(
@@ -737,7 +737,7 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120, ch: '=');
 
-    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+    _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
   static void _printCclrBill(
@@ -832,7 +832,7 @@ class PrinterCommander {
 
     bytes += generator.text('Grand Total ${data.grandTotal}');
 
-    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+    _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
   static void _printBtrBill(
@@ -1034,7 +1034,7 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120);
 
-    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+    _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
   static void _printBtlBill(
@@ -1169,7 +1169,7 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120);
 
-    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+    _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
   static void _printOsrBill(
@@ -1309,7 +1309,7 @@ class PrinterCommander {
     bytes += generator.emptyLines(1);
     bytes += generator.text('Order');
 
-    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+    _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
   static void _printCsrBill(
@@ -1417,28 +1417,46 @@ class PrinterCommander {
 
     bytes += generator.text("Total: ${data.totalRecord} Record(s)");
 
-    _printBluetoothEscPos(bytes, generator, bluetoothPrinter);
+    _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
-  static void _printBluetoothEscPos(
+  static void _printEscPos(
     List<int> bytes,
     Generator generator,
     BluetoothPrinter bluetoothPrinter,
   ) async {
     bytes += generator.cut();
 
-    await printerManager.connect(
-      type: PrinterType.bluetooth,
-      model: BluetoothPrinterInput(
-        name: bluetoothPrinter.deviceName,
-        address: bluetoothPrinter.address!,
-        isBle: bluetoothPrinter.isBle ?? false,
-        autoConnect: true,
-      ),
-    );
+    switch (bluetoothPrinter.typePrinter) {
+      case PrinterType.usb:
+        await printerManager.connect(
+          type: PrinterType.usb,
+          model: UsbPrinterInput(
+            name: bluetoothPrinter.deviceName,
+            productId: bluetoothPrinter.productId,
+            vendorId: bluetoothPrinter.vendorId,
+          ),
+        );
+        break;
+      case PrinterType.bluetooth:
+        await printerManager.connect(
+          type: PrinterType.bluetooth,
+          model: BluetoothPrinterInput(
+            name: bluetoothPrinter.deviceName,
+            address: bluetoothPrinter.address!,
+            isBle: bluetoothPrinter.isBle ?? false,
+            autoConnect: true,
+          ),
+        );
+        break;
+      default:
+        break;
+    }
 
-    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth &&
-        Platform.isAndroid) {
+    if ((bluetoothPrinter.typePrinter == PrinterType.bluetooth &&
+            Platform.isAndroid) ||
+        (bluetoothPrinter.typePrinter == PrinterType.usb &&
+            Platform.isWindows)) {
       printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
     } else {
       throw UnsupportedError("Only available on Android device");
