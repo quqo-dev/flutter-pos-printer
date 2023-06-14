@@ -573,12 +573,13 @@ final sampleOsrBillModel = OsrBillModel(
   time: '08:34:37',
   dateSelectedFrom: '07/02/2023',
   dateSelectedTo: '07/02/2023',
-  orderList: <OrderSummanyItem>[
-    OrderSummanyItem(
+  orderList: List<OrderSummanyItem>.generate(
+    50,
+    (index) => OrderSummanyItem(
       partNo: '100844799',
       description: 'ADVANCE 4T ULTRA10W40 12X1L',
       unit: 'TIN',
-      perPack: '12',
+      perPack: (index + 1).toString(),
       price: '4,010.821',
       sum: '',
       quantity: '1/0',
@@ -588,7 +589,7 @@ final sampleOsrBillModel = OsrBillModel(
       amount: '3,208.26',
       lite: '12',
     ),
-  ],
+  ),
   totalAmount: '100,432.44',
   totalLit: '866.00',
   referenceList: '\'S4745166\',\'S4745266\'',
