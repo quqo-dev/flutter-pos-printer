@@ -484,8 +484,9 @@ final sampleBtrBillModel = BtrBillModel(
   time: '08:34:37',
   dateSelectedFrom: '07/02/2023',
   dateSelectedTo: '07/02/2023',
-  transactionList: <TransactionModel>[
-    TransactionModel(
+  transactionList: List<TransactionModel>.generate(
+    14,
+    (index) => TransactionModel(
       firstRowData: FirstRowModel(
         noProduct: 'S32467-27',
         effectiveDate: '07/02/2023',
@@ -523,9 +524,21 @@ final sampleBtrBillModel = BtrBillModel(
           discount: '441.60',
           total: '1,004.09',
         ),
+        TableModel(
+          product: '100974445',
+          name: '4AT AX5 15W40 SL MB 12X0.8L',
+          pack: '12',
+          order: '1/0',
+          foc: '0/0',
+          pricePerUnit: '1,380.00',
+          price: '1,380.00',
+          percentDiscount: '32.00',
+          discount: '441.60',
+          total: '1,004.09',
+        ),
       ],
     ),
-  ],
+  ),
   totalRow: FirstRowModel(
     noProduct: 'TOTAL ==>',
     effectiveDate: '',
