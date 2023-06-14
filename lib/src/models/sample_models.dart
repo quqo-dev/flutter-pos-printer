@@ -491,8 +491,9 @@ final sampleCclrBillModel = CclrBillModel(
   time: '08:34:37',
   dateSelectedFrom: '07/02/2023',
   dateSelectedTo: '07/02/2023',
-  callingList: <CallingModel>[
-    CallingModel(
+  callingList: List<CallingModel>.generate(
+    54,
+    (_) => CallingModel(
       date: '07/02/2023',
       custCode: 'CA244687',
       custName: 'This is a name 2018 257',
@@ -500,17 +501,9 @@ final sampleCclrBillModel = CclrBillModel(
       typeOfShop: 'C6 Branded IWS Car6',
       time: '11:36:11',
     ),
-    CallingModel(
-      date: '07/02/2023',
-      custCode: 'CA244599',
-      custName: 'This is a name 2018 257',
-      reason: '2 A sample reason',
-      typeOfShop: 'D0 Agriculture Shop',
-      time: '14:55:44',
-    ),
-  ],
+  ),
   total: '12',
-  grandTotal: '12',
+  grandTotal: '54',
 );
 
 final sampleBtrBillModel = BtrBillModel(

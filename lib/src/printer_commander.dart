@@ -23,8 +23,9 @@ import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
  */
 enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl, Osr, Csr }
 
-const int MAX_BILLING_PRODUCT_LIST_ROW = 8;
 const int MAX_ADDRESS_CHAR_PER_ROW = 40;
+const int MAX_BILLING_PRODUCT_PER_PAGE = 8;
+const int MAX_CCLR_ROW_PER_PAGE = 50;
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -35,10 +36,15 @@ class PrinterCommander {
     required BluetoothPrinter bluetoothPrinter,
   }) async {
     List<int> bytes = [];
-    late Generator generator;
 
-    // Xprinter default
+    // Config default printer
     final profile = await CapabilityProfile.load(name: 'default');
+    final Generator generator = Generator(PaperSize.mmCustom, profile);
+    generator.setGlobalFont(
+      PosFontType.fontA,
+      maxCharsPerLine: 1000,
+      isSmallFont: true,
+    );
 
     switch (billType) {
       case BillType.Dksh:
@@ -46,12 +52,15 @@ class PrinterCommander {
           throw FormatException('Error! Type must be DkshBillModel');
         }
 
-        generator = Generator(PaperSize.mmCustom, profile);
-        generator.setGlobalFont(PosFontType.fontA, maxCharsPerLine: 1000);
+        generator.setGlobalFont(
+          PosFontType.fontA,
+          maxCharsPerLine: 1000,
+          isSmallFont: false,
+        );
 
         final int pages =
-            data.productList.length ~/ MAX_BILLING_PRODUCT_LIST_ROW +
-                (data.productList.length % MAX_BILLING_PRODUCT_LIST_ROW != 0
+            data.productList.length ~/ MAX_BILLING_PRODUCT_PER_PAGE +
+                (data.productList.length % MAX_BILLING_PRODUCT_PER_PAGE != 0
                     ? 1
                     : 0);
 
@@ -74,7 +83,12 @@ class PrinterCommander {
         if (data is! CclrBillModel) {
           throw FormatException('Error! Type must be CclrBillModel');
         }
-        _printCclrBill(data, bluetoothPrinter);
+
+        final int pages = data.callingList.length ~/ MAX_CCLR_ROW_PER_PAGE +
+            (data.callingList.length % MAX_CCLR_ROW_PER_PAGE != 0 ? 1 : 0);
+
+        bytes = await _getCclrReportContent(pages, generator, data);
+
         break;
       case BillType.Btr:
         if (data is! BtrBillModel) {
@@ -211,9 +225,9 @@ class PrinterCommander {
 
       int currentListItem = 0;
 
-      for (int listIdx = 0; listIdx < MAX_BILLING_PRODUCT_LIST_ROW; listIdx++) {
+      for (int listIdx = 0; listIdx < MAX_BILLING_PRODUCT_PER_PAGE; listIdx++) {
         final int currentListIdx =
-            outerIdx * MAX_BILLING_PRODUCT_LIST_ROW + listIdx;
+            outerIdx * MAX_BILLING_PRODUCT_PER_PAGE + listIdx;
 
         if (currentListIdx >= data.productList.length) break;
 
@@ -267,7 +281,7 @@ class PrinterCommander {
 
       // The rest empty lines of table
       bytes += generator.emptyLines(
-        MAX_BILLING_PRODUCT_LIST_ROW - currentListItem,
+        MAX_BILLING_PRODUCT_PER_PAGE - currentListItem,
       );
 
       // Spacing for the next row
@@ -783,99 +797,105 @@ class PrinterCommander {
     _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
-  static void _printCclrBill(
+  static Future<List<int>> _getCclrReportContent(
+    int totalPages,
+    Generator generator,
     CclrBillModel data,
-    BluetoothPrinter bluetoothPrinter,
   ) async {
     List<int> bytes = [];
 
-    // Xprinter default
-    final profile = await CapabilityProfile.load(name: 'default');
-
-    final generator = Generator(PaperSize.mmCustom, profile);
-    generator.setGlobalFont(
-      PosFontType.fontA,
-      maxCharsPerLine: 1000,
-      isSmallFont: true,
-    );
-
-    bytes += generator.emptyLines(1);
-
-    // Header section
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
-      PosColumn(width: 9),
-      PosColumn(
-        width: 2,
-        text: getRightAlignedText('Page ${data.page}', 14),
-      ),
-    ]);
-
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
-      PosColumn(
-        width: 9,
-        text: getTabs(19) + 'CUSTOMER CALLING LISTING REPORT',
-      ),
-      PosColumn(
-        width: 2,
-        text: getRightAlignedText(data.smNumber, 14),
-      ),
-    ]);
-
-    bytes += generator.row([
-      PosColumn(width: 1),
-      PosColumn(
-        width: 10,
-        text: getTabs(16) +
-            'Date Selected From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
-      ),
-      PosColumn(width: 1),
-    ]);
-
-    bytes += generator.hr(len: 120, ch: '=');
-
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'DATE'),
-      PosColumn(width: 1, text: getTabs(1) + 'CUST.CODE'),
-      PosColumn(width: 4, text: getTabs(1) + 'CUSTOMER NAME'),
-      PosColumn(width: 2, text: getTabs(1) + 'REASON'),
-      PosColumn(width: 2, text: getTabs(2) + 'TYPE OF SHOP'),
-      PosColumn(width: 2, text: getTabs(3) + ' ' + 'TIME'),
-    ]);
-
-    bytes += generator.hr(len: 120, ch: '=');
-
-    for (final callingItem in data.callingList) {
+    for (int outerIdx = 0; outerIdx < totalPages; outerIdx++) {
+      // Header section
       bytes += generator.row([
-        PosColumn(width: 1, text: callingItem.date),
-        PosColumn(width: 1, text: getTabs(1) + callingItem.custCode),
-        PosColumn(
-          width: 4,
-          textEncoded: await getThaiEncoded(getTabs(1) + callingItem.custName),
-        ),
+        PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+        PosColumn(width: 9),
         PosColumn(
           width: 2,
-          textEncoded: await getThaiEncoded(getTabs(1) + callingItem.reason),
+          text: getRightAlignedText('Page ${outerIdx + 1}', 14),
         ),
-        PosColumn(
-          width: 2,
-          textEncoded:
-              await getThaiEncoded(getTabs(2) + callingItem.typeOfShop),
-        ),
-        PosColumn(width: 2, text: getTabs(3) + ' ' + callingItem.time),
       ]);
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+        PosColumn(
+          width: 9,
+          text: getTabs(19) + 'CUSTOMER CALLING LISTING REPORT',
+        ),
+        PosColumn(
+          width: 2,
+          text: getRightAlignedText(data.smNumber, 14),
+        ),
+      ]);
+
+      bytes += generator.row([
+        PosColumn(width: 1),
+        PosColumn(
+          width: 10,
+          text: getTabs(16) +
+              'Date Selected From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
+        ),
+        PosColumn(width: 1),
+      ]);
+
+      bytes += generator.hr(len: 120, ch: '=');
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: 'DATE'),
+        PosColumn(width: 1, text: getTabs(1) + 'CUST.CODE'),
+        PosColumn(width: 4, text: getTabs(1) + 'CUSTOMER NAME'),
+        PosColumn(width: 2, text: getTabs(1) + 'REASON'),
+        PosColumn(width: 2, text: getTabs(2) + 'TYPE OF SHOP'),
+        PosColumn(width: 2, text: getTabs(3) + ' ' + 'TIME'),
+      ]);
+
+      bytes += generator.hr(len: 120, ch: '=');
+
+      int currentListItem = 0;
+
+      for (int listIdx = 0; listIdx < MAX_CCLR_ROW_PER_PAGE; listIdx++) {
+        final int currentListIdx = outerIdx * MAX_CCLR_ROW_PER_PAGE + listIdx;
+
+        if (currentListIdx >= data.callingList.length) break;
+
+        currentListItem++;
+
+        final CallingModel callingItem = data.callingList[currentListIdx];
+
+        bytes += generator.row([
+          PosColumn(width: 1, text: callingItem.date),
+          PosColumn(width: 1, text: getTabs(1) + callingItem.custCode),
+          PosColumn(
+            width: 4,
+            textEncoded:
+                await getThaiEncoded(getTabs(1) + callingItem.custName),
+          ),
+          PosColumn(
+            width: 2,
+            textEncoded: await getThaiEncoded(getTabs(1) + callingItem.reason),
+          ),
+          PosColumn(
+            width: 2,
+            textEncoded:
+                await getThaiEncoded(getTabs(2) + callingItem.typeOfShop),
+          ),
+          PosColumn(width: 2, text: getTabs(3) + ' ' + callingItem.time),
+        ]);
+      }
+
+      bytes += generator.hr(len: 120, ch: '=');
+
+      bytes += generator.text('Total $currentListItem');
+
+      bytes += generator.hr(len: 120, ch: '=');
+
+      bytes += generator.text('Grand Total ${data.grandTotal}');
+
+      if (outerIdx < totalPages - 1) {
+        bytes += generator.emptyLines(4);
+      }
     }
 
-    bytes += generator.hr(len: 120, ch: '=');
-
-    bytes += generator.text('Total ${data.total}');
-
-    bytes += generator.hr(len: 120, ch: '=');
-
-    bytes += generator.text('Grand Total ${data.grandTotal}');
-
-    _printEscPos(bytes, generator, bluetoothPrinter);
+    return bytes;
   }
 
   static void _printBtrBill(
