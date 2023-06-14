@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:charset_converter/charset_converter.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/capability_profile.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/commands.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/enums.dart';
@@ -26,6 +24,7 @@ enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl, Osr, Csr }
 const int MAX_ADDRESS_CHAR_PER_ROW = 40;
 const int MAX_BILLING_PRODUCT_PER_PAGE = 8;
 const int MAX_CCLR_ROW_PER_PAGE = 50;
+const int MAX_DSSR_ROW_PER_PAGE = 50;
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -77,7 +76,12 @@ class PrinterCommander {
         if (data is! DssrBillModel) {
           throw FormatException('Error! Type must be DssrBillModel');
         }
-        _printDssrBill(data, bluetoothPrinter);
+
+        final int pages = data.stockList.length ~/ MAX_DSSR_ROW_PER_PAGE +
+            (data.stockList.length % MAX_DSSR_ROW_PER_PAGE != 0 ? 1 : 0);
+
+        bytes = await _getDssrReportContent(pages, generator, data);
+
         break;
       case BillType.Cclr:
         if (data is! CclrBillModel) {
@@ -665,136 +669,135 @@ class PrinterCommander {
     _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
-  static void _printDssrBill(
+  static Future<List<int>> _getDssrReportContent(
+    int totalPages,
+    Generator generator,
     DssrBillModel data,
-    BluetoothPrinter bluetoothPrinter,
   ) async {
     List<int> bytes = [];
 
-    // Xprinter default
-    final profile = await CapabilityProfile.load(name: 'default');
-
-    final generator = Generator(PaperSize.mmCustom, profile);
-    generator.setGlobalFont(
-      PosFontType.fontA,
-      maxCharsPerLine: 1000,
-      isSmallFont: true,
-    );
-
-    bytes += generator.emptyLines(1);
-
-    // Header section
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
-      PosColumn(width: 9),
-      PosColumn(
-        width: 2,
-        text: getRightAlignedText('Page ${data.page}', 14),
-      ),
-    ]);
-
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
-      PosColumn(
-        width: 9,
-        text: getTabs(19) + 'DAILY STOCK SUMMARY REPORT',
-      ),
-      PosColumn(
-        width: 2,
-        text: getRightAlignedText(data.smNumber, 14),
-      ),
-    ]);
-
-    bytes += generator.row([
-      PosColumn(width: 1),
-      PosColumn(
-        width: 10,
-        text: getTabs(16) + 'Selected Date : ${data.selectedDate} All Products',
-      ),
-      PosColumn(width: 1),
-    ]);
-
-    bytes += generator.hr(len: 120, ch: '=');
-
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'PRODUCT'),
-      PosColumn(width: 2, text: 'NAME'),
-      PosColumn(
-        width: 9,
-        text: getTabs(5) +
-            ' ' +
-            getRightAlignedText('W/H', 6) +
-            getRightAlignedText('PER', 5) +
-            getRightAlignedText('OPEN', 6) +
-            getRightAlignedText('SALE', 6) +
-            getRightAlignedText('GOODS', 8) +
-            getRightAlignedText('TRANSF', 7) +
-            getRightAlignedText('TRANSF', 7) +
-            getRightAlignedText('FOC', 5) +
-            getRightAlignedText('', 5) +
-            getRightAlignedText('CLOSE', 6) +
-            getRightAlignedText('ONHAND', 6),
-      ),
-    ]);
-
-    bytes += generator.row([
-      PosColumn(width: 1),
-      PosColumn(width: 2),
-      PosColumn(
-        width: 9,
-        text: getTabs(5) +
-            ' ' +
-            getRightAlignedText('', 6) +
-            getRightAlignedText('PACK', 5) +
-            getRightAlignedText('BAL', 6) +
-            getRightAlignedText('', 6) +
-            getRightAlignedText('RETURNS', 8) +
-            getRightAlignedText('IN', 7) +
-            getRightAlignedText('OUT', 7) +
-            getRightAlignedText('X', 5) +
-            getRightAlignedText('Y', 5) +
-            getRightAlignedText('BAL', 6),
-      ),
-    ]);
-
-    bytes += generator.hr(len: 120, ch: '=');
-
-    // 1st table
-    for (final stock in data.stockList) {
-      Uint8List encThai = await CharsetConverter.encode(
-        'TIS-620',
-        stock.name,
-      );
+    for (int outerIdx = 0; outerIdx < totalPages; outerIdx++) {
+      // Header section
+      bytes += generator.row([
+        PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+        PosColumn(width: 9),
+        PosColumn(
+          width: 2,
+          text: getRightAlignedText('Page ${outerIdx + 1}', 14),
+        ),
+      ]);
 
       bytes += generator.row([
-        PosColumn(width: 1, text: stock.id),
-        PosColumn(width: 2, textEncoded: encThai),
+        PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+        PosColumn(
+          width: 9,
+          text: getTabs(19) + 'DAILY STOCK SUMMARY REPORT',
+        ),
+        PosColumn(
+          width: 2,
+          text: getRightAlignedText(data.smNumber, 14),
+        ),
+      ]);
+
+      bytes += generator.row([
+        PosColumn(width: 1),
+        PosColumn(
+          width: 10,
+          text:
+              getTabs(16) + 'Selected Date : ${data.selectedDate} All Products',
+        ),
+        PosColumn(width: 1),
+      ]);
+
+      bytes += generator.hr(len: 120, ch: '=');
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: 'PRODUCT'),
+        PosColumn(width: 2, text: 'NAME'),
         PosColumn(
           width: 9,
           text: getTabs(5) +
               ' ' +
-              getRightAlignedText(stock.wh, 6) +
-              getRightAlignedText(stock.perPack, 5) +
-              getRightAlignedText(stock.openBal, 6) +
-              getRightAlignedText(stock.sale, 6) +
-              getRightAlignedText(stock.goodsReturn, 8) +
-              getRightAlignedText(stock.transfIn, 7) +
-              getRightAlignedText(stock.transfOut, 7) +
-              getRightAlignedText(stock.focX, 5) +
-              getRightAlignedText(stock.focY, 5) +
-              getRightAlignedText(stock.closeBal, 6) +
-              getRightAlignedText(stock.onhand, 6),
+              getRightAlignedText('W/H', 6) +
+              getRightAlignedText('PER', 5) +
+              getRightAlignedText('OPEN', 6) +
+              getRightAlignedText('SALE', 6) +
+              getRightAlignedText('GOODS', 8) +
+              getRightAlignedText('TRANSF', 7) +
+              getRightAlignedText('TRANSF', 7) +
+              getRightAlignedText('FOC', 5) +
+              getRightAlignedText('', 5) +
+              getRightAlignedText('CLOSE', 6) +
+              getRightAlignedText('ONHAND', 6),
         ),
       ]);
+
+      bytes += generator.row([
+        PosColumn(width: 1),
+        PosColumn(width: 2),
+        PosColumn(
+          width: 9,
+          text: getTabs(5) +
+              ' ' +
+              getRightAlignedText('', 6) +
+              getRightAlignedText('PACK', 5) +
+              getRightAlignedText('BAL', 6) +
+              getRightAlignedText('', 6) +
+              getRightAlignedText('RETURNS', 8) +
+              getRightAlignedText('IN', 7) +
+              getRightAlignedText('OUT', 7) +
+              getRightAlignedText('X', 5) +
+              getRightAlignedText('Y', 5) +
+              getRightAlignedText('BAL', 6),
+        ),
+      ]);
+
+      bytes += generator.hr(len: 120, ch: '=');
+
+      int currentListItem = 0;
+
+      for (int listIdx = 0; listIdx < MAX_DSSR_ROW_PER_PAGE; listIdx++) {
+        final int currentListIdx = outerIdx * MAX_DSSR_ROW_PER_PAGE + listIdx;
+
+        if (currentListIdx >= data.stockList.length) break;
+
+        currentListItem++;
+        final StockModel stock = data.stockList[currentListIdx];
+
+        bytes += generator.row([
+          PosColumn(width: 1, text: stock.id),
+          PosColumn(width: 2, textEncoded: await getThaiEncoded(stock.name)),
+          PosColumn(
+            width: 9,
+            text: getTabs(5) +
+                ' ' +
+                getRightAlignedText(stock.wh, 6) +
+                getRightAlignedText(stock.perPack, 5) +
+                getRightAlignedText(stock.openBal, 6) +
+                getRightAlignedText(stock.sale, 6) +
+                getRightAlignedText(stock.goodsReturn, 8) +
+                getRightAlignedText(stock.transfIn, 7) +
+                getRightAlignedText(stock.transfOut, 7) +
+                getRightAlignedText(stock.focX, 5) +
+                getRightAlignedText(stock.focY, 5) +
+                getRightAlignedText(stock.closeBal, 6) +
+                getRightAlignedText(stock.onhand, 6),
+          ),
+        ]);
+      }
+
+      bytes += generator.hr(len: 120, ch: '=');
+
+      bytes += generator.text('NO OF PRODUCT : $currentListItem LIST');
+
+      bytes += generator.hr(len: 120, ch: '=');
+
+      if (outerIdx < totalPages - 1) {
+        bytes += generator.emptyLines(4);
+      }
     }
 
-    bytes += generator.hr(len: 120, ch: '=');
-
-    bytes += generator.text('NO OF PRODUCT : ${data.total} LIST');
-
-    bytes += generator.hr(len: 120, ch: '=');
-
-    _printEscPos(bytes, generator, bluetoothPrinter);
+    return bytes;
   }
 
   static Future<List<int>> _getCclrReportContent(
