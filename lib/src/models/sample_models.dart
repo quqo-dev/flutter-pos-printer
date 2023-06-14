@@ -546,8 +546,9 @@ final sampleBtlBillModel = BtlBillModel(
   date: '08/02/02023',
   time: '08:34:37',
   reportNo: "M520001",
-  transferList: <TransferItem>[
-    TransferItem(
+  transferList: List<TransferItem>.generate(
+    54,
+    (_) => TransferItem(
       transferNo: '4902577551',
       locFrom: '8A66',
       locTo: '8A64',
@@ -560,7 +561,7 @@ final sampleBtlBillModel = BtlBillModel(
       amount: '3,396.00',
       status: 'C',
     ),
-  ],
+  ),
   totalRecord: '8',
   totalAmount: '55,656.29',
 );

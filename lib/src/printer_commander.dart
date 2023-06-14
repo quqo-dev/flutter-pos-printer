@@ -25,6 +25,7 @@ const int MAX_ADDRESS_CHAR_PER_ROW = 40;
 const int MAX_BILLING_PRODUCT_PER_PAGE = 8;
 const int MAX_CCLR_ROW_PER_PAGE = 50;
 const int MAX_DSSR_ROW_PER_PAGE = 50;
+const int MAX_BTL_ROW_PER_PAGE = 50;
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -64,13 +65,13 @@ class PrinterCommander {
                     : 0);
 
         bytes = await _getDkshBillingContent(pages, generator, data);
-
         break;
       case BillType.Ddc:
         if (data is! DdcBillModel) {
           throw FormatException('Error! Type must be DdcBillModel');
         }
-        _printDdcBill(data, bluetoothPrinter);
+
+        bytes = await _getDdcReportContent(generator, data);
         break;
       case BillType.Dssr:
         if (data is! DssrBillModel) {
@@ -81,7 +82,6 @@ class PrinterCommander {
             (data.stockList.length % MAX_DSSR_ROW_PER_PAGE != 0 ? 1 : 0);
 
         bytes = await _getDssrReportContent(pages, generator, data);
-
         break;
       case BillType.Cclr:
         if (data is! CclrBillModel) {
@@ -92,7 +92,6 @@ class PrinterCommander {
             (data.callingList.length % MAX_CCLR_ROW_PER_PAGE != 0 ? 1 : 0);
 
         bytes = await _getCclrReportContent(pages, generator, data);
-
         break;
       case BillType.Btr:
         if (data is! BtrBillModel) {
@@ -104,7 +103,11 @@ class PrinterCommander {
         if (data is! BtlBillModel) {
           throw FormatException('Error! Type must be BtlBillModel');
         }
-        _printBtlBill(data, bluetoothPrinter);
+
+        final int pages = data.transferList.length ~/ MAX_BTL_ROW_PER_PAGE +
+            (data.transferList.length % MAX_BTL_ROW_PER_PAGE != 0 ? 1 : 0);
+
+        bytes = await _getBtlReportContent(pages, generator, data);
         break;
       case BillType.Osr:
         if (data is! OsrBillModel) {
@@ -366,23 +369,11 @@ class PrinterCommander {
     return bytes;
   }
 
-  static void _printDdcBill(
+  static Future<List<int>> _getDdcReportContent(
+    Generator generator,
     DdcBillModel data,
-    BluetoothPrinter bluetoothPrinter,
   ) async {
     List<int> bytes = [];
-
-    // Xprinter default
-    final profile = await CapabilityProfile.load(name: 'default');
-
-    final generator = Generator(PaperSize.mmCustom, profile);
-    generator.setGlobalFont(
-      PosFontType.fontA,
-      maxCharsPerLine: 1000,
-      isSmallFont: true,
-    );
-
-    bytes += generator.emptyLines(1);
 
     // Header section
     bytes += generator.row([
@@ -666,7 +657,7 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120);
 
-    _printEscPos(bytes, generator, bluetoothPrinter);
+    return bytes;
   }
 
   static Future<List<int>> _getDssrReportContent(
@@ -1103,139 +1094,157 @@ class PrinterCommander {
     _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
-  static void _printBtlBill(
+  static Future<List<int>> _getBtlReportContent(
+    int totalPages,
+    Generator generator,
     BtlBillModel data,
-    BluetoothPrinter bluetoothPrinter,
   ) async {
     List<int> bytes = [];
 
-    // Xprinter default
-    final profile = await CapabilityProfile.load(name: 'default');
-
-    final generator = Generator(PaperSize.mmCustom, profile);
-    generator.setGlobalFont(
-      PosFontType.fontA,
-      maxCharsPerLine: 1000,
-      isSmallFont: true,
-    );
-
-    bytes += generator.emptyLines(1);
-
-    // Header section
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
-      PosColumn(width: 9),
-      PosColumn(
-        width: 2,
-        text: getRightAlignedText('Page ${data.page}', 14),
-      ),
-    ]);
-
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
-      PosColumn(
-        width: 9,
-        text: getTabs(21) + 'BILL TRANSFER LISTING',
-      ),
-      PosColumn(
-        width: 2,
-        text: getRightAlignedText(data.smNumber, 14),
-      ),
-    ]);
-
-    bytes += generator.row([
-      PosColumn(width: 1),
-      PosColumn(
-        width: 10,
-        text: getTabs(23) + 'No. ${data.reportNo}',
-      ),
-      PosColumn(width: 1),
-    ]);
-
-    bytes += generator.hr(len: 120);
-
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'TRN NO'),
-      PosColumn(width: 1, text: getTabs(1) + ' ' + 'LOC.FROM'),
-      PosColumn(width: 1, text: getTabs(1) + ' ' + 'TO'),
-      PosColumn(width: 1, text: 'PRODUCT'),
-      PosColumn(width: 1, text: ' ' + 'DESCRIPTION'),
-      PosColumn(
-          width: 1,
-          text: getTabs(8) + ' ' + getRightAlignedText('UNIT CODE', 10)),
-      PosColumn(
-          width: 1, text: getTabs(8) + ' ' + getRightAlignedText('PERPACK', 8)),
-      PosColumn(
-          width: 1, text: getTabs(6) + ' ' + getRightAlignedText('QTY', 8)),
-      PosColumn(
-          width: 1, text: getTabs(6) + ' ' + getRightAlignedText('UNIT P', 8)),
-      PosColumn(
-          width: 1, text: getTabs(5) + ' ' + getRightAlignedText('AMOUNT', 10)),
-      PosColumn(
-          width: 1, text: getTabs(3) + ' ' + getRightAlignedText('STA', 8)),
-      PosColumn(width: 1),
-    ]);
-
-    bytes += generator.hr(len: 120);
-
-    for (final transferData in data.transferList) {
+    for (int outerIdx = 0; outerIdx < totalPages; outerIdx++) {
+      // Header section
       bytes += generator.row([
-        PosColumn(width: 1, text: transferData.transferNo),
-        PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locFrom),
-        PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locTo),
-        PosColumn(width: 1, text: transferData.productCode),
+        PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+        PosColumn(width: 9),
         PosColumn(
-          width: 1,
-          textEncoded: await getThaiEncoded(' ' + transferData.description),
+          width: 2,
+          text: getRightAlignedText('Page ${outerIdx + 1}', 14),
+        ),
+      ]);
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+        PosColumn(
+          width: 9,
+          text: getTabs(21) + 'BILL TRANSFER LISTING',
         ),
         PosColumn(
-          width: 1,
-          textEncoded: await getThaiEncoded(getTabs(8) +
-              ' ' +
-              getRightAlignedText(transferData.unitCode, 10)),
+          width: 2,
+          text: getRightAlignedText(data.smNumber, 14),
         ),
+      ]);
+
+      bytes += generator.row([
+        PosColumn(width: 1),
         PosColumn(
-            width: 1,
-            text: getTabs(8) +
-                ' ' +
-                getRightAlignedText(transferData.perPack, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(6) +
-                ' ' +
-                getRightAlignedText(transferData.quantity, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(6) +
-                ' ' +
-                getRightAlignedText(transferData.unitPrice, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) +
-                ' ' +
-                getRightAlignedText(transferData.amount, 10)),
-        PosColumn(
-            width: 1,
-            text:
-                getTabs(3) + ' ' + getRightAlignedText(transferData.status, 8)),
+          width: 10,
+          text: getTabs(23) + 'No. ${data.reportNo}',
+        ),
         PosColumn(width: 1),
       ]);
+
+      bytes += generator.hr(len: 120);
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: 'TRN NO'),
+        PosColumn(width: 1, text: getTabs(1) + ' ' + 'LOC.FROM'),
+        PosColumn(width: 1, text: getTabs(1) + ' ' + 'TO'),
+        PosColumn(width: 1, text: 'PRODUCT'),
+        PosColumn(width: 1, text: ' ' + 'DESCRIPTION'),
+        PosColumn(
+            width: 1,
+            text: getTabs(8) + ' ' + getRightAlignedText('UNIT CODE', 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(8) + ' ' + getRightAlignedText('PERPACK', 8)),
+        PosColumn(
+            width: 1, text: getTabs(6) + ' ' + getRightAlignedText('QTY', 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(6) + ' ' + getRightAlignedText('UNIT P', 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + ' ' + getRightAlignedText('AMOUNT', 10)),
+        PosColumn(
+            width: 1, text: getTabs(3) + ' ' + getRightAlignedText('STA', 8)),
+        PosColumn(width: 1),
+      ]);
+
+      bytes += generator.hr(len: 120);
+
+      int currentListItem = 0;
+      double currentTotalAmount = 0.0;
+
+      for (int listIdx = 0; listIdx < MAX_BTL_ROW_PER_PAGE; listIdx++) {
+        final int currentListIdx = outerIdx * MAX_BTL_ROW_PER_PAGE + listIdx;
+
+        if (currentListIdx >= data.transferList.length) break;
+
+        currentListItem++;
+        final TransferItem transferData = data.transferList[currentListIdx];
+        currentTotalAmount += getDoubleFromFormattedString(transferData.amount);
+
+        bytes += generator.row([
+          PosColumn(width: 1, text: transferData.transferNo),
+          PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locFrom),
+          PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locTo),
+          PosColumn(width: 1, text: transferData.productCode),
+          PosColumn(
+            width: 1,
+            textEncoded: await getThaiEncoded(' ' + transferData.description),
+          ),
+          PosColumn(
+            width: 1,
+            textEncoded: await getThaiEncoded(getTabs(8) +
+                ' ' +
+                getRightAlignedText(transferData.unitCode, 10)),
+          ),
+          PosColumn(
+              width: 1,
+              text: getTabs(8) +
+                  ' ' +
+                  getRightAlignedText(transferData.perPack, 8)),
+          PosColumn(
+              width: 1,
+              text: getTabs(6) +
+                  ' ' +
+                  getRightAlignedText(transferData.quantity, 8)),
+          PosColumn(
+              width: 1,
+              text: getTabs(6) +
+                  ' ' +
+                  getRightAlignedText(transferData.unitPrice, 8)),
+          PosColumn(
+              width: 1,
+              text: getTabs(5) +
+                  ' ' +
+                  getRightAlignedText(transferData.amount, 10)),
+          PosColumn(
+              width: 1,
+              text: getTabs(3) +
+                  ' ' +
+                  getRightAlignedText(transferData.status, 8)),
+          PosColumn(width: 1),
+        ]);
+      }
+
+      bytes += generator.hr(len: 120);
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: 'Total $currentListItem Record(s)'),
+        PosColumn(width: 8, text: ''),
+        PosColumn(
+          width: 1,
+          text: getTabs(5) +
+              ' ' +
+              getRightAlignedText(
+                formatCurrencyValue(
+                  currentTotalAmount.toStringAsFixed(2),
+                ),
+                10,
+              ),
+        ),
+        PosColumn(width: 2, text: ''),
+      ]);
+
+      bytes += generator.hr(len: 120);
+
+      if (outerIdx < totalPages - 1) {
+        bytes += generator.emptyLines(5);
+      }
     }
 
-    bytes += generator.hr(len: 120);
-
-    bytes += generator.row([
-      PosColumn(width: 1, text: 'Total ${data.totalRecord} Record(s)'),
-      PosColumn(width: 8, text: ''),
-      PosColumn(
-          width: 1,
-          text: getTabs(5) + ' ' + getRightAlignedText(data.totalAmount, 10)),
-      PosColumn(width: 2, text: ''),
-    ]);
-
-    bytes += generator.hr(len: 120);
-
-    _printEscPos(bytes, generator, bluetoothPrinter);
+    return bytes;
   }
 
   static void _printOsrBill(

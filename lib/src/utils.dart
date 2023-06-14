@@ -56,3 +56,15 @@ Future<Uint8List> getThaiEncoded(String text) async =>
       'Windows-874',
       text,
     );
+
+double getDoubleFromFormattedString(String str) {
+  String stringValue = str.replaceAll(',', '');
+  return double.parse(stringValue);
+}
+
+String formatCurrencyValue(String value) {
+  List<String> parts = value.split('.');
+  parts[0] = parts[0].replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match match) => '${match[1]},');
+  return parts.join('.');
+}
