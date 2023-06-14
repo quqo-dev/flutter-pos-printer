@@ -27,6 +27,7 @@ const cSize10 = '${esc}g\x01';
 
 // ======== TEST HERE ========
 const cLineSpace = '${esc}\x32';
+const cSmallLineSpace = '${esc}\x4A';
 
 const cUnderlineOff = '$esc-\x00'; // Turns off underline mode
 const cUnderline1dot = '$esc-\x01'; // Turns on underline mode (1-dot thick)

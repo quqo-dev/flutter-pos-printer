@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:charset_converter/charset_converter.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/capability_profile.dart';
+import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/commands.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/enums.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/generator.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_column.dart';
@@ -22,6 +23,9 @@ import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
  */
 enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl, Osr, Csr }
 
+const int MAX_BILLING_PRODUCT_LIST_ROW = 8;
+const int MAX_ADDRESS_CHAR_PER_ROW = 40;
+
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
 
@@ -29,13 +33,30 @@ class PrinterCommander {
     required BillType billType,
     required dynamic data,
     required BluetoothPrinter bluetoothPrinter,
-  }) {
+  }) async {
+    List<int> bytes = [];
+    late Generator generator;
+
+    // Xprinter default
+    final profile = await CapabilityProfile.load(name: 'default');
+
     switch (billType) {
       case BillType.Dksh:
         if (data is! DkshBillModel) {
           throw FormatException('Error! Type must be DkshBillModel');
         }
-        _printDkshBill(data, bluetoothPrinter);
+
+        generator = Generator(PaperSize.mmCustom, profile);
+        generator.setGlobalFont(PosFontType.fontA, maxCharsPerLine: 1000);
+
+        final int pages =
+            data.productList.length ~/ MAX_BILLING_PRODUCT_LIST_ROW +
+                (data.productList.length % MAX_BILLING_PRODUCT_LIST_ROW != 0
+                    ? 1
+                    : 0);
+
+        bytes = await _getDkshBillingContent(pages, generator, data);
+
         break;
       case BillType.Ddc:
         if (data is! DdcBillModel) {
@@ -82,227 +103,249 @@ class PrinterCommander {
       default:
         throw UnimplementedError();
     }
+
+    _printEscPos(bytes, generator, bluetoothPrinter);
   }
 
-  static void _printDkshBill(
+  static Future<List<int>> _getDkshBillingContent(
+    int totalPages,
+    Generator generator,
     DkshBillModel data,
-    BluetoothPrinter bluetoothPrinter,
   ) async {
     List<int> bytes = [];
 
-    // Xprinter default
-    final profile = await CapabilityProfile.load(name: 'default');
+    for (int outerIdx = 0; outerIdx < totalPages; outerIdx++) {
+      bytes += cSmallLineSpace.codeUnits;
 
-    final generator = Generator(PaperSize.mmCustom, profile);
-    generator.setGlobalFont(PosFontType.fontA, maxCharsPerLine: 1000);
-
-    bytes += generator.row([
-      PosColumn(width: 3),
-      PosColumn(
-        width: 9,
-        text: getTabs(1) +
-            data.issuedBranch +
-            getTabs(4) +
-            'Page ${data.page}  Time ${data.time}',
-      ),
-    ]);
-
-    bytes += generator
-        .textEncoded(await getThaiEncoded(getTabs(6) + data.contactInfo));
-
-    bytes += generator.emptyLines(1);
-
-    bytes += generator.row([
-      PosColumn(width: 1),
-      PosColumn(
-        width: 5,
-        textEncoded: await getThaiEncoded(data.storeName),
-      ),
-      PosColumn(width: 2),
-      PosColumn(width: 2),
-      PosColumn(
-        width: 2,
-        text: data.no,
-      ),
-    ]);
-
-    bytes += generator.row([
-      PosColumn(width: 1),
-      PosColumn(
-        width: 5,
-        textEncoded: await getThaiEncoded(
-          data.address.length <= 40
-              ? data.address
-              : data.address.substring(0, 40),
+      bytes += generator.row([
+        PosColumn(width: 3),
+        PosColumn(
+          width: 9,
+          text: getTabs(1) +
+              data.issuedBranch +
+              getTabs(4) +
+              'Page ${outerIdx + 1}  Time ${data.time}',
         ),
-      ),
-      PosColumn(
-        width: 2,
-        text: data.orderNumber,
-        styles: const PosStyles(align: PosAlign.center),
-      ),
-      PosColumn(
-        width: 2,
-        text: getTabs(2) + data.section,
-      ),
-      PosColumn(
-        width: 2,
-        text: data.date,
-      ),
-    ]);
+      ]);
 
-    // address 2
-    if (data.address.length > 40) {
+      bytes += generator
+          .textEncoded(await getThaiEncoded(getTabs(6) + data.contactInfo));
+
+      bytes += generator.emptyLines(1);
+
       bytes += generator.row([
         PosColumn(width: 1),
         PosColumn(
-          width: 11,
-          textEncoded: await getThaiEncoded(data.address.substring(40)),
+          width: 5,
+          textEncoded: await getThaiEncoded(data.storeName),
+        ),
+        PosColumn(width: 2),
+        PosColumn(width: 2),
+        PosColumn(
+          width: 2,
+          text: data.no,
         ),
       ]);
-    }
 
-    bytes += generator.row([
-      PosColumn(width: 2),
-      PosColumn(
-        width: 4,
-        textEncoded: await getThaiEncoded(data.taxPayerIdNumber),
-      ),
-      PosColumn(
-        width: 2,
-        text: data.customerId,
-        styles: const PosStyles(align: PosAlign.center),
-      ),
-      PosColumn(
-        width: 2,
-        text: getTabs(2) + data.salespersonCode,
-      ),
-      PosColumn(
-        width: 2,
-        text: data.billingCode,
-      ),
-    ]);
+      bytes += generator.row([
+        PosColumn(width: 1),
+        PosColumn(
+          width: 5,
+          textEncoded: await getThaiEncoded(
+            data.address.length <= MAX_ADDRESS_CHAR_PER_ROW
+                ? data.address
+                : data.address.substring(0, MAX_ADDRESS_CHAR_PER_ROW),
+          ),
+        ),
+        PosColumn(
+          width: 2,
+          text: data.orderNumber,
+          styles: const PosStyles(align: PosAlign.center),
+        ),
+        PosColumn(
+          width: 2,
+          text: getTabs(2) + data.section,
+        ),
+        PosColumn(
+          width: 2,
+          text: data.date,
+        ),
+      ]);
 
-    bytes += generator.emptyLines(3);
+      // address 2
+      if (data.address.length > MAX_ADDRESS_CHAR_PER_ROW) {
+        bytes += generator.row([
+          PosColumn(width: 1),
+          PosColumn(
+            width: 11,
+            textEncoded: await getThaiEncoded(
+                data.address.substring(MAX_ADDRESS_CHAR_PER_ROW)),
+          ),
+        ]);
+      } else {
+        bytes += generator.emptyLines(1);
+      }
 
-    for (final item in data.productList) {
+      bytes += generator.row([
+        PosColumn(width: 2),
+        PosColumn(
+          width: 4,
+          textEncoded: await getThaiEncoded(data.taxPayerIdNumber),
+        ),
+        PosColumn(
+          width: 2,
+          text: data.customerId,
+          styles: const PosStyles(align: PosAlign.center),
+        ),
+        PosColumn(
+          width: 2,
+          text: getTabs(2) + data.salespersonCode,
+        ),
+        PosColumn(
+          width: 2,
+          text: data.billingCode,
+        ),
+      ]);
+
+      bytes += generator.emptyLines(3);
+
+      int currentListItem = 0;
+
+      for (int listIdx = 0; listIdx < MAX_BILLING_PRODUCT_LIST_ROW; listIdx++) {
+        final int currentListIdx =
+            outerIdx * MAX_BILLING_PRODUCT_LIST_ROW + listIdx;
+
+        if (currentListIdx >= data.productList.length) break;
+
+        currentListItem++;
+        final DkshProductModel item = data.productList[currentListIdx];
+
+        bytes += generator.row([
+          PosColumn(
+            width: 3,
+            textEncoded: await getThaiEncoded(
+                ' ${item.productCode} ${item.productList}'),
+            styles: const PosStyles(align: PosAlign.left),
+          ),
+          PosColumn(
+            width: 1,
+            text: getTabs(5) + ' ' + item.soldAmount,
+            styles: const PosStyles(align: PosAlign.right),
+          ),
+          PosColumn(
+            width: 1,
+            text: getTabs(4) + ' ' + item.freeAmount,
+            styles: const PosStyles(align: PosAlign.right),
+          ),
+          PosColumn(
+            width: 1,
+            text: getTabs(2) +
+                ' ' +
+                getRightAlignedText(item.amountBeforeVAT, 11),
+            styles: const PosStyles(align: PosAlign.right),
+          ),
+          PosColumn(
+            width: 1,
+            text: getTabs(4) +
+                ' ' +
+                getRightAlignedText(item.discountBeforeVAT, 9),
+            styles: const PosStyles(align: PosAlign.right),
+          ),
+          PosColumn(
+            width: 1,
+            text: getTabs(6) + getRightAlignedText(item.amountAfterVAT, 11),
+            styles: const PosStyles(align: PosAlign.right),
+          ),
+          PosColumn(
+            width: 1,
+            text: getTabs(8) + getRightAlignedText(item.pricePerCanAfterVAT, 7),
+            styles: const PosStyles(align: PosAlign.right),
+          ),
+          PosColumn(width: 3)
+        ]);
+      }
+
+      // The rest empty lines of table
+      bytes += generator.emptyLines(
+        MAX_BILLING_PRODUCT_LIST_ROW - currentListItem,
+      );
+
+      // Spacing for the next row
+      bytes += generator.emptyLines(1);
+      bytes += cSmallLineSpace.codeUnits;
+
+      bytes += generator.row([
+        PosColumn(width: 7),
+        PosColumn(
+          width: 1,
+          text: getTabs(6) + getRightAlignedText(data.netSalesAfterVAT, 11),
+          styles: const PosStyles(align: PosAlign.right),
+        ),
+        PosColumn(width: 4)
+      ]);
+
+      bytes += generator.emptyLines(1);
+
       bytes += generator.row([
         PosColumn(
-          width: 3,
+          width: 7,
           textEncoded:
-              await getThaiEncoded(' ${item.productCode} ${item.productList}'),
-          styles: const PosStyles(align: PosAlign.left),
+              await getThaiEncoded(getTabs(1) + data.totalMoneyByLetters),
         ),
         PosColumn(
           width: 1,
-          text: getTabs(5) + ' ' + item.soldAmount,
+          text: getTabs(6) + getRightAlignedText(data.netSalesBeforeVAT, 11),
           styles: const PosStyles(align: PosAlign.right),
         ),
-        PosColumn(
-          width: 1,
-          text: getTabs(4) + ' ' + item.freeAmount,
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(
-          width: 1,
-          text:
-              getTabs(2) + ' ' + getRightAlignedText(item.amountBeforeVAT, 11),
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(
-          width: 1,
-          text:
-              getTabs(4) + ' ' + getRightAlignedText(item.discountBeforeVAT, 9),
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(
-          width: 1,
-          text: getTabs(6) + getRightAlignedText(item.amountAfterVAT, 11),
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(
-          width: 1,
-          text: getTabs(8) + getRightAlignedText(item.pricePerCanAfterVAT, 7),
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(width: 3)
+        PosColumn(width: 4)
       ]);
+
+      bytes += generator.emptyLines(1);
+
+      bytes += generator.row([
+        PosColumn(width: 6),
+        PosColumn(
+          width: 1,
+          text: getTabs(6) + data.percentVAT,
+        ),
+        PosColumn(
+          width: 1,
+          text: getTabs(6) + getRightAlignedText(data.amountVAT, 11),
+          styles: const PosStyles(align: PosAlign.right),
+        ),
+        PosColumn(width: 4)
+      ]);
+
+      bytes += generator.emptyLines(1);
+
+      bytes += generator.row([
+        PosColumn(width: 6),
+        PosColumn(
+          width: 1,
+          text: getTabs(6) + data.percentSpecialDiscount,
+        ),
+        PosColumn(
+          width: 1,
+          text:
+              getTabs(6) + getRightAlignedText(data.amountSpecialDiscount, 11),
+          styles: const PosStyles(align: PosAlign.right),
+        ),
+        PosColumn(width: 4)
+      ]);
+
+      bytes += generator.emptyLines(2);
+
+      bytes += generator
+          .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAt));
+      bytes += generator
+          .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAddress));
+
+      if (outerIdx < totalPages - 1) {
+        bytes += generator.emptyLines(4);
+      }
     }
 
-    // The rest empty lines of table
-    bytes += generator.emptyLines(
-      MAX_DKSH_ROW - data.productList.length,
-    );
-
-    // Spacing for the next row
-    bytes += generator.emptyLines(1);
-
-    bytes += generator.row([
-      PosColumn(width: 7),
-      PosColumn(
-        width: 1,
-        text: getTabs(6) + getRightAlignedText(data.netSalesAfterVAT, 11),
-        styles: const PosStyles(align: PosAlign.right),
-      ),
-      PosColumn(width: 4)
-    ]);
-
-    bytes += generator.emptyLines(1);
-
-    bytes += generator.row([
-      PosColumn(width: 1),
-      PosColumn(
-        width: 6,
-        textEncoded: await getThaiEncoded(data.totalMoneyByLetters),
-      ),
-      PosColumn(
-        width: 1,
-        text: getTabs(6) + getRightAlignedText(data.netSalesBeforeVAT, 11),
-        styles: const PosStyles(align: PosAlign.right),
-      ),
-      PosColumn(width: 4)
-    ]);
-
-    bytes += generator.emptyLines(1);
-
-    bytes += generator.row([
-      PosColumn(width: 6),
-      PosColumn(
-        width: 1,
-        text: getTabs(6) + data.percentVAT,
-      ),
-      PosColumn(
-        width: 1,
-        text: getTabs(6) + getRightAlignedText(data.amountVAT, 11),
-        styles: const PosStyles(align: PosAlign.right),
-      ),
-      PosColumn(width: 4)
-    ]);
-
-    bytes += generator.emptyLines(1);
-
-    bytes += generator.row([
-      PosColumn(width: 6),
-      PosColumn(
-        width: 1,
-        text: getTabs(6) + data.percentSpecialDiscount,
-      ),
-      PosColumn(
-        width: 1,
-        text: getTabs(6) + getRightAlignedText(data.amountSpecialDiscount, 11),
-        styles: const PosStyles(align: PosAlign.right),
-      ),
-      PosColumn(width: 4)
-    ]);
-
-    bytes += generator.emptyLines(2);
-
-    bytes += generator
-        .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAt));
-    bytes += generator
-        .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAddress));
-
-    _printEscPos(bytes, generator, bluetoothPrinter);
+    return bytes;
   }
 
   static void _printDdcBill(

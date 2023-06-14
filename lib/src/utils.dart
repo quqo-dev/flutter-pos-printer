@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:charset_converter/charset_converter.dart';
 
 const String TEXT_SPACE = '  ';
-const int MAX_DKSH_ROW = 9;
 
 class ImageData {
   final int width;
