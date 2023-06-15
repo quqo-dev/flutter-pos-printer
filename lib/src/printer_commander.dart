@@ -29,9 +29,11 @@ const int MAX_CCLR_ROW_PER_PAGE = 50;
 const int MAX_DSSR_ROW_PER_PAGE = 50;
 const int MAX_BTL_ROW_PER_PAGE = 50;
 const int MAX_OSR_ROW_PER_PAGE = 48;
+const int MAX_CSR_ROW_PER_PAGE = 60;
 const int MAX_RRSR_ROW_PER_PAGE = 50;
 
 const int BTR_HEADER_ROW = 7;
+const int CSR_HEADER_ROW = 6;
 const int RRSR_HEADER_ROW = 6;
 
 class PrinterCommander {
@@ -131,7 +133,8 @@ class PrinterCommander {
         if (data is! CsrBillModel) {
           throw FormatException('Error! Type must be CsrBillModel');
         }
-        _printCsrBill(data, bluetoothPrinter);
+
+        bytes = await _getCsrReportContent(generator, data);
         break;
       case BillType.Rrsr:
         if (data is! RrsrReportModel) {
@@ -1432,31 +1435,81 @@ class PrinterCommander {
     return bytes;
   }
 
-  static void _printCsrBill(
+  static Future<List<int>> _getCsrReportContent(
+    Generator generator,
     CsrBillModel data,
-    BluetoothPrinter bluetoothPrinter,
   ) async {
     List<int> bytes = [];
+    int currentPage = 1;
+    int currentRow = 0;
 
-    // Xprinter default
-    final profile = await CapabilityProfile.load(name: 'default');
+    // call this function whenever add a new line
+    void _checkEndPage() {
+      if (currentRow > MAX_CSR_ROW_PER_PAGE) {
+        currentPage++;
+        bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow);
+        bytes += _getCsrHeader(generator, currentPage, data);
+        currentRow = CSR_HEADER_ROW;
+      }
+    }
 
-    final generator = Generator(PaperSize.mmCustom, profile);
-    generator.setGlobalFont(
-      PosFontType.fontA,
-      maxCharsPerLine: 1000,
-      isSmallFont: true,
-    );
+    bytes += _getCsrHeader(generator, currentPage, data);
+    currentRow = CSR_HEADER_ROW;
 
-    bytes += generator.emptyLines(1);
+    for (final stockData in data.stockList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: stockData.productCode),
+        PosColumn(
+          width: 3,
+          textEncoded: await getThaiEncoded(stockData.description),
+        ),
+        PosColumn(width: 1, text: getRightAlignedText(stockData.perPack, 8)),
+        PosColumn(
+          width: 1,
+          textEncoded:
+              await getThaiEncoded(getRightAlignedText(stockData.unitCode, 10)),
+        ),
+        PosColumn(
+            width: 2,
+            text: getTabs(3) +
+                ' ' +
+                getRightAlignedText(stockData.onHandGood, 12)),
+        PosColumn(
+            width: 2,
+            text: getTabs(2) +
+                ' ' +
+                getRightAlignedText(stockData.onCarGood, 12)),
+        PosColumn(
+            width: 1,
+            text:
+                getTabs(1) + ' ' + getRightAlignedText(stockData.location, 10)),
+        PosColumn(width: 1),
+      ]);
 
-    // Header section
+      currentRow++;
+      _checkEndPage();
+    }
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.text("Total: ${data.totalRecord} Record(s)");
+
+    return bytes;
+  }
+
+  static List<int> _getCsrHeader(
+    Generator generator,
+    int page,
+    CsrBillModel data,
+  ) {
+    List<int> bytes = [];
+
     bytes += generator.row([
       PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
       PosColumn(width: 9),
       PosColumn(
         width: 2,
-        text: getRightAlignedText('Page ${data.page}', 14),
+        text: getRightAlignedText('Page $page', 14),
       ),
     ]);
 
@@ -1502,42 +1555,7 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120);
 
-    for (final stockData in data.stockList) {
-      bytes += generator.row([
-        PosColumn(width: 1, text: stockData.productCode),
-        PosColumn(
-          width: 3,
-          textEncoded: await getThaiEncoded(stockData.description),
-        ),
-        PosColumn(width: 1, text: getRightAlignedText(stockData.perPack, 8)),
-        PosColumn(
-          width: 1,
-          textEncoded:
-              await getThaiEncoded(getRightAlignedText(stockData.unitCode, 10)),
-        ),
-        PosColumn(
-            width: 2,
-            text: getTabs(3) +
-                ' ' +
-                getRightAlignedText(stockData.onHandGood, 12)),
-        PosColumn(
-            width: 2,
-            text: getTabs(2) +
-                ' ' +
-                getRightAlignedText(stockData.onCarGood, 12)),
-        PosColumn(
-            width: 1,
-            text:
-                getTabs(1) + ' ' + getRightAlignedText(stockData.location, 10)),
-        PosColumn(width: 1),
-      ]);
-    }
-
-    bytes += generator.hr(len: 120);
-
-    bytes += generator.text("Total: ${data.totalRecord} Record(s)");
-
-    _printEscPos(bytes, generator, bluetoothPrinter);
+    return bytes;
   }
 
   static Future<List<int>> _getRrsrReportContent(
