@@ -18,8 +18,9 @@ import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
     "Btl": BILL TRANSFER LISTING
     "Osr": ORDER SUMMARY REPORT
     "Csr": CHECKING STOCK REPORT
+    "Rrsr": RETURN & RECEIPT STOCK REPORT
  */
-enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl, Osr, Csr }
+enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl, Osr, Csr, Rrsr }
 
 const int MAX_ROW_PER_PAGE = 64;
 const int MAX_ADDRESS_CHAR_PER_ROW = 40;
@@ -129,6 +130,14 @@ class PrinterCommander {
           throw FormatException('Error! Type must be CsrBillModel');
         }
         _printCsrBill(data, bluetoothPrinter);
+        break;
+      case BillType.Rrsr:
+        if (data is! RrsrReportModel) {
+          throw FormatException('Error! Type must be RrsrReportModel');
+        }
+
+        bytes = await _getRrsrReportContent(generator, data);
+
         break;
       default:
         throw UnimplementedError();
@@ -1527,6 +1536,114 @@ class PrinterCommander {
     bytes += generator.text("Total: ${data.totalRecord} Record(s)");
 
     _printEscPos(bytes, generator, bluetoothPrinter);
+  }
+
+  static Future<List<int>> _getRrsrReportContent(
+    Generator generator,
+    RrsrReportModel data,
+  ) async {
+    List<int> bytes = [];
+
+    // Header section
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page 1', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(20) + 'RETURN & RECEIPT STOCK REPORT',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 8),
+      PosColumn(
+          width: 2,
+          textEncoded: await getThaiEncoded('*****  ${data.subtitle}  *****')),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Ref.: ${data.ref}', 14),
+      ),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'PRODUCT'),
+      PosColumn(width: 3, text: 'DESCRIPTION'),
+      PosColumn(width: 1, text: getRightAlignedText('PERPACK', 8)),
+      PosColumn(width: 1, text: getRightAlignedText('UNIT CODE', 10)),
+      PosColumn(
+        width: 2,
+        text: getTabs(1) + getRightAlignedText(' PHYSICAL QUANTITY', 12),
+      ),
+      PosColumn(width: 4),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.text('FROM W/H: ${data.fromWh} TO ${data.toWh}');
+    bytes += generator.emptyLines(1);
+
+    for (final rrData in data.rrList) {
+      final String title = '*****  ${rrData.title}  *****';
+      bytes += generator.text(title);
+      bytes += generator.hr(len: title.length);
+
+      for (final product in rrData.productList) {
+        bytes += generator.row([
+          PosColumn(width: 1, text: product.productCode),
+          PosColumn(
+            width: 3,
+            textEncoded: await getThaiEncoded(product.description),
+          ),
+          PosColumn(width: 1, text: getRightAlignedText(product.perPack, 8)),
+          PosColumn(
+            width: 1,
+            textEncoded:
+                await getThaiEncoded(getRightAlignedText(product.unitCode, 10)),
+          ),
+          PosColumn(width: 2, text: getRightAlignedText(product.quantity, 12)),
+          PosColumn(width: 4),
+        ]);
+
+        bytes += generator.hr(len: 120);
+      }
+
+      bytes += generator.emptyLines(2);
+    }
+
+    // footer section
+    bytes += generator.text(
+      'S/M :............................' +
+          getTabs(3) +
+          'A/M :............................' +
+          getTabs(3) +
+          'W/H OR ADM :............................',
+    );
+
+    bytes += generator.emptyLines(2);
+
+    bytes += generator.text(
+      'Date:............................' +
+          getTabs(3) +
+          'Date:............................' +
+          getTabs(3) +
+          'Date:...................................',
+    );
+
+    return bytes;
   }
 
   static void _printEscPos(

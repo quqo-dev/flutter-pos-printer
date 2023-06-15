@@ -20,4 +20,5 @@ export './src/models/dssr_bill.dart';
 export './src/models/btl_bill.dart';
 export './src/models/osr_bill.dart';
 export './src/models/csr_bill.dart';
+export './src/models/rrsr_report.dart';
 export './src/models/sample_models.dart';

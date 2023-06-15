@@ -626,3 +626,53 @@ final sampleCsrBillModel = CsrBillModel(
   ],
   totalRecord: '105',
 );
+
+final sampleRrsrReportModel = RrsrReportModel(
+  smNumber: 'S/M 10351241',
+  date: '08/02/02023',
+  time: '08:34:37',
+  subtitle: 'รอง',
+  ref: 'RA4631GD',
+  fromWh: '8A46',
+  toWh: 'DEPOT',
+  rrList: <RrListItem>[
+    RrListItem(
+      title: '02  Advance',
+      productList: <RrProductItem>[
+        RrProductItem(
+          productCode: '100844799',
+          description: 'ADVANCE 4T ULTRA10W40 12X1L',
+          perPack: '12',
+          unitCode: 'TIN',
+          quantity: '0/3',
+        ),
+        RrProductItem(
+          productCode: '100844711',
+          description: 'ADVANCE 4T ULTRA10W40 12X1L.8L',
+          perPack: '12',
+          unitCode: 'TIN',
+          quantity: '3/6',
+        ),
+      ],
+    ),
+    RrListItem(
+      title: '05  ATF',
+      productList: <RrProductItem>[
+        RrProductItem(
+          productCode: '100844799',
+          description: 'ADVANCE 4T ULTRA10W40 12X1L',
+          perPack: '12',
+          unitCode: 'TIN',
+          quantity: '0/3',
+        ),
+        RrProductItem(
+          productCode: '100844711',
+          description: 'ADVANCE 4T ULTRA10W40 12X1L.8L',
+          perPack: '12',
+          unitCode: 'TIN',
+          quantity: '3/6',
+        ),
+      ],
+    ),
+  ],
+);
