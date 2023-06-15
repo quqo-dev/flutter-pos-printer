@@ -29,8 +29,10 @@ const int MAX_CCLR_ROW_PER_PAGE = 50;
 const int MAX_DSSR_ROW_PER_PAGE = 50;
 const int MAX_BTL_ROW_PER_PAGE = 50;
 const int MAX_OSR_ROW_PER_PAGE = 48;
+const int MAX_RRSR_ROW_PER_PAGE = 50;
 
 const int BTR_HEADER_ROW = 7;
+const int RRSR_HEADER_ROW = 6;
 
 class PrinterCommander {
   static final printerManager = PrinterManager.instance;
@@ -1543,14 +1545,84 @@ class PrinterCommander {
     RrsrReportModel data,
   ) async {
     List<int> bytes = [];
+    int currentPage = 1;
+    int currentRow = 0;
+
+    // call this function whenever add a new line
+    Future<void> _checkEndPage() async {
+      if (currentRow >= MAX_RRSR_ROW_PER_PAGE) {
+        // add the footer to every end of page
+        bytes += _getRrsrFooter(generator);
+        currentRow += 6;
+        bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow);
+
+        currentPage++;
+        currentRow = RRSR_HEADER_ROW;
+        bytes += await _getRrsrHeader(generator, currentPage, data);
+      }
+    }
 
     // Header section
+    bytes += await _getRrsrHeader(generator, currentPage, data);
+    currentRow = RRSR_HEADER_ROW;
+
+    bytes += generator.text('FROM W/H: ${data.fromWh} TO ${data.toWh}');
+    currentRow += 1;
+
+    for (final rrData in data.rrList) {
+      bytes += generator.emptyLines(2);
+      currentRow += 2;
+      await _checkEndPage();
+
+      final String title = '*****  ${rrData.title}  *****';
+      bytes += generator.text(title);
+      bytes += generator.hr(len: title.length);
+      currentRow += 2;
+      await _checkEndPage();
+
+      for (final product in rrData.productList) {
+        bytes += generator.row([
+          PosColumn(width: 1, text: product.productCode),
+          PosColumn(
+            width: 3,
+            textEncoded: await getThaiEncoded(product.description),
+          ),
+          PosColumn(width: 1, text: getRightAlignedText(product.perPack, 8)),
+          PosColumn(
+            width: 1,
+            textEncoded:
+                await getThaiEncoded(getRightAlignedText(product.unitCode, 10)),
+          ),
+          PosColumn(width: 2, text: getRightAlignedText(product.quantity, 12)),
+          PosColumn(width: 4),
+        ]);
+
+        bytes += generator.hr(len: 120);
+
+        currentRow += 2;
+        await _checkEndPage();
+      }
+    }
+
+    // last page's footer section
+    bytes += _getRrsrFooter(generator);
+
+    return bytes;
+  }
+
+  static Future<List<int>> _getRrsrHeader(
+    Generator generator,
+    int page,
+    RrsrReportModel data,
+  ) async {
+    List<int> bytes = [];
+
     bytes += generator.row([
       PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
       PosColumn(width: 9),
       PosColumn(
         width: 2,
-        text: getRightAlignedText('Page 1', 14),
+        text: getRightAlignedText('Page $page', 14),
       ),
     ]);
 
@@ -1593,38 +1665,14 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120);
 
-    bytes += generator.text('FROM W/H: ${data.fromWh} TO ${data.toWh}');
-    bytes += generator.emptyLines(1);
+    return bytes;
+  }
 
-    for (final rrData in data.rrList) {
-      final String title = '*****  ${rrData.title}  *****';
-      bytes += generator.text(title);
-      bytes += generator.hr(len: title.length);
+  static List<int> _getRrsrFooter(Generator generator) {
+    List<int> bytes = [];
 
-      for (final product in rrData.productList) {
-        bytes += generator.row([
-          PosColumn(width: 1, text: product.productCode),
-          PosColumn(
-            width: 3,
-            textEncoded: await getThaiEncoded(product.description),
-          ),
-          PosColumn(width: 1, text: getRightAlignedText(product.perPack, 8)),
-          PosColumn(
-            width: 1,
-            textEncoded:
-                await getThaiEncoded(getRightAlignedText(product.unitCode, 10)),
-          ),
-          PosColumn(width: 2, text: getRightAlignedText(product.quantity, 12)),
-          PosColumn(width: 4),
-        ]);
+    bytes += generator.emptyLines(2);
 
-        bytes += generator.hr(len: 120);
-      }
-
-      bytes += generator.emptyLines(2);
-    }
-
-    // footer section
     bytes += generator.text(
       'S/M :............................' +
           getTabs(3) +
