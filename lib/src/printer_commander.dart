@@ -1593,7 +1593,7 @@ class PrinterCommander {
       await _checkEndPage();
 
       final String title = '*****  ${rrData.title}  *****';
-      bytes += generator.text(title);
+      bytes += generator.textEncoded(await getThaiEncoded(title));
       bytes += generator.hr(len: title.length);
       currentRow += 2;
       await _checkEndPage();
