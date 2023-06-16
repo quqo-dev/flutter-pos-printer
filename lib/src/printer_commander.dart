@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/capability_profile.dart';
-import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/commands.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/enums.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/generator.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_column.dart';
@@ -159,7 +158,7 @@ class PrinterCommander {
     List<int> bytes = [];
 
     for (int outerIdx = 0; outerIdx < totalPages; outerIdx++) {
-      bytes += cSmallLineSpace.codeUnits;
+      bytes += generator.emptyLines(1);
 
       bytes += generator.row([
         PosColumn(width: 3),
@@ -315,8 +314,7 @@ class PrinterCommander {
       );
 
       // Spacing for the next row
-      bytes += generator.emptyLines(1);
-      bytes += cSmallLineSpace.codeUnits;
+      bytes += generator.emptyLines(2);
 
       bytes += generator.row([
         PosColumn(width: 7),
