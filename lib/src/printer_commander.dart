@@ -75,14 +75,14 @@ class PrinterCommander {
         bytes = await _getDkshBillingContent(pages, generator, data);
         break;
       case BillType.Ddc:
-        if (data is! DdcBillModel) {
+        if (data is! DdcReportModel) {
           throw FormatException('Error! Type must be DdcBillModel');
         }
 
         bytes = await _getDdcReportContent(generator, data);
         break;
       case BillType.Dssr:
-        if (data is! DssrBillModel) {
+        if (data is! DssrReportModel) {
           throw FormatException('Error! Type must be DssrBillModel');
         }
 
@@ -92,7 +92,7 @@ class PrinterCommander {
         bytes = await _getDssrReportContent(pages, generator, data);
         break;
       case BillType.Cclr:
-        if (data is! CclrBillModel) {
+        if (data is! CclrReportModel) {
           throw FormatException('Error! Type must be CclrBillModel');
         }
 
@@ -102,14 +102,14 @@ class PrinterCommander {
         bytes = await _getCclrReportContent(pages, generator, data);
         break;
       case BillType.Btr:
-        if (data is! BtrBillModel) {
+        if (data is! BtrReportModel) {
           throw FormatException('Error! Type must be BtrBillModel');
         }
 
         bytes = await _getBtrReportContent(generator, data);
         break;
       case BillType.Btl:
-        if (data is! BtlBillModel) {
+        if (data is! BtlReportModel) {
           throw FormatException('Error! Type must be BtlBillModel');
         }
 
@@ -119,7 +119,7 @@ class PrinterCommander {
         bytes = await _getBtlReportContent(pages, generator, data);
         break;
       case BillType.Osr:
-        if (data is! OsrBillModel) {
+        if (data is! OsrReportModel) {
           throw FormatException('Error! Type must be OsrBillModel');
         }
 
@@ -129,7 +129,7 @@ class PrinterCommander {
         bytes = await _getOsrReportContent(pages, generator, data);
         break;
       case BillType.Csr:
-        if (data is! CsrBillModel) {
+        if (data is! CsrReportModel) {
           throw FormatException('Error! Type must be CsrBillModel');
         }
 
@@ -392,7 +392,7 @@ class PrinterCommander {
 
   static Future<List<int>> _getDdcReportContent(
     Generator generator,
-    DdcBillModel data,
+    DdcReportModel data,
   ) async {
     List<int> bytes = [];
 
@@ -684,7 +684,7 @@ class PrinterCommander {
   static Future<List<int>> _getDssrReportContent(
     int totalPages,
     Generator generator,
-    DssrBillModel data,
+    DssrReportModel data,
   ) async {
     List<int> bytes = [];
 
@@ -815,7 +815,7 @@ class PrinterCommander {
   static Future<List<int>> _getCclrReportContent(
     int totalPages,
     Generator generator,
-    CclrBillModel data,
+    CclrReportModel data,
   ) async {
     List<int> bytes = [];
 
@@ -915,7 +915,7 @@ class PrinterCommander {
 
   static Future<List<int>> _getBtrReportContent(
     Generator generator,
-    BtrBillModel data,
+    BtrReportModel data,
   ) async {
     List<int> bytes = [];
     int currentPage = 1;
@@ -1055,7 +1055,7 @@ class PrinterCommander {
   static List<int> _getBtrHeader(
     Generator generator,
     int page,
-    BtrBillModel data,
+    BtrReportModel data,
   ) {
     List<int> bytes = [];
 
@@ -1138,7 +1138,7 @@ class PrinterCommander {
   static Future<List<int>> _getBtlReportContent(
     int totalPages,
     Generator generator,
-    BtlBillModel data,
+    BtlReportModel data,
   ) async {
     List<int> bytes = [];
 
@@ -1291,7 +1291,7 @@ class PrinterCommander {
   static Future<List<int>> _getOsrReportContent(
     int totalPages,
     Generator generator,
-    OsrBillModel data,
+    OsrReportModel data,
   ) async {
     List<int> bytes = [];
 
@@ -1435,7 +1435,7 @@ class PrinterCommander {
 
   static Future<List<int>> _getCsrReportContent(
     Generator generator,
-    CsrBillModel data,
+    CsrReportModel data,
   ) async {
     List<int> bytes = [];
     int currentPage = 1;
@@ -1498,7 +1498,7 @@ class PrinterCommander {
   static List<int> _getCsrHeader(
     Generator generator,
     int page,
-    CsrBillModel data,
+    CsrReportModel data,
   ) {
     List<int> bytes = [];
 

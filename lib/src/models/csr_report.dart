@@ -18,7 +18,7 @@ class StockItem {
   });
 }
 
-class CsrBillModel {
+class CsrReportModel {
   final String page;
   final String smNumber;
   final String date;
@@ -26,7 +26,7 @@ class CsrBillModel {
   final List<StockItem> stockList;
   final String totalRecord;
 
-  CsrBillModel({
+  CsrReportModel({
     required this.page,
     required this.smNumber,
     required this.date,

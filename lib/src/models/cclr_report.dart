@@ -16,7 +16,7 @@ class CallingModel {
   });
 }
 
-class CclrBillModel {
+class CclrReportModel {
   final String page;
   final String smNumber;
   final String date;
@@ -27,7 +27,7 @@ class CclrBillModel {
   final String total;
   final String grandTotal;
 
-  CclrBillModel({
+  CclrReportModel({
     required this.page,
     required this.smNumber,
     required this.date,

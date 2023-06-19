@@ -26,7 +26,7 @@ class TransferItem {
   });
 }
 
-class BtlBillModel {
+class BtlReportModel {
   final String page;
   final String smNumber;
   final String date;
@@ -36,7 +36,7 @@ class BtlBillModel {
   final String totalRecord;
   final String totalAmount;
 
-  BtlBillModel({
+  BtlReportModel({
     required this.page,
     required this.smNumber,
     required this.date,

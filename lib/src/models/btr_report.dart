@@ -60,7 +60,7 @@ class TransactionModel {
   });
 }
 
-class BtrBillModel {
+class BtrReportModel {
   final String page;
   final String smNumber;
   final String date;
@@ -70,7 +70,7 @@ class BtrBillModel {
   final List<TransactionModel> transactionList;
   final FirstRowModel totalRow;
 
-  BtrBillModel({
+  BtrReportModel({
     required this.page,
     required this.smNumber,
     required this.date,

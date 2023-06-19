@@ -264,7 +264,7 @@ class SummaryModel {
       "${firstName};${secondName};${quantity};${price};${total};";
 }
 
-class DdcBillModel {
+class DdcReportModel {
   final String page;
   final String smNumber;
   final String date;
@@ -287,7 +287,7 @@ class DdcBillModel {
   final String totalCashBalance;
   final String creditBalance;
 
-  DdcBillModel({
+  DdcReportModel({
     required this.page,
     required this.smNumber,
     required this.date,

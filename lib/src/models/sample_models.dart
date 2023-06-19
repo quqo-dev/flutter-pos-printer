@@ -39,7 +39,7 @@ final sampleDkshBillModel = DkshBillModel(
   deliveryAddress: 'This is a sample text also',
 );
 
-final sampleDdcBillModel = DdcBillModel(
+final sampleDdcBillModel = DdcReportModel(
   page: '1',
   smNumber: 'S/M 10351241',
   date: '08/02/2023',
@@ -259,7 +259,7 @@ final sampleDdcBillModel = DdcBillModel(
   creditBalance: '0.00',
 );
 
-final sampleDssrBillModel = DssrBillModel(
+final sampleDssrBillModel = DssrReportModel(
   page: '1',
   smNumber: 'S/M 10351241',
   date: '08/02/02023',
@@ -286,7 +286,7 @@ final sampleDssrBillModel = DssrBillModel(
   total: '54',
 );
 
-final sampleCclrBillModel = CclrBillModel(
+final sampleCclrBillModel = CclrReportModel(
   page: '1',
   smNumber: 'S/M 10351241',
   date: '08/02/02023',
@@ -308,7 +308,7 @@ final sampleCclrBillModel = CclrBillModel(
   grandTotal: '54',
 );
 
-final sampleBtrBillModel = BtrBillModel(
+final sampleBtrBillModel = BtrReportModel(
   page: '1',
   smNumber: 'S/M 10351241',
   date: '08/02/02023',
@@ -384,7 +384,7 @@ final sampleBtrBillModel = BtrBillModel(
   ),
 );
 
-final sampleBtlBillModel = BtlBillModel(
+final sampleBtlBillModel = BtlReportModel(
   page: '1',
   smNumber: 'S/M 10351241',
   date: '08/02/02023',
@@ -410,7 +410,7 @@ final sampleBtlBillModel = BtlBillModel(
   totalAmount: '55,656.29',
 );
 
-final sampleOsrBillModel = OsrBillModel(
+final sampleOsrBillModel = OsrReportModel(
   page: '1',
   smNumber: 'S/M 10351241',
   date: '08/02/02023',
@@ -439,7 +439,7 @@ final sampleOsrBillModel = OsrBillModel(
   referenceList: '\'S4745166\',\'S4745266\'',
 );
 
-final sampleCsrBillModel = CsrBillModel(
+final sampleCsrBillModel = CsrReportModel(
   page: '1',
   smNumber: 'S/M 10351241',
   date: '08/02/02023',

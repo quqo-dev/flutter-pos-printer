@@ -30,7 +30,7 @@ class StockModel {
   });
 }
 
-class DssrBillModel {
+class DssrReportModel {
   final String page;
   final String smNumber;
   final String date;
@@ -39,7 +39,7 @@ class DssrBillModel {
   final List<StockModel> stockList;
   final String total;
 
-  DssrBillModel({
+  DssrReportModel({
     required this.page,
     required this.smNumber,
     required this.date,

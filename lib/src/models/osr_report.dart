@@ -28,7 +28,7 @@ class OrderSummanyItem {
   });
 }
 
-class OsrBillModel {
+class OsrReportModel {
   final String page;
   final String smNumber;
   final String date;
@@ -40,7 +40,7 @@ class OsrBillModel {
   final String totalLit;
   final String referenceList;
 
-  OsrBillModel({
+  OsrReportModel({
     required this.page,
     required this.smNumber,
     required this.date,
