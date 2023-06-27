@@ -360,22 +360,22 @@ class PrinterCommander {
 
       bytes += generator.emptyLines(1);
 
-      bytes += generator.row([
-        PosColumn(width: 6),
-        PosColumn(
-          width: 1,
-          text: getTabs(6) + data.percentSpecialDiscount,
-        ),
-        PosColumn(
-          width: 1,
-          text:
-              getTabs(6) + getRightAlignedText(data.amountSpecialDiscount, 11),
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(width: 4)
-      ]);
+      // bytes += generator.row([
+      //   PosColumn(width: 6),
+      //   PosColumn(
+      //     width: 1,
+      //     text: getTabs(6) + data.percentSpecialDiscount,
+      //   ),
+      //   PosColumn(
+      //     width: 1,
+      //     text:
+      //         getTabs(6) + getRightAlignedText(data.amountSpecialDiscount, 11),
+      //     styles: const PosStyles(align: PosAlign.right),
+      //   ),
+      //   PosColumn(width: 4)
+      // ]);
 
-      bytes += generator.emptyLines(2);
+      bytes += generator.emptyLines(3);
 
       bytes += generator
           .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAt));
