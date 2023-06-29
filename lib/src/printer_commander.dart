@@ -50,7 +50,7 @@ class PrinterCommander {
     final Generator generator = Generator(PaperSize.mmCustom, profile);
     generator.setGlobalFont(
       PosFontType.fontA,
-      maxCharsPerLine: 1000,
+      maxCharsPerLine: 500,
       isSmallFont: true,
     );
 
@@ -62,7 +62,7 @@ class PrinterCommander {
 
         generator.setGlobalFont(
           PosFontType.fontA,
-          maxCharsPerLine: 1000,
+          maxCharsPerLine: 500,
           isSmallFont: false,
         );
 
@@ -640,39 +640,39 @@ class PrinterCommander {
     bytes += generator.hr(len: 120);
 
     // templates
-    bytes += generator.text(
-        'CASH SALES   - Running Number FORM-USAGE FROM.................. TO .................. TOTAL...... BILL(S)');
-    bytes += generator.text(
-        '             - Running Number FORM-CANCELATION NO.................................... TOTAL...... BILL(S)');
-    bytes += generator.text(
-        'CREDIT SALES - Running Number FORM-USAGE FROM.................. TO .................. TOTAL...... BILL(S)');
-    bytes += generator.text(
-        '             - Running Number FORM-CANCELATION NO.................................... TOTAL...... BILL(S)');
-    bytes += generator.text(
-        'NOTE: THE RUNNING NUMBER FROM IS AT THE RIGHT BOTTOM OF INVOICE');
+    // bytes += generator.text(
+    //     'CASH SALES   - Running Number FORM-USAGE FROM.................. TO .................. TOTAL...... BILL(S)');
+    // bytes += generator.text(
+    //     '             - Running Number FORM-CANCELATION NO.................................... TOTAL...... BILL(S)');
+    // bytes += generator.text(
+    //     'CREDIT SALES - Running Number FORM-USAGE FROM.................. TO .................. TOTAL...... BILL(S)');
+    // bytes += generator.text(
+    //     '             - Running Number FORM-CANCELATION NO.................................... TOTAL...... BILL(S)');
+    // bytes += generator.text(
+    //     'NOTE: THE RUNNING NUMBER FROM IS AT THE RIGHT BOTTOM OF INVOICE');
 
-    bytes += generator.hr(len: 120);
+    // bytes += generator.hr(len: 120);
 
     // bytes += generator.text(
     //     'Collection Sheet.............A' + getTabs(2) + 'Text.............A');
     // bytes += generator.text(
-    //     'Sample text.............text.............text.............A Text.............text   Sample text.............bath');
+    //     'Sample text.............text.............text.............A Text.............text   Sample text.............baht');
     // bytes += generator.text(
     //     'Sample text.............text.............text.............A Text.............text');
     // bytes +=
-    //     generator.text('Sample text.............Sample text.............bath');
+    //     generator.text('Sample text.............Sample text.............baht');
     // bytes += generator.text(
-    //     'Sample text.............Sample text.............bath Sample text.............bath Sample text.............');
+    //     'Sample text.............Sample text.............baht Sample text.............baht Sample text.............');
 
     // bytes += generator.hr(len: 120);
 
-    bytes += generator.text('Total balance  ${data.totalBalance}  bath');
-    bytes += generator.text('Total cash balance  ${data.totalCashBalance}  bath' +
+    bytes += generator.text('Total balance  ${data.totalBalance}  baht');
+    bytes += generator.text('Total cash balance  ${data.totalCashBalance}  baht' +
         getTabs(2) +
-        'Cash payment........................................................bath');
-    bytes += generator.text('Total credit balance  ${data.creditBalance}  bath' +
+        'Cash payment........................................................baht');
+    bytes += generator.text('Total credit balance  ${data.creditBalance}  baht' +
         getTabs(2) +
-        'Credit card payment slip amount........  Leaves value...............bath');
+        'Credit card payment slip amount........  Leaves value...............baht');
     bytes += generator.text(
         'Pay by............................  Get paid by............................');
 
