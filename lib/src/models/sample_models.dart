@@ -390,6 +390,8 @@ final sampleBtlBillModel = BtlReportModel(
   smNumber: 'S/M 10351241',
   date: '08/02/02023',
   time: '08:34:37',
+  dateSelectedFrom: '07/02/2023',
+  dateSelectedTo: '07/02/2023',
   reportNo: "M520001",
   transferList: List<TransferItem>.generate(
     54,

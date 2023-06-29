@@ -1177,7 +1177,15 @@ class PrinterCommander {
       //   ),
       //   PosColumn(width: 1),
       // ]);
-      bytes += generator.emptyLines(1);
+      bytes += generator.row([
+        PosColumn(width: 1),
+        PosColumn(
+          width: 10,
+          text: getTabs(17) +
+              'Date From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
+        ),
+        PosColumn(width: 1),
+      ]);
 
       bytes += generator.hr(len: 120);
 

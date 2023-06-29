@@ -31,6 +31,8 @@ class BtlReportModel {
   final String smNumber;
   final String date;
   final String time;
+  final String dateSelectedFrom;
+  final String dateSelectedTo;
   final String reportNo;
   final List<TransferItem> transferList;
   final String totalRecord;
@@ -41,6 +43,8 @@ class BtlReportModel {
     required this.smNumber,
     required this.date,
     required this.time,
+    required this.dateSelectedFrom,
+    required this.dateSelectedTo,
     required this.reportNo,
     required this.transferList,
     required this.totalRecord,
