@@ -937,14 +937,15 @@ class PrinterCommander {
     for (final transaction in data.transactionList) {
       bytes += generator.row([
         PosColumn(width: 1, text: transaction.firstRowData.noProduct),
-        PosColumn(width: 1, text: ' ' + transaction.firstRowData.effectiveDate),
         PosColumn(
             width: 1,
-            text: getTabs(1) + ' ' + transaction.firstRowData.createdDate),
+            text: getTabs(1) + transaction.firstRowData.effectiveDate),
+        PosColumn(
+            width: 1, text: getTabs(2) + transaction.firstRowData.createdDate),
         PosColumn(
           width: 1,
           textEncoded: await getThaiEncoded(
-              getTabs(2) + ' ' + transaction.firstRowData.customerName),
+              getTabs(3) + transaction.firstRowData.customerName),
         ),
         PosColumn(width: 1),
         PosColumn(
@@ -984,7 +985,7 @@ class PrinterCommander {
           PosColumn(width: 1, text: tableItem.product),
           PosColumn(
             width: 1,
-            textEncoded: await getThaiEncoded(' ' + tableItem.name),
+            textEncoded: await getThaiEncoded(getTabs(1) + tableItem.name),
           ),
           PosColumn(width: 1),
           PosColumn(width: 1),
@@ -1097,9 +1098,9 @@ class PrinterCommander {
 
     bytes += generator.row([
       PosColumn(width: 1, text: 'NO PRODUCT'),
-      PosColumn(width: 1, text: ' ' + 'EFF. DATE'),
-      PosColumn(width: 1, text: getTabs(1) + ' ' + 'CRT. DATE'),
-      PosColumn(width: 1, text: getTabs(2) + ' ' + 'CUST. NAME'),
+      PosColumn(width: 1, text: getTabs(1) + 'EFF. DATE'),
+      PosColumn(width: 1, text: getTabs(2) + 'CRT. DATE'),
+      PosColumn(width: 1, text: getTabs(3) + 'CUST. NAME'),
       PosColumn(width: 1),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('PRICE', 8)),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 8)),
@@ -1113,7 +1114,7 @@ class PrinterCommander {
 
     bytes += generator.row([
       PosColumn(width: 1, text: 'PRODUCT'),
-      PosColumn(width: 1, text: ' ' + 'NAME'),
+      PosColumn(width: 1, text: getTabs(1) + 'NAME'),
       PosColumn(width: 1),
       PosColumn(width: 1),
       PosColumn(
