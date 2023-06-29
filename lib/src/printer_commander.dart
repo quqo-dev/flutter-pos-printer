@@ -653,18 +653,18 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120);
 
-    bytes += generator.text(
-        'Collection Sheet.............A' + getTabs(2) + 'Text.............A');
-    bytes += generator.text(
-        'Sample text.............text.............text.............A Text.............text   Sample text.............bath');
-    bytes += generator.text(
-        'Sample text.............text.............text.............A Text.............text');
-    bytes +=
-        generator.text('Sample text.............Sample text.............bath');
-    bytes += generator.text(
-        'Sample text.............Sample text.............bath Sample text.............bath Sample text.............');
+    // bytes += generator.text(
+    //     'Collection Sheet.............A' + getTabs(2) + 'Text.............A');
+    // bytes += generator.text(
+    //     'Sample text.............text.............text.............A Text.............text   Sample text.............bath');
+    // bytes += generator.text(
+    //     'Sample text.............text.............text.............A Text.............text');
+    // bytes +=
+    //     generator.text('Sample text.............Sample text.............bath');
+    // bytes += generator.text(
+    //     'Sample text.............Sample text.............bath Sample text.............bath Sample text.............');
 
-    bytes += generator.hr(len: 120);
+    // bytes += generator.hr(len: 120);
 
     bytes += generator.text('Total balance  ${data.totalBalance}  bath');
     bytes += generator.text('Total cash balance  ${data.totalCashBalance}  bath' +
@@ -1072,7 +1072,10 @@ class PrinterCommander {
       PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
       PosColumn(
         width: 9,
-        text: getTabs(20) + 'BILL TRANSACTION REPORT',
+        text: getTabs(20) +
+            (data.isPreOrder
+                ? 'ORDER TRANSACTION REPORT'
+                : 'BILL TRANSACTION REPORT'),
       ),
       PosColumn(
         width: 2,

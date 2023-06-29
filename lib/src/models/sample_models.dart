@@ -382,6 +382,7 @@ final sampleBtrBillModel = BtrReportModel(
     total: '26,036.10',
     sts: '',
   ),
+  isPreOrder: false,
 );
 
 final sampleBtlBillModel = BtlReportModel(

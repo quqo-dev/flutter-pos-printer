@@ -69,6 +69,7 @@ class BtrReportModel {
   final String dateSelectedTo;
   final List<TransactionModel> transactionList;
   final FirstRowModel totalRow;
+  final bool isPreOrder;
 
   BtrReportModel({
     required this.page,
@@ -79,5 +80,6 @@ class BtrReportModel {
     required this.dateSelectedTo,
     required this.transactionList,
     required this.totalRow,
+    required this.isPreOrder,
   });
 }
