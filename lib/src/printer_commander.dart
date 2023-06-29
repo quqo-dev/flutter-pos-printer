@@ -1165,14 +1165,15 @@ class PrinterCommander {
         ),
       ]);
 
-      bytes += generator.row([
-        PosColumn(width: 1),
-        PosColumn(
-          width: 10,
-          text: getTabs(23) + 'No. ${data.reportNo}',
-        ),
-        PosColumn(width: 1),
-      ]);
+      // bytes += generator.row([
+      //   PosColumn(width: 1),
+      //   PosColumn(
+      //     width: 10,
+      //     text: getTabs(23) + 'No. ${data.reportNo}',
+      //   ),
+      //   PosColumn(width: 1),
+      // ]);
+      bytes += generator.emptyLines(1);
 
       bytes += generator.hr(len: 120);
 
