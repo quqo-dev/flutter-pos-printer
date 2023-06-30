@@ -322,17 +322,32 @@ final sampleCclrBillModel = CclrReportModel(
   time: '08:34:37',
   dateSelectedFrom: '07/02/2023',
   dateSelectedTo: '07/02/2023',
-  callingList: List<CallingModel>.generate(
-    54,
-    (_) => CallingModel(
+  callingList: <CallingModel>[
+    CallingModel(
       date: '07/02/2023',
       custCode: 'CA244687',
-      custName: 'This is a name 2018 257',
-      reason: '8 A sample reason',
+      custName: 'นามวัฒน์อะไหล่',
+      reason: '8 ตดิ ตอ่ ไมไ่ ด ้',
       typeOfShop: 'C6 Branded IWS Car6',
       time: '11:36:11',
     ),
-  ),
+    CallingModel(
+      date: '07/02/2023',
+      custCode: 'CA244687',
+      custName: 'ห้างหุ้นส่วนจำกัด มงคลเจริญ (มี) น๊อต 2020',
+      reason: '8 รอตัดสนิ ใจ / รอเช็ค Stock',
+      typeOfShop: 'C6 Branded IWS Car6',
+      time: '11:36:11',
+    ),
+    CallingModel(
+      date: '07/02/2023',
+      custCode: 'CA244687',
+      custName: 'ปั๊มแดง กม.8',
+      reason: '8 ซอืѸ จากรา้ นคา้ อนืѷ /ยีปั ѷ ѹว',
+      typeOfShop: 'C6 Branded IWS Car6',
+      time: '11:36:11',
+    ),
+  ],
   total: '12',
   grandTotal: '54',
 );
