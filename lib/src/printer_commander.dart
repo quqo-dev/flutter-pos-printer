@@ -719,37 +719,49 @@ class PrinterCommander {
         currentListItem++;
         final StockModel stock = data.stockList[currentListIdx];
 
-        bytes += generator.row([
-          PosColumn(width: 1, text: stock.id),
-          PosColumn(width: 2, textEncoded: await getThaiEncoded(stock.name)),
-          PosColumn(
-            width: 9,
-            text: getTabs(5) +
-                ' ' +
-                getRightAlignedText(stock.wh, 6) +
-                getRightAlignedText(stock.perPack, 5) +
-                getRightAlignedText(stock.openBal, 6) +
-                getRightAlignedText(stock.sale, 6) +
-                getRightAlignedText(stock.goodsReturn, 8) +
-                getRightAlignedText(stock.transfIn, 7) +
-                getRightAlignedText(stock.transfOut, 7) +
-                getRightAlignedText(stock.focX, 5) +
-                getRightAlignedText(stock.focY, 5) +
-                getRightAlignedText(stock.closeBal, 6) +
-                getRightAlignedText(stock.onhand, 6),
+        bytes += generator.textEncoded(
+          await getThaiEncoded(
+            '${fillSpaceText(stock.id, 9)} ${fillSpaceText(stock.name, 30)} ' +
+                '${getTabs(1)} ${stock.wh} ${getRightAlignedText(stock.perPack, 5)}' +
+                '${getRightAlignedText(stock.openBal, 6)}${getRightAlignedText(stock.sale, 6)}' +
+                '${getRightAlignedText(stock.goodsReturn, 8)}${getRightAlignedText(stock.transfIn, 7)}' +
+                '${getRightAlignedText(stock.transfOut, 7)}${getRightAlignedText(stock.focX, 5)}' +
+                '${getRightAlignedText(stock.focY, 5)}${getRightAlignedText(stock.closeBal, 6)}' +
+                '${getRightAlignedText(stock.onhand, 6)}',
           ),
-        ]);
+        );
+
+        // bytes += generator.row([
+        //   PosColumn(width: 1, text: stock.id),
+        //   PosColumn(width: 2, textEncoded: await getThaiEncoded(stock.name)),
+        //   PosColumn(
+        //     width: 9,
+        //     text: getTabs(5) +
+        //         ' ' +
+        //         getRightAlignedText(stock.wh, 6) +
+        //         getRightAlignedText(stock.perPack, 5) +
+        //         getRightAlignedText(stock.openBal, 6) +
+        //         getRightAlignedText(stock.sale, 6) +
+        //         getRightAlignedText(stock.goodsReturn, 8) +
+        //         getRightAlignedText(stock.transfIn, 7) +
+        //         getRightAlignedText(stock.transfOut, 7) +
+        //         getRightAlignedText(stock.focX, 5) +
+        //         getRightAlignedText(stock.focY, 5) +
+        //         getRightAlignedText(stock.closeBal, 6) +
+        //         getRightAlignedText(stock.onhand, 6),
+        //   ),
+        // ]);
       }
 
-      bytes += generator.hr(len: 120, ch: '=');
+      // bytes += generator.hr(len: 120, ch: '=');
 
-      bytes += generator.text('NO OF PRODUCT : $currentListItem LIST');
+      // bytes += generator.text('NO OF PRODUCT : $currentListItem LIST');
 
-      bytes += generator.hr(len: 120, ch: '=');
+      // bytes += generator.hr(len: 120, ch: '=');
 
-      if (outerIdx < totalPages - 1) {
-        bytes += generator.emptyLines(4);
-      }
+      // if (outerIdx < totalPages - 1) {
+      //   bytes += generator.emptyLines(4);
+      // }
     }
 
     return bytes;
