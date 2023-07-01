@@ -73,30 +73,33 @@ String formatCurrencyValue(String value) {
 String fillSpaceText(String text, int maxLength) {
   return text.length <= maxLength
       ? text.padRight(maxLength)
-      : text.substring(0, get_thai_string_length(text)<= maxLength
-      ? get_thai_string_length(text): maxLength).padRight(maxLength);
+      : text
+          .substring(
+            0,
+            get_thai_string_length(text) <= maxLength
+                ? get_thai_string_length(text)
+                : maxLength,
+          )
+          .padRight(maxLength);
 }
-
 
 int get_thai_string_length(String text) {
   List<Script> scripts = UnicodeScript.scripts;
   int length = 0;
-  for(int i=0; i<text.length; i++) {
+  for (int i = 0; i < text.length; i++) {
     var char = text[i];
 
     final codePoint = char.runes.single;
     final found = scripts.where(
-            (script) => codePoint >= script.start && codePoint <= script.end);
+        (script) => codePoint >= script.start && codePoint <= script.end);
     final script = found.single;
-    final name = script.name; // Latin
+    // final name = script.name; // Latin
     final category = script.category; // L&
 
-    if(category != 'Mn'){
+    if (category != 'Mn') {
       length += 1;
     }
   }
-
-
 
   return length;
 }
