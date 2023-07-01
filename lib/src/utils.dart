@@ -71,11 +71,10 @@ String formatCurrencyValue(String value) {
 }
 
 String fillSpaceText(String text, int maxLength) {
-  int difference = text.length - get_thai_string_length(text);
-  print(difference);
-  return get_thai_string_length(text) <= maxLength
-      ? text.padRight(maxLength-difference)
-      : text.substring(0, maxLength+difference).padRight(maxLength);
+  return text.length <= maxLength
+      ? text.padRight(maxLength)
+      : text.substring(0, get_thai_string_length(text)<= maxLength
+      ? get_thai_string_length(text): maxLength).padRight(maxLength);
 }
 
 
