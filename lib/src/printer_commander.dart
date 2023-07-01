@@ -819,38 +819,48 @@ class PrinterCommander {
 
         final CallingModel callingItem = data.callingList[currentListIdx];
 
-        bytes += generator.row([
-          PosColumn(width: 1, text: callingItem.date),
-          PosColumn(width: 1, text: getTabs(1) + callingItem.custCode),
-          PosColumn(
-            width: 4,
-            textEncoded:
-                await getThaiEncoded(getTabs(1) + callingItem.custName),
+        bytes += generator.textEncoded(
+          await getThaiEncoded(
+            '${callingItem.date}${getTabs(1)}${callingItem.custCode}' +
+                '${getTabs(1)} ${fillSpaceText(callingItem.custName, 40)}' +
+                ' ${fillSpaceText(callingItem.reason, 20)}' +
+                '${getTabs(1)} ${fillSpaceText(callingItem.typeOfShop, 24)}' +
+                '${callingItem.time}',
           ),
-          PosColumn(
-            width: 2,
-            textEncoded: await getThaiEncoded(getTabs(1) + callingItem.reason),
-          ),
-          PosColumn(
-            width: 2,
-            textEncoded:
-                await getThaiEncoded(getTabs(2) + callingItem.typeOfShop),
-          ),
-          PosColumn(width: 2, text: getTabs(3) + ' ' + callingItem.time),
-        ]);
+        );
+
+        // bytes += generator.row([
+        //   PosColumn(width: 1, text: callingItem.date),
+        //   PosColumn(width: 1, text: getTabs(1) + callingItem.custCode),
+        //   PosColumn(
+        //     width: 4,
+        //     textEncoded:
+        //         await getThaiEncoded(getTabs(1) + callingItem.custName),
+        //   ),
+        //   PosColumn(
+        //     width: 2,
+        //     textEncoded: await getThaiEncoded(getTabs(1) + callingItem.reason),
+        //   ),
+        //   PosColumn(
+        //     width: 2,
+        //     textEncoded:
+        //         await getThaiEncoded(getTabs(2) + callingItem.typeOfShop),
+        //   ),
+        //   PosColumn(width: 2, text: getTabs(3) + ' ' + callingItem.time),
+        // ]);
       }
 
-      bytes += generator.hr(len: 120, ch: '=');
+      // bytes += generator.hr(len: 120, ch: '=');
 
-      bytes += generator.text('Total $currentListItem');
+      // bytes += generator.text('Total $currentListItem');
 
-      bytes += generator.hr(len: 120, ch: '=');
+      // bytes += generator.hr(len: 120, ch: '=');
 
-      bytes += generator.text('Grand Total ${data.grandTotal}');
+      // bytes += generator.text('Grand Total ${data.grandTotal}');
 
-      if (outerIdx < totalPages - 1) {
-        bytes += generator.emptyLines(4);
-      }
+      // if (outerIdx < totalPages - 1) {
+      //   bytes += generator.emptyLines(4);
+      // }
     }
 
     return bytes;

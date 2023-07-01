@@ -343,7 +343,7 @@ final sampleCclrBillModel = CclrReportModel(
       date: '07/02/2023',
       custCode: 'CA244687',
       custName: 'ปั๊มแดง กม.8',
-      reason: '8 ซอืѸ จากรา้ นคา้ อนืѷ /ยีปั ѷ ѹว',
+      reason: '8 สงѷั สนิ คา้ กับพนักงานขาย',
       typeOfShop: 'C6 Branded IWS Car6',
       time: '11:36:11',
     ),
