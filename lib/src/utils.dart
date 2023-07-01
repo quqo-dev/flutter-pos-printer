@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:charset_converter/charset_converter.dart';
+import 'package:unicode_data/unicode_data.dart';
 
 const String TEXT_SPACE = '  ';
 
@@ -70,7 +71,33 @@ String formatCurrencyValue(String value) {
 }
 
 String fillSpaceText(String text, int maxLength) {
-  return text.length <= maxLength
-      ? text.padRight(maxLength)
-      : text.substring(0, maxLength);
+  int difference = text.length - get_thai_string_length(text);
+  print(difference);
+  return get_thai_string_length(text) <= maxLength
+      ? text.padRight(maxLength-difference)
+      : text.substring(0, maxLength+difference).padRight(maxLength);
+}
+
+
+int get_thai_string_length(String text) {
+  List<Script> scripts = UnicodeScript.scripts;
+  int length = 0;
+  for(int i=0; i<text.length; i++) {
+    var char = text[i];
+
+    final codePoint = char.runes.single;
+    final found = scripts.where(
+            (script) => codePoint >= script.start && codePoint <= script.end);
+    final script = found.single;
+    final name = script.name; // Latin
+    final category = script.category; // L&
+
+    if(category != 'Mn'){
+      length += 1;
+    }
+  }
+
+
+
+  return length;
 }
