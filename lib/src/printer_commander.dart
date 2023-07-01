@@ -880,88 +880,39 @@ class PrinterCommander {
     currentRow = BTR_HEADER_ROW;
 
     for (final transaction in data.transactionList) {
-      bytes += generator.row([
-        PosColumn(width: 1, text: transaction.firstRowData.noProduct),
-        PosColumn(
-            width: 1,
-            text: getTabs(1) + transaction.firstRowData.effectiveDate),
-        PosColumn(
-            width: 1, text: getTabs(2) + transaction.firstRowData.createdDate),
-        PosColumn(
-          width: 1,
-          textEncoded: await getThaiEncoded(
-              getTabs(3) + transaction.firstRowData.customerName),
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+          '${fillSpaceText(transaction.firstRowData.noProduct.replaceAll(' ', ''), 10)}${getTabs(1)}' +
+              '${fillSpaceText(transaction.firstRowData.effectiveDate, 10)}${getTabs(1)}' +
+              '${fillSpaceText(transaction.firstRowData.createdDate, 10)}${getTabs(1)} ' +
+              '${fillSpaceText(transaction.firstRowData.customerName, 22)}' +
+              '${getRightAlignedText(transaction.firstRowData.price, 11)} ' +
+              '${getRightAlignedText(transaction.firstRowData.discount, 8)}${getTabs(1)}' +
+              '${getRightAlignedText(transaction.firstRowData.deliveryOrderFee, 8)}' +
+              '${getRightAlignedText(transaction.firstRowData.tax, 7)} ' +
+              '${getRightAlignedText(transaction.firstRowData.total, 9)}' +
+              '${getRightAlignedText(transaction.firstRowData.sts, 8)}',
         ),
-        PosColumn(width: 1),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) +
-                getRightAlignedText(transaction.firstRowData.price, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) +
-                getRightAlignedText(transaction.firstRowData.discount, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) +
-                getRightAlignedText(
-                    transaction.firstRowData.deliveryOrderFee, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(4) +
-                ' ' +
-                getRightAlignedText(transaction.firstRowData.tax, 7)),
-        PosColumn(
-            width: 1,
-            text: getTabs(4) +
-                getRightAlignedText(transaction.firstRowData.total, 8)),
-        PosColumn(
-            width: 2,
-            text: getTabs(3) +
-                ' ' +
-                getRightAlignedText(transaction.firstRowData.sts, 8)),
-      ]);
+      );
 
       currentRow++;
       _checkEndPage();
 
       for (final tableItem in transaction.tableData) {
-        bytes += generator.row([
-          PosColumn(width: 1, text: tableItem.product),
-          PosColumn(
-            width: 1,
-            textEncoded: await getThaiEncoded(getTabs(1) + tableItem.name),
+        bytes += generator.textEncoded(
+          await getThaiEncoded(
+            '${fillSpaceText(tableItem.product, 10)}${getTabs(1)}' +
+                '${fillSpaceText(tableItem.name, 34)}${getTabs(1)}' +
+                '${getRightAlignedText(tableItem.pack, 4)}' +
+                '${getRightAlignedText(tableItem.order, 7)} ' +
+                '${getRightAlignedText(tableItem.foc, 8)}' +
+                '${getRightAlignedText(tableItem.pricePerUnit, 9)}${getTabs(1)}' +
+                '${getRightAlignedText(tableItem.price, 8)} ' +
+                '${getRightAlignedText(tableItem.percentDiscount, 7)} ' +
+                '${getRightAlignedText(tableItem.discount, 9)}' +
+                '${getRightAlignedText(tableItem.total, 8)}',
           ),
-          PosColumn(width: 1),
-          PosColumn(width: 1),
-          PosColumn(
-              width: 1,
-              text: getTabs(3) +
-                  getRightAlignedText(tableItem.pack, 5) +
-                  getTabs(1) +
-                  getRightAlignedText(tableItem.order, 5)),
-          PosColumn(
-              width: 1,
-              text: getTabs(5) + getRightAlignedText(tableItem.foc, 8)),
-          PosColumn(
-              width: 1,
-              text:
-                  getTabs(5) + getRightAlignedText(tableItem.pricePerUnit, 8)),
-          PosColumn(
-              width: 1,
-              text: getTabs(5) + getRightAlignedText(tableItem.price, 8)),
-          PosColumn(
-              width: 1,
-              text: getTabs(4) +
-                  ' ' +
-                  getRightAlignedText(tableItem.percentDiscount, 7)),
-          PosColumn(
-              width: 1,
-              text: getTabs(4) + getRightAlignedText(tableItem.discount, 8)),
-          PosColumn(
-              width: 2,
-              text: getTabs(3) + ' ' + getRightAlignedText(tableItem.total, 8)),
-        ]);
+        );
 
         currentRow++;
         _checkEndPage();
@@ -977,7 +928,7 @@ class PrinterCommander {
       PosColumn(width: 4),
       PosColumn(
           width: 1,
-          text: getTabs(5) + getRightAlignedText(data.totalRow.price, 8)),
+          text: getTabs(4) + ' ' + getRightAlignedText(data.totalRow.price, 9)),
       PosColumn(
           width: 1,
           text: getTabs(5) + getRightAlignedText(data.totalRow.discount, 8)),

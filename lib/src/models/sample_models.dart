@@ -389,13 +389,13 @@ final sampleBtrBillModel = BtrReportModel(
   dateSelectedFrom: '07/02/2023',
   dateSelectedTo: '07/02/2023',
   transactionList: List<TransactionModel>.generate(
-    14,
+    1,
     (index) => TransactionModel(
       firstRowData: FirstRowModel(
-        noProduct: 'S32467-27',
+        noProduct: 'QD042001 - 1',
         effectiveDate: '07/02/2023',
         createdDate: '07/02/2023',
-        customerName: 'A700743 This is a name',
+        customerName: 'คุณพรรัตน์  ประภานวรัตน์',
         price: '2,760.00',
         discount: '883.20',
         deliveryOrderFee: '0.00',
@@ -406,7 +406,7 @@ final sampleBtrBillModel = BtrReportModel(
       tableData: <TableModel>[
         TableModel(
           product: '100845598',
-          name: '4AT AX5 15W40 SL MB 12X0.8L',
+          name: 'ของแถมHX ULTA_ล็อค&ล็อค',
           pack: '12',
           order: '1/0',
           foc: '0/0',
@@ -418,21 +418,9 @@ final sampleBtrBillModel = BtrReportModel(
         ),
         TableModel(
           product: '100974445',
-          name: '4AT AX5 15W40 SL MB 12X0.8L',
+          name: 'แอดวานซ์4TAX7 10W40MA2 12X0.8L',
           pack: '12',
-          order: '1/0',
-          foc: '0/0',
-          pricePerUnit: '1,380.00',
-          price: '1,380.00',
-          percentDiscount: '32.00',
-          discount: '441.60',
-          total: '1,004.09',
-        ),
-        TableModel(
-          product: '100974445',
-          name: '4AT AX5 15W40 SL MB 12X0.8L',
-          pack: '12',
-          order: '1/0',
+          order: '13/5',
           foc: '0/0',
           pricePerUnit: '1,380.00',
           price: '1,380.00',
