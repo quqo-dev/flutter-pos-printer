@@ -68,3 +68,9 @@ String formatCurrencyValue(String value) {
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match match) => '${match[1]},');
   return parts.join('.');
 }
+
+String fillSpaceText(String text, int maxLength) {
+  return text.length <= maxLength
+      ? text.padRight(maxLength)
+      : text.substring(0, maxLength);
+}

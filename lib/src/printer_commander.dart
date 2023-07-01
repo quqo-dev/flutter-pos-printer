@@ -263,49 +263,14 @@ class PrinterCommander {
         currentListItem++;
         final DkshProductModel item = data.productList[currentListIdx];
 
-        bytes += generator.row([
-          PosColumn(
-            width: 3,
-            textEncoded: await getThaiEncoded(
-                ' ${item.productCode} ${item.productList}'),
-            styles: const PosStyles(align: PosAlign.left),
+        bytes += generator.textEncoded(
+          await getThaiEncoded(
+            ' ${fillSpaceText(item.productCode, 9)} ${fillSpaceText(item.productList, 28)}' +
+                ' ${getRightAlignedText(item.soldAmount, 5)} ${getRightAlignedText(item.freeAmount, 5)}' +
+                '${getRightAlignedText(item.amountBeforeVAT, 11)} ${getRightAlignedText(item.discountBeforeVAT, 8)}' +
+                '${getRightAlignedText(item.amountAfterVAT, 11)}${getRightAlignedText(item.pricePerCanAfterVAT, 8)}',
           ),
-          PosColumn(
-            width: 1,
-            text: getTabs(5) + ' ' + item.soldAmount,
-            styles: const PosStyles(align: PosAlign.right),
-          ),
-          PosColumn(
-            width: 1,
-            text: getTabs(4) + ' ' + item.freeAmount,
-            styles: const PosStyles(align: PosAlign.right),
-          ),
-          PosColumn(
-            width: 1,
-            text: getTabs(2) +
-                ' ' +
-                getRightAlignedText(item.amountBeforeVAT, 11),
-            styles: const PosStyles(align: PosAlign.right),
-          ),
-          PosColumn(
-            width: 1,
-            text: getTabs(4) +
-                ' ' +
-                getRightAlignedText(item.discountBeforeVAT, 9),
-            styles: const PosStyles(align: PosAlign.right),
-          ),
-          PosColumn(
-            width: 1,
-            text: getTabs(6) + getRightAlignedText(item.amountAfterVAT, 11),
-            styles: const PosStyles(align: PosAlign.right),
-          ),
-          PosColumn(
-            width: 1,
-            text: getTabs(8) + getRightAlignedText(item.pricePerCanAfterVAT, 7),
-            styles: const PosStyles(align: PosAlign.right),
-          ),
-          PosColumn(width: 3)
-        ]);
+        );
       }
 
       // The rest empty lines of table
@@ -316,47 +281,25 @@ class PrinterCommander {
       // Spacing for the next row
       bytes += generator.emptyLines(2);
 
-      bytes += generator.row([
-        PosColumn(width: 7),
-        PosColumn(
-          width: 1,
-          text: getTabs(6) + getRightAlignedText(data.netSalesAfterVAT, 11),
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(width: 4)
-      ]);
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+            "${getTabs(37)} ${getRightAlignedText(data.netSalesAfterVAT, 11)}"),
+      );
 
       bytes += generator.emptyLines(1);
 
-      bytes += generator.row([
-        PosColumn(
-          width: 7,
-          textEncoded:
-              await getThaiEncoded(getTabs(1) + data.totalMoneyByLetters),
-        ),
-        PosColumn(
-          width: 1,
-          text: getTabs(6) + getRightAlignedText(data.netSalesBeforeVAT, 11),
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(width: 4)
-      ]);
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+            "${getTabs(1)}${fillSpaceText(data.totalMoneyByLetters, 73)}${getRightAlignedText(data.netSalesBeforeVAT, 11)}"),
+      );
 
       bytes += generator.emptyLines(1);
 
-      bytes += generator.row([
-        PosColumn(width: 6),
-        PosColumn(
-          width: 1,
-          text: getTabs(6) + data.percentVAT,
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+          "${getTabs(31)}${fillSpaceText(data.percentVAT, 4)}${getTabs(4)} ${getRightAlignedText(data.amountVAT, 11)}",
         ),
-        PosColumn(
-          width: 1,
-          text: getTabs(6) + getRightAlignedText(data.amountVAT, 11),
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-        PosColumn(width: 4)
-      ]);
+      );
 
       bytes += generator.emptyLines(1);
 

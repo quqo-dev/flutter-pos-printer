@@ -5,8 +5,8 @@ final sampleDkshBillModel = DkshBillModel(
   time: '08:51:23',
   issuedBranch: '00122',
   contactInfo: 'สำนักงานใหญ่ 091-890-3153',
-  storeName: 'Sample text',
-  address: '499/7 This is a sample text',
+  storeName: 'นามวัฒน์อะไหล่',
+  address: '\'156-157  ม.2 ต.กังแอน อ.ปราสาท จ.กำแพงเพชร',
   taxPayerIdNumber: '1650200025093 / sample text',
   orderNumber: 'B0',
   section: '27',
@@ -17,7 +17,7 @@ final sampleDkshBillModel = DkshBillModel(
   billingCode: '10351241',
   productList: <DkshProductModel>[
     DkshProductModel(
-      productCode: '1',
+      productCode: '100845598',
       productList: 'เฮลิกส์ ULTRA 0W-40 12X1L_SK',
       soldAmount: '1/0',
       freeAmount: '0/0',
@@ -27,7 +27,7 @@ final sampleDkshBillModel = DkshBillModel(
       pricePerCanAfterVAT: '83.67',
     ),
     DkshProductModel(
-      productCode: '1',
+      productCode: '100845598',
       productList: 'ริมูล่าR1 40 CC/SC_REV 4X4L',
       soldAmount: '1/0',
       freeAmount: '0/0',
@@ -37,7 +37,7 @@ final sampleDkshBillModel = DkshBillModel(
       pricePerCanAfterVAT: '83.67',
     ),
     DkshProductModel(
-      productCode: '1',
+      productCode: '100845598',
       productList: 'คูแลนท์LL พลัส พร้อมใช้ 4X4L',
       soldAmount: '1/0',
       freeAmount: '0/0',
@@ -47,7 +47,7 @@ final sampleDkshBillModel = DkshBillModel(
       pricePerCanAfterVAT: '83.67',
     ),
     DkshProductModel(
-      productCode: '1',
+      productCode: '100845598',
       productList: 'ของแถม เสื้อโปโล ADV 4T',
       soldAmount: '1/0',
       freeAmount: '0/0',
