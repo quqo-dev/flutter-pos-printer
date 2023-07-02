@@ -22,6 +22,8 @@ import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 enum BillType { Dksh, Ddc, Dssr, Cclr, Btr, Btl, Osr, Csr, Rrsr }
 
 const int MAX_ROW_PER_PAGE = 64;
+const int GAP_END_PAGE = 3;
+
 const int MAX_ADDRESS_CHAR_PER_ROW = 40;
 const int MAX_BILLING_PRODUCT_PER_PAGE = 8;
 const int MAX_CCLR_ROW_PER_PAGE = 50;
@@ -31,6 +33,7 @@ const int MAX_OSR_ROW_PER_PAGE = 48;
 const int MAX_CSR_ROW_PER_PAGE = 60;
 const int MAX_RRSR_ROW_PER_PAGE = 50;
 
+const int DSSR_HEADER_ROW = 7;
 const int BTR_HEADER_ROW = 7;
 const int CSR_HEADER_ROW = 6;
 const int RRSR_HEADER_ROW = 6;
@@ -86,10 +89,7 @@ class PrinterCommander {
           throw FormatException('Error! Type must be DssrBillModel');
         }
 
-        final int pages = data.stockList.length ~/ MAX_DSSR_ROW_PER_PAGE +
-            (data.stockList.length % MAX_DSSR_ROW_PER_PAGE != 0 ? 1 : 0);
-
-        bytes = await _getDssrReportContent(pages, generator, data);
+        bytes = await _getDssrReportContent(generator, data);
         break;
       case BillType.Cclr:
         if (data is! CclrReportModel) {
@@ -562,33 +562,6 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120);
 
-    // templates
-    // bytes += generator.text(
-    //     'CASH SALES   - Running Number FORM-USAGE FROM.................. TO .................. TOTAL...... BILL(S)');
-    // bytes += generator.text(
-    //     '             - Running Number FORM-CANCELATION NO.................................... TOTAL...... BILL(S)');
-    // bytes += generator.text(
-    //     'CREDIT SALES - Running Number FORM-USAGE FROM.................. TO .................. TOTAL...... BILL(S)');
-    // bytes += generator.text(
-    //     '             - Running Number FORM-CANCELATION NO.................................... TOTAL...... BILL(S)');
-    // bytes += generator.text(
-    //     'NOTE: THE RUNNING NUMBER FROM IS AT THE RIGHT BOTTOM OF INVOICE');
-
-    // bytes += generator.hr(len: 120);
-
-    // bytes += generator.text(
-    //     'Collection Sheet.............A' + getTabs(2) + 'Text.............A');
-    // bytes += generator.text(
-    //     'Sample text.............text.............text.............A Text.............text   Sample text.............baht');
-    // bytes += generator.text(
-    //     'Sample text.............text.............text.............A Text.............text');
-    // bytes +=
-    //     generator.text('Sample text.............Sample text.............baht');
-    // bytes += generator.text(
-    //     'Sample text.............Sample text.............baht Sample text.............baht Sample text.............');
-
-    // bytes += generator.hr(len: 120);
-
     bytes += generator.text('Total balance  ${data.totalBalance}  baht');
     bytes += generator.text('Total cash balance  ${data.totalCashBalance}  baht' +
         getTabs(2) +
@@ -605,144 +578,147 @@ class PrinterCommander {
   }
 
   static Future<List<int>> _getDssrReportContent(
-    int totalPages,
     Generator generator,
     DssrReportModel data,
   ) async {
     List<int> bytes = [];
+    int currentPage = 1;
+    int currentRow = 0;
 
-    for (int outerIdx = 0; outerIdx < totalPages; outerIdx++) {
-      // Header section
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
-        PosColumn(width: 9),
-        PosColumn(
-          width: 2,
-          text: getRightAlignedText('Page ${outerIdx + 1}', 14),
-        ),
-      ]);
-
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
-        PosColumn(
-          width: 9,
-          text: getTabs(19) + 'DAILY STOCK SUMMARY REPORT',
-        ),
-        PosColumn(
-          width: 2,
-          text: getRightAlignedText(data.smNumber, 14),
-        ),
-      ]);
-
-      bytes += generator.row([
-        PosColumn(width: 1),
-        PosColumn(
-          width: 10,
-          text:
-              getTabs(16) + 'Selected Date : ${data.selectedDate} All Products',
-        ),
-        PosColumn(width: 1),
-      ]);
-
-      bytes += generator.hr(len: 120, ch: '=');
-
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'PRODUCT'),
-        PosColumn(width: 2, text: 'NAME'),
-        PosColumn(
-          width: 9,
-          text: getTabs(5) +
-              ' ' +
-              getRightAlignedText('W/H', 6) +
-              getRightAlignedText('PER', 5) +
-              getRightAlignedText('OPEN', 6) +
-              getRightAlignedText('SALE', 6) +
-              getRightAlignedText('GOODS', 8) +
-              getRightAlignedText('TRANSF', 7) +
-              getRightAlignedText('TRANSF', 7) +
-              getRightAlignedText('FOC', 5) +
-              getRightAlignedText('', 5) +
-              getRightAlignedText('CLOSE', 6) +
-              getRightAlignedText('ONHAND', 6),
-        ),
-      ]);
-
-      bytes += generator.row([
-        PosColumn(width: 1),
-        PosColumn(width: 2),
-        PosColumn(
-          width: 9,
-          text: getTabs(5) +
-              ' ' +
-              getRightAlignedText('', 6) +
-              getRightAlignedText('PACK', 5) +
-              getRightAlignedText('BAL', 6) +
-              getRightAlignedText('', 6) +
-              getRightAlignedText('RETURNS', 8) +
-              getRightAlignedText('IN', 7) +
-              getRightAlignedText('OUT', 7) +
-              getRightAlignedText('X', 5) +
-              getRightAlignedText('Y', 5) +
-              getRightAlignedText('BAL', 6),
-        ),
-      ]);
-
-      bytes += generator.hr(len: 120, ch: '=');
-
-      int currentListItem = 0;
-
-      for (int listIdx = 0; listIdx < MAX_DSSR_ROW_PER_PAGE; listIdx++) {
-        final int currentListIdx = outerIdx * MAX_DSSR_ROW_PER_PAGE + listIdx;
-
-        if (currentListIdx >= data.stockList.length) break;
-
-        currentListItem++;
-        final StockModel stock = data.stockList[currentListIdx];
-
-        bytes += generator.textEncoded(
-          await getThaiEncoded(
-            '${fillSpaceText(stock.id, 9)} ${fillSpaceText(stock.name, 30)} ' +
-                '${getTabs(1)} ${stock.wh} ${getRightAlignedText(stock.perPack, 5)}' +
-                '${getRightAlignedText(stock.openBal, 6)}${getRightAlignedText(stock.sale, 6)}' +
-                '${getRightAlignedText(stock.goodsReturn, 8)}${getRightAlignedText(stock.transfIn, 7)}' +
-                '${getRightAlignedText(stock.transfOut, 7)}${getRightAlignedText(stock.focX, 5)}' +
-                '${getRightAlignedText(stock.focY, 5)}${getRightAlignedText(stock.closeBal, 6)}' +
-                '${getRightAlignedText(stock.onhand, 6)}',
-          ),
-        );
-
-        // bytes += generator.row([
-        //   PosColumn(width: 1, text: stock.id),
-        //   PosColumn(width: 2, textEncoded: await getThaiEncoded(stock.name)),
-        //   PosColumn(
-        //     width: 9,
-        //     text: getTabs(5) +
-        //         ' ' +
-        //         getRightAlignedText(stock.wh, 6) +
-        //         getRightAlignedText(stock.perPack, 5) +
-        //         getRightAlignedText(stock.openBal, 6) +
-        //         getRightAlignedText(stock.sale, 6) +
-        //         getRightAlignedText(stock.goodsReturn, 8) +
-        //         getRightAlignedText(stock.transfIn, 7) +
-        //         getRightAlignedText(stock.transfOut, 7) +
-        //         getRightAlignedText(stock.focX, 5) +
-        //         getRightAlignedText(stock.focY, 5) +
-        //         getRightAlignedText(stock.closeBal, 6) +
-        //         getRightAlignedText(stock.onhand, 6),
-        //   ),
-        // ]);
+    // call this function whenever add a new line
+    void _checkEndPage() {
+      if (currentRow >= MAX_ROW_PER_PAGE - GAP_END_PAGE) {
+        currentPage++;
+        bytes += generator.hr(len: 120, ch: '=');
+        bytes += generator.emptyLines(3);
+        currentRow = 0;
+        bytes += _getDssrHeader(generator, currentPage, data);
+        currentRow += DSSR_HEADER_ROW;
       }
-
-      // bytes += generator.hr(len: 120, ch: '=');
-
-      // bytes += generator.text('NO OF PRODUCT : $currentListItem LIST');
-
-      // bytes += generator.hr(len: 120, ch: '=');
-
-      // if (outerIdx < totalPages - 1) {
-      //   bytes += generator.emptyLines(4);
-      // }
     }
+
+    // Header section
+    bytes += _getDssrHeader(generator, currentPage, data);
+    currentRow += DSSR_HEADER_ROW;
+
+    for (final stock in data.stockList) {
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+          '${fillSpaceText(stock.id, 9)} ${fillSpaceText(stock.name, 30)} ' +
+              '${getTabs(1)} ${stock.wh} ${getRightAlignedText(stock.perPack, 5)}' +
+              '${getRightAlignedText(stock.openBal, 6)}${getRightAlignedText(stock.sale, 6)}' +
+              '${getRightAlignedText(stock.goodsReturn, 8)}${getRightAlignedText(stock.transfIn, 7)}' +
+              '${getRightAlignedText(stock.transfOut, 7)}${getRightAlignedText(stock.focX, 5)}' +
+              '${getRightAlignedText(stock.focY, 5)}${getRightAlignedText(stock.closeBal, 6)}' +
+              '${getRightAlignedText(stock.onhand, 6)}',
+        ),
+      );
+
+      currentRow++;
+      _checkEndPage();
+    }
+
+    bytes += generator.hr(len: 120, ch: '=');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('NO OF PRODUCT : ${data.stockList.length} LIST');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.hr(len: 120, ch: '=');
+    currentRow++;
+    _checkEndPage();
+
+    // move to a new page when finish
+    if (currentRow < MAX_ROW_PER_PAGE) {
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 2);
+    }
+
+    return bytes;
+  }
+
+  static List<int> _getDssrHeader(
+    Generator generator,
+    int page,
+    DssrReportModel data,
+  ) {
+    List<int> bytes = [];
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page $page', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(19) + 'DAILY STOCK SUMMARY REPORT',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(16) + 'Selected Date : ${data.selectedDate} All Products',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'PRODUCT'),
+      PosColumn(width: 2, text: 'NAME'),
+      PosColumn(
+        width: 9,
+        text: getTabs(5) +
+            ' ' +
+            getRightAlignedText('W/H', 6) +
+            getRightAlignedText('PER', 5) +
+            getRightAlignedText('OPEN', 6) +
+            getRightAlignedText('SALE', 6) +
+            getRightAlignedText('GOODS', 8) +
+            getRightAlignedText('TRANSF', 7) +
+            getRightAlignedText('TRANSF', 7) +
+            getRightAlignedText('FOC', 5) +
+            getRightAlignedText('', 5) +
+            getRightAlignedText('CLOSE', 6) +
+            getRightAlignedText('ONHAND', 6),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(width: 2),
+      PosColumn(
+        width: 9,
+        text: getTabs(5) +
+            ' ' +
+            getRightAlignedText('', 6) +
+            getRightAlignedText('PACK', 5) +
+            getRightAlignedText('BAL', 6) +
+            getRightAlignedText('', 6) +
+            getRightAlignedText('RETURNS', 8) +
+            getRightAlignedText('IN', 7) +
+            getRightAlignedText('OUT', 7) +
+            getRightAlignedText('X', 5) +
+            getRightAlignedText('Y', 5) +
+            getRightAlignedText('BAL', 6),
+      ),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
 
     return bytes;
   }

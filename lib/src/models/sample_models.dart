@@ -266,12 +266,13 @@ final sampleDssrBillModel = DssrReportModel(
   date: '08/02/02023',
   time: '08:34:37',
   selectedDate: '08/02/2023',
-  stockList: <StockModel>[
-    StockModel(
+  stockList: List<StockModel>.generate(
+    65,
+    (index) => StockModel(
       id: '100845611',
       name: 'คูแลนท์LL พลัส พร้อมใช้ 4X4L',
       wh: '8A64',
-      perPack: '12',
+      perPack: '${index + 1}',
       openBal: '2/3',
       sale: '0/0',
       goodsReturn: '0/0',
@@ -282,38 +283,8 @@ final sampleDssrBillModel = DssrReportModel(
       closeBal: '2/3',
       onhand: '2/3',
     ),
-    StockModel(
-      id: '100845611',
-      name: 'เฮลิกส์HX7 5W-40 4X4L แพค1L',
-      wh: '8A64',
-      perPack: '12',
-      openBal: '2/3',
-      sale: '0/0',
-      goodsReturn: '0/0',
-      transfIn: '0/0',
-      transfOut: '0/0',
-      focX: '0/0',
-      focY: '0/0',
-      closeBal: '2/3',
-      onhand: '2/3',
-    ),
-    StockModel(
-      id: '100845611',
-      name: 'ไฮไมล์เลจดีเซล15W50SN/CF2X6L',
-      wh: '8A64',
-      perPack: '12',
-      openBal: '2/3',
-      sale: '0/0',
-      goodsReturn: '0/0',
-      transfIn: '0/0',
-      transfOut: '0/0',
-      focX: '0/0',
-      focY: '0/0',
-      closeBal: '2/3',
-      onhand: '2/3',
-    ),
-  ],
-  total: '54',
+  ),
+  total: '65',
 );
 
 final sampleCclrBillModel = CclrReportModel(
