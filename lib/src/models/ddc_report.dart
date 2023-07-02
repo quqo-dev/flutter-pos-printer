@@ -284,8 +284,9 @@ class DdcReportModel {
   final List<SummaryModel> paymentByTransporterList;
   final List<SummaryModel> orderSummaryList;
   final String totalBalance;
-  final String totalCashBalance;
+  final String cashBalance;
   final String creditBalance;
+  final String qrBalance;
 
   DdcReportModel({
     required this.page,
@@ -307,11 +308,12 @@ class DdcReportModel {
     required this.paymentByTransporterList,
     required this.orderSummaryList,
     required this.totalBalance,
-    required this.totalCashBalance,
+    required this.cashBalance,
     required this.creditBalance,
+    required this.qrBalance,
   });
 
   @override
   String toString() =>
-      "${page}; ${smNumber}; ${date}; ${time}; ${dateCreatedFrom}; ${dateCreatedTo}; ${status}; ${customerPriceList}; ${billStatusList}; ${paymentTypeList}; ${visitCustomerList}; ${adjCode}; ${billCode}; ${billDCode}; ${intCode}; ${trnCode}; ${paymentByTransporterList}; ${orderSummaryList}; ${totalBalance}; ${totalCashBalance}; ${creditBalance};";
+      "${page}; ${smNumber}; ${date}; ${time}; ${dateCreatedFrom}; ${dateCreatedTo}; ${status}; ${customerPriceList}; ${billStatusList}; ${paymentTypeList}; ${visitCustomerList}; ${adjCode}; ${billCode}; ${billDCode}; ${intCode}; ${trnCode}; ${paymentByTransporterList}; ${orderSummaryList}; ${totalBalance}; ${cashBalance}; ${creditBalance};";
 }

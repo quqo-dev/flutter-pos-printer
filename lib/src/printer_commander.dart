@@ -402,7 +402,7 @@ class PrinterCommander {
               '${getRightAlignedText(customerPrice.netAmount, 9)}' +
               '${getRightAlignedText(customerPrice.tax, 8)}' +
               '${getRightAlignedText(customerPrice.total, 9)}' +
-              '${customerPrice.st} ${customerPrice.l}',
+              '${customerPrice.st} ${fillSpaceText(customerPrice.l, 4)}',
         ),
       );
     }
@@ -557,12 +557,13 @@ class PrinterCommander {
     bytes += generator.hr(len: 120);
 
     bytes += generator.text('Total balance  ${data.totalBalance}  baht');
-    bytes += generator.text('Total cash balance  ${data.totalCashBalance}  baht' +
+    bytes += generator.text('Total cash balance  ${data.cashBalance}  baht' +
         getTabs(2) +
         'Cash payment........................................................baht');
     bytes += generator.text('Total credit balance  ${data.creditBalance}  baht' +
         getTabs(2) +
         'Credit card payment slip amount........  Leaves value...............baht');
+    bytes += generator.text('Total QR balance  ${data.qrBalance}  baht');
     bytes += generator.text(
         'Pay by............................  Get paid by............................');
 
