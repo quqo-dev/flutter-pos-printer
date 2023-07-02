@@ -1352,11 +1352,13 @@ class PrinterCommander {
 
     // call this function whenever add a new line
     void _checkEndPage() {
-      if (currentRow > MAX_CSR_ROW_PER_PAGE) {
+      if (currentRow >= MAX_ROW_PER_PAGE - GAP_END_PAGE) {
         currentPage++;
-        bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow);
+        bytes += generator.hr(len: 120, ch: '=');
+        bytes += generator.emptyLines(3);
+        currentRow = 0;
         bytes += _getCsrHeader(generator, currentPage, data);
-        currentRow = CSR_HEADER_ROW;
+        currentRow += CSR_HEADER_ROW;
       }
     }
 
@@ -1398,8 +1400,16 @@ class PrinterCommander {
     }
 
     bytes += generator.hr(len: 120);
+    currentRow++;
+    _checkEndPage();
 
     bytes += generator.text("Total: ${data.totalRecord} Record(s)");
+    currentRow++;
+
+    // move to a new page when finish
+    if (currentRow < MAX_ROW_PER_PAGE) {
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 2);
+    }
 
     return bytes;
   }
