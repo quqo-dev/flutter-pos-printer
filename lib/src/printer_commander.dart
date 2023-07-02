@@ -35,6 +35,7 @@ const int MAX_RRSR_ROW_PER_PAGE = 50;
 
 const int DSSR_HEADER_ROW = 7;
 const int BTR_HEADER_ROW = 7;
+const int CCLR_HEADER_ROW = 6;
 const int CSR_HEADER_ROW = 6;
 const int RRSR_HEADER_ROW = 6;
 
@@ -96,10 +97,10 @@ class PrinterCommander {
           throw FormatException('Error! Type must be CclrBillModel');
         }
 
-        final int pages = data.callingList.length ~/ MAX_CCLR_ROW_PER_PAGE +
-            (data.callingList.length % MAX_CCLR_ROW_PER_PAGE != 0 ? 1 : 0);
+        // final int pages = data.callingList.length ~/ MAX_CCLR_ROW_PER_PAGE +
+        //     (data.callingList.length % MAX_CCLR_ROW_PER_PAGE != 0 ? 1 : 0);
 
-        bytes = await _getCclrReportContent(pages, generator, data);
+        bytes = await _getCclrReportContent(generator, data);
         break;
       case BillType.Btr:
         if (data is! BtrReportModel) {
@@ -628,7 +629,6 @@ class PrinterCommander {
 
     bytes += generator.hr(len: 120, ch: '=');
     currentRow++;
-    _checkEndPage();
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
@@ -724,92 +724,117 @@ class PrinterCommander {
   }
 
   static Future<List<int>> _getCclrReportContent(
-    int totalPages,
     Generator generator,
     CclrReportModel data,
   ) async {
     List<int> bytes = [];
+    int currentPage = 1;
+    int currentRow = 0;
 
-    for (int outerIdx = 0; outerIdx < totalPages; outerIdx++) {
-      // Header section
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
-        PosColumn(width: 9),
-        PosColumn(
-          width: 2,
-          text: getRightAlignedText('Page ${outerIdx + 1}', 14),
-        ),
-      ]);
-
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
-        PosColumn(
-          width: 9,
-          text: getTabs(19) + 'CUSTOMER CALLING LISTING REPORT',
-        ),
-        PosColumn(
-          width: 2,
-          text: getRightAlignedText(data.smNumber, 14),
-        ),
-      ]);
-
-      bytes += generator.row([
-        PosColumn(width: 1),
-        PosColumn(
-          width: 10,
-          text: getTabs(16) +
-              'Date Selected From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
-        ),
-        PosColumn(width: 1),
-      ]);
-
-      bytes += generator.hr(len: 120, ch: '=');
-
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'DATE'),
-        PosColumn(width: 1, text: getTabs(1) + 'CUST.CODE'),
-        PosColumn(width: 4, text: getTabs(1) + 'CUSTOMER NAME'),
-        PosColumn(width: 2, text: getTabs(1) + 'REASON'),
-        PosColumn(width: 2, text: getTabs(2) + 'TYPE OF SHOP'),
-        PosColumn(width: 2, text: getTabs(3) + ' ' + 'TIME'),
-      ]);
-
-      bytes += generator.hr(len: 120, ch: '=');
-
-      int currentListItem = 0;
-
-      for (int listIdx = 0; listIdx < MAX_CCLR_ROW_PER_PAGE; listIdx++) {
-        final int currentListIdx = outerIdx * MAX_CCLR_ROW_PER_PAGE + listIdx;
-
-        if (currentListIdx >= data.callingList.length) break;
-
-        currentListItem++;
-
-        final CallingModel callingItem = data.callingList[currentListIdx];
-
-        bytes += generator.textEncoded(
-          await getThaiEncoded(
-            '${callingItem.date}${getTabs(1)}${callingItem.custCode}' +
-                '${getTabs(1)} ${fillSpaceText(callingItem.custName, 41)}' +
-                '${fillSpaceText(callingItem.reason, 19)}' +
-                '${getTabs(2)}${fillSpaceText(callingItem.typeOfShop, 24)}' +
-                '${callingItem.time}',
-          ),
-        );
-      }
-
-      bytes += generator.hr(len: 120, ch: '=');
-
-      bytes += generator.text('Total $currentListItem');
-
-      bytes += generator.hr(len: 120, ch: '=');
-
-      bytes += generator.text('Grand Total ${data.grandTotal}');
-
-      if (outerIdx < totalPages - 1) {
-        bytes += generator.emptyLines(4);
+    // call this function whenever add a new line
+    void _checkEndPage() {
+      if (currentRow >= MAX_ROW_PER_PAGE - GAP_END_PAGE) {
+        currentPage++;
+        bytes += generator.hr(len: 120, ch: '=');
+        bytes += generator.emptyLines(3);
+        currentRow = 0;
+        bytes += _getCclrHeader(generator, currentPage, data);
+        currentRow += CCLR_HEADER_ROW;
       }
     }
+
+    // Header section
+    bytes += _getCclrHeader(generator, currentPage, data);
+    currentRow += CCLR_HEADER_ROW;
+
+    for (final callingItem in data.callingList) {
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+          '${callingItem.date}${getTabs(1)}${callingItem.custCode}' +
+              '${getTabs(1)} ${fillSpaceText(callingItem.custName, 41)}' +
+              '${fillSpaceText(callingItem.reason, 19)}' +
+              '${getTabs(2)}${fillSpaceText(callingItem.typeOfShop, 24)}' +
+              '${callingItem.time}',
+        ),
+      );
+
+      currentRow++;
+      _checkEndPage();
+    }
+
+    bytes += generator.hr(len: 120, ch: '=');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('Total ${data.total}');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.hr(len: 120, ch: '=');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('Grand Total ${data.grandTotal}');
+    currentRow++;
+
+    // move to a new page when finish
+    if (currentRow < MAX_ROW_PER_PAGE) {
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 2);
+    }
+
+    return bytes;
+  }
+
+  static List<int> _getCclrHeader(
+    Generator generator,
+    int page,
+    CclrReportModel data,
+  ) {
+    List<int> bytes = [];
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page $page', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(19) + 'CUSTOMER CALLING LISTING REPORT',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(16) +
+            'Date Selected From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DATE'),
+      PosColumn(width: 1, text: getTabs(1) + 'CUST.CODE'),
+      PosColumn(width: 4, text: getTabs(1) + 'CUSTOMER NAME'),
+      PosColumn(width: 2, text: getTabs(1) + 'REASON'),
+      PosColumn(width: 2, text: getTabs(2) + 'TYPE OF SHOP'),
+      PosColumn(width: 2, text: getTabs(3) + ' ' + 'TIME'),
+    ]);
+
+    bytes += generator.hr(len: 120, ch: '=');
 
     return bytes;
   }
