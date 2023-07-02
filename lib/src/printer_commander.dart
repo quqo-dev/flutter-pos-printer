@@ -850,8 +850,10 @@ class PrinterCommander {
     void _checkEndPage() {
       if (currentRow >= MAX_ROW_PER_PAGE) {
         currentPage++;
-        currentRow = BTR_HEADER_ROW;
+        bytes += generator.emptyLines(1);
+        currentRow = 1;
         bytes += _getBtrHeader(generator, currentPage, data);
+        currentRow += BTR_HEADER_ROW;
       }
     }
 
@@ -925,6 +927,12 @@ class PrinterCommander {
     ]);
 
     bytes += generator.hr(len: 120);
+    currentRow += 2;
+
+    // move to a new page when finish
+    if (currentRow < MAX_ROW_PER_PAGE) {
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 1);
+    }
 
     return bytes;
   }

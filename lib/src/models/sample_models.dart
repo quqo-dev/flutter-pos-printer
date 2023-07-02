@@ -361,7 +361,7 @@ final sampleBtrBillModel = BtrReportModel(
   dateSelectedFrom: '07/02/2023',
   dateSelectedTo: '07/02/2023',
   transactionList: List<TransactionModel>.generate(
-    1,
+    21,
     (index) => TransactionModel(
       firstRowData: FirstRowModel(
         noProduct: 'QD042001 - 1',
