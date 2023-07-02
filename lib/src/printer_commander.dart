@@ -396,41 +396,21 @@ class PrinterCommander {
 
     // 1st table
     for (final customerPrice in data.customerPriceList) {
-      bytes += generator.row([
-        PosColumn(width: 1, text: customerPrice.no),
-        PosColumn(width: 1, text: customerPrice.date),
-        PosColumn(width: 1, text: getTabs(3) + ' ' + customerPrice.customerId),
-        PosColumn(
-          width: 1,
-          textEncoded: await getThaiEncoded(
-              getTabs(2) + ' ' + customerPrice.customerName),
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+          '${fillSpaceText(customerPrice.no.replaceAll(' ', ''), 10)}' +
+              '${fillSpaceText(customerPrice.date, 16)}${getTabs(1)}' +
+              '${fillSpaceText(customerPrice.customerId, 7)} ' +
+              '${fillSpaceText(customerPrice.customerName, 20)}' +
+              '${getRightAlignedText(customerPrice.price, 11)}' +
+              '${getRightAlignedText(customerPrice.diValue, 9)}' +
+              '${getRightAlignedText(customerPrice.doValue, 5)}' +
+              '${getRightAlignedText(customerPrice.netAmount, 9)}' +
+              '${getRightAlignedText(customerPrice.tax, 8)}' +
+              '${getRightAlignedText(customerPrice.total, 9)}' +
+              '${customerPrice.st} ${customerPrice.l}',
         ),
-        PosColumn(
-            width: 1,
-            text: getTabs(7) + getRightAlignedText(customerPrice.price, 11)),
-        PosColumn(
-            width: 1,
-            text: getTabs(8) +
-                ' ' +
-                getRightAlignedText(customerPrice.diValue, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(6) +
-                ' ' +
-                getRightAlignedText(customerPrice.doValue, 8)),
-        PosColumn(
-            width: 1,
-            text:
-                getTabs(5) + getRightAlignedText(customerPrice.netAmount, 10)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) + ' ' + getRightAlignedText(customerPrice.tax, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) + getRightAlignedText(customerPrice.total, 9)),
-        PosColumn(width: 1, text: ' ' + getTabs(4) + customerPrice.st),
-        PosColumn(width: 1, text: ' ' + customerPrice.l),
-      ]);
+      );
     }
 
     bytes += generator.hr(len: 120);
