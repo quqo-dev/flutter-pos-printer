@@ -1104,48 +1104,21 @@ class PrinterCommander {
         final TransferItem transferData = data.transferList[currentListIdx];
         currentTotalAmount += getDoubleFromFormattedString(transferData.amount);
 
-        bytes += generator.row([
-          PosColumn(width: 1, text: transferData.transferNo),
-          PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locFrom),
-          PosColumn(width: 1, text: getTabs(1) + ' ' + transferData.locTo),
-          PosColumn(width: 1, text: transferData.productCode),
-          PosColumn(
-            width: 1,
-            textEncoded: await getThaiEncoded(' ' + transferData.description),
+        bytes += generator.textEncoded(
+          await getThaiEncoded(
+            '${fillSpaceText(transferData.transferNo, 10)} ${getTabs(1)}' +
+                '${fillSpaceText(transferData.locFrom, 4)}${getTabs(3)}' +
+                '${fillSpaceText(transferData.locTo, 4)}${getTabs(2)}' +
+                '${fillSpaceText(transferData.productCode, 9)} ${getTabs(1)}' +
+                '${fillSpaceText(transferData.description, 30)}${getTabs(1)}' +
+                '${getRightAlignedText(transferData.unitCode, 4)} ${getTabs(1)}' +
+                '${getRightAlignedText(transferData.perPack, 4)}' +
+                '${getRightAlignedText(transferData.quantity, 6)}' +
+                '${getRightAlignedText(transferData.unitPrice, 9)}' +
+                '${getRightAlignedText(transferData.amount, 10)}' +
+                '${getRightAlignedText(transferData.status, 2)}',
           ),
-          PosColumn(
-            width: 1,
-            textEncoded: await getThaiEncoded(getTabs(8) +
-                ' ' +
-                getRightAlignedText(transferData.unitCode, 10)),
-          ),
-          PosColumn(
-              width: 1,
-              text: getTabs(8) +
-                  ' ' +
-                  getRightAlignedText(transferData.perPack, 8)),
-          PosColumn(
-              width: 1,
-              text: getTabs(6) +
-                  ' ' +
-                  getRightAlignedText(transferData.quantity, 8)),
-          PosColumn(
-              width: 1,
-              text: getTabs(6) +
-                  ' ' +
-                  getRightAlignedText(transferData.unitPrice, 8)),
-          PosColumn(
-              width: 1,
-              text: getTabs(5) +
-                  ' ' +
-                  getRightAlignedText(transferData.amount, 10)),
-          PosColumn(
-              width: 1,
-              text: getTabs(3) +
-                  ' ' +
-                  getRightAlignedText(transferData.status, 8)),
-          PosColumn(width: 1),
-        ]);
+        );
       }
 
       bytes += generator.hr(len: 120);
