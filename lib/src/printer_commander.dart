@@ -37,6 +37,7 @@ const int DSSR_HEADER_ROW = 7;
 const int BTR_HEADER_ROW = 7;
 const int CCLR_HEADER_ROW = 6;
 const int BTL_HEADER_ROW = 6;
+const int OSR_HEADER_ROW = 6;
 const int CSR_HEADER_ROW = 6;
 const int RRSR_HEADER_ROW = 6;
 
@@ -119,10 +120,7 @@ class PrinterCommander {
           throw FormatException('Error! Type must be OsrBillModel');
         }
 
-        final int pages = data.orderList.length ~/ MAX_OSR_ROW_PER_PAGE +
-            (data.orderList.length % MAX_OSR_ROW_PER_PAGE != 0 ? 1 : 0);
-
-        bytes = await _getOsrReportContent(pages, generator, data);
+        bytes = await _getOsrReportContent(generator, data);
         break;
       case BillType.Csr:
         if (data is! CsrReportModel) {
@@ -1164,146 +1162,182 @@ class PrinterCommander {
   }
 
   static Future<List<int>> _getOsrReportContent(
-    int totalPages,
     Generator generator,
     OsrReportModel data,
   ) async {
     List<int> bytes = [];
+    int currentPage = 1;
+    int currentRow = 0;
 
-    for (int outerIdx = 0; outerIdx < totalPages; outerIdx++) {
-      // Header section
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
-        PosColumn(width: 9),
-        PosColumn(
-          width: 2,
-          text: getRightAlignedText('Page ${outerIdx + 1}', 14),
-        ),
-      ]);
-
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
-        PosColumn(
-          width: 9,
-          text: getTabs(21) + 'ORDER SUMMARY REPORT',
-        ),
-        PosColumn(
-          width: 2,
-          text: getRightAlignedText(data.smNumber, 14),
-        ),
-      ]);
-
-      bytes += generator.row([
-        PosColumn(width: 1),
-        PosColumn(
-          width: 10,
-          text: getTabs(16) +
-              'Date Selected From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
-        ),
-        PosColumn(width: 1),
-      ]);
-
-      bytes += generator.hr(len: 120);
-
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'PART NO'),
-        PosColumn(width: 1, text: 'DESCRIPTION'),
-        PosColumn(width: 1, text: getTabs(12) + ' ' + 'UNIT'),
-        PosColumn(
-            width: 1, text: getTabs(10) + getRightAlignedText('PERPACK', 8)),
-        PosColumn(
-            width: 1, text: getTabs(10) + getRightAlignedText('PRICE', 10)),
-        PosColumn(
-            width: 1, text: getTabs(9) + ' ' + getRightAlignedText('QTY', 6)),
-        PosColumn(width: 1, text: getTabs(7) + getRightAlignedText('FOC', 6)),
-        PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 10)),
-        PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TAX', 10)),
-        PosColumn(
-            width: 1, text: getTabs(5) + getRightAlignedText('AMOUNT', 10)),
-        PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('LITE', 5)),
-        PosColumn(width: 1),
-      ]);
-
-      bytes += generator.hr(len: 120);
-
-      for (int listIdx = 0; listIdx < MAX_OSR_ROW_PER_PAGE; listIdx++) {
-        final int currentListIdx = outerIdx * MAX_OSR_ROW_PER_PAGE + listIdx;
-
-        if (currentListIdx >= data.orderList.length) break;
-
-        final OrderSummanyItem orderData = data.orderList[currentListIdx];
-
-        bytes += generator.row([
-          PosColumn(width: 1, text: orderData.partNo),
-          PosColumn(
-            width: 1,
-            textEncoded: await getThaiEncoded(orderData.description),
-          ),
-          PosColumn(
-            width: 1,
-            textEncoded:
-                await getThaiEncoded(getTabs(12) + ' ' + orderData.unit),
-          ),
-          PosColumn(
-              width: 1,
-              text: getTabs(10) + getRightAlignedText(orderData.perPack, 8)),
-          PosColumn(
-              width: 1,
-              text: getTabs(10) + getRightAlignedText(orderData.price, 10)),
-          PosColumn(
-              width: 1,
-              text: getTabs(9) +
-                  ' ' +
-                  getRightAlignedText(orderData.quantity, 6)),
-          PosColumn(
-              width: 1,
-              text: getTabs(7) + getRightAlignedText(orderData.foc, 6)),
-          PosColumn(
-              width: 1,
-              text: getTabs(5) + getRightAlignedText(orderData.discount, 10)),
-          PosColumn(
-              width: 1,
-              text: getTabs(5) + getRightAlignedText(orderData.tax, 10)),
-          PosColumn(
-              width: 1,
-              text: getTabs(5) + getRightAlignedText(orderData.amount, 10)),
-          PosColumn(
-              width: 1,
-              text: getTabs(5) + getRightAlignedText(orderData.lite, 5)),
-          PosColumn(width: 1),
-        ]);
-      }
-
-      if (outerIdx < totalPages - 1) {
-        bytes += generator.emptyLines(10);
-      } else {
-        bytes += generator.hr(len: 120);
-
-        bytes += generator.row([
-          PosColumn(width: 2, text: 'Total Amount'),
-          PosColumn(
-            width: 1,
-            text: getTabs(2) + getRightAlignedText(data.totalAmount, 12),
-          ),
-          PosColumn(width: 9, text: ''),
-        ]);
-
-        bytes += generator.row([
-          PosColumn(width: 2, text: 'Total Lit:'),
-          PosColumn(
-            width: 1,
-            text: getTabs(2) + getRightAlignedText(data.totalLit, 12),
-          ),
-          PosColumn(width: 9, text: ''),
-        ]);
-
-        bytes += generator.emptyLines(1);
-        bytes += generator.text('Reference in ==>');
-        bytes += generator.text('Bill');
-        bytes += generator.text(data.referenceList);
-        bytes += generator.text('Order');
+    // call this function whenever add a new line
+    void _checkEndPage() {
+      if (currentRow >= MAX_ROW_PER_PAGE - GAP_END_PAGE) {
+        currentPage++;
+        bytes += generator.hr(len: 120, ch: '=');
+        bytes += generator.emptyLines(3);
+        currentRow = 0;
+        bytes += _getOsrHeader(generator, currentPage, data);
+        currentRow += OSR_HEADER_ROW;
       }
     }
+
+    // Header section
+    bytes += _getOsrHeader(generator, currentPage, data);
+    currentRow += OSR_HEADER_ROW;
+
+    for (final orderData in data.orderList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: orderData.partNo),
+        PosColumn(
+          width: 1,
+          textEncoded: await getThaiEncoded(orderData.description),
+        ),
+        PosColumn(
+          width: 1,
+          textEncoded: await getThaiEncoded(getTabs(12) + ' ' + orderData.unit),
+        ),
+        PosColumn(
+            width: 1,
+            text: getTabs(10) + getRightAlignedText(orderData.perPack, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(10) + getRightAlignedText(orderData.price, 10)),
+        PosColumn(
+            width: 1,
+            text:
+                getTabs(9) + ' ' + getRightAlignedText(orderData.quantity, 6)),
+        PosColumn(
+            width: 1, text: getTabs(7) + getRightAlignedText(orderData.foc, 6)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(orderData.discount, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(orderData.tax, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(orderData.amount, 10)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(orderData.lite, 5)),
+        PosColumn(width: 1),
+      ]);
+
+      currentRow++;
+      _checkEndPage();
+    }
+
+    bytes += generator.hr(len: 120);
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.row([
+      PosColumn(width: 2, text: 'Total Amount'),
+      PosColumn(
+        width: 1,
+        text: getTabs(2) + getRightAlignedText(data.totalAmount, 12),
+      ),
+      PosColumn(width: 9, text: ''),
+    ]);
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.row([
+      PosColumn(width: 2, text: 'Total Lit:'),
+      PosColumn(
+        width: 1,
+        text: getTabs(2) + getRightAlignedText(data.totalLit, 12),
+      ),
+      PosColumn(width: 9, text: ''),
+    ]);
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.emptyLines(1);
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('Reference in ==>');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('Bill');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text(data.referenceList);
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('Order');
+    currentRow++;
+
+    // move to a new page when finish
+    if (currentRow < MAX_ROW_PER_PAGE) {
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 2);
+    }
+
+    return bytes;
+  }
+
+  static List<int> _getOsrHeader(
+    Generator generator,
+    int page,
+    OsrReportModel data,
+  ) {
+    List<int> bytes = [];
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
+      PosColumn(width: 9),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText('Page $page', 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
+      PosColumn(
+        width: 9,
+        text: getTabs(21) + 'ORDER SUMMARY REPORT',
+      ),
+      PosColumn(
+        width: 2,
+        text: getRightAlignedText(data.smNumber, 14),
+      ),
+    ]);
+
+    bytes += generator.row([
+      PosColumn(width: 1),
+      PosColumn(
+        width: 10,
+        text: getTabs(16) +
+            'Date Selected From ${data.dateSelectedFrom} To ${data.dateSelectedTo}',
+      ),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120);
+
+    bytes += generator.row([
+      PosColumn(width: 1, text: 'PART NO'),
+      PosColumn(width: 1, text: 'DESCRIPTION'),
+      PosColumn(width: 1, text: getTabs(12) + ' ' + 'UNIT'),
+      PosColumn(
+          width: 1, text: getTabs(10) + getRightAlignedText('PERPACK', 8)),
+      PosColumn(width: 1, text: getTabs(10) + getRightAlignedText('PRICE', 10)),
+      PosColumn(
+          width: 1, text: getTabs(9) + ' ' + getRightAlignedText('QTY', 6)),
+      PosColumn(width: 1, text: getTabs(7) + getRightAlignedText('FOC', 6)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 10)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TAX', 10)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('AMOUNT', 10)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('LITE', 5)),
+      PosColumn(width: 1),
+    ]);
+
+    bytes += generator.hr(len: 120);
 
     return bytes;
   }
