@@ -269,7 +269,7 @@ final sampleDssrBillModel = DssrReportModel(
   time: '08:34:37',
   selectedDate: '08/02/2023',
   stockList: List<StockModel>.generate(
-    65,
+    2,
     (index) => StockModel(
       id: '100845611',
       name: 'คูแลนท์LL พลัส พร้อมใช้ 4X4L',

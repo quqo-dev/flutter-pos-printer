@@ -669,9 +669,8 @@ class PrinterCommander {
       PosColumn(width: 2, text: 'NAME'),
       PosColumn(
         width: 9,
-        text: getTabs(5) +
-            ' ' +
-            getRightAlignedText('W/H', 6) +
+        text: getTabs(6) +
+            getRightAlignedText('W/H', 5) +
             getRightAlignedText('PER', 5) +
             getRightAlignedText('OPEN', 6) +
             getRightAlignedText('SALE', 6) +
@@ -681,7 +680,7 @@ class PrinterCommander {
             getRightAlignedText('FOC', 5) +
             getRightAlignedText('', 5) +
             getRightAlignedText('CLOSE', 6) +
-            getRightAlignedText('ONHAND', 6),
+            getRightAlignedText('ONHAND', 7),
       ),
     ]);
 
@@ -690,9 +689,8 @@ class PrinterCommander {
       PosColumn(width: 2),
       PosColumn(
         width: 9,
-        text: getTabs(5) +
-            ' ' +
-            getRightAlignedText('', 6) +
+        text: getTabs(6) +
+            getRightAlignedText('', 5) +
             getRightAlignedText('PACK', 5) +
             getRightAlignedText('BAL', 6) +
             getRightAlignedText('', 6) +
