@@ -44,12 +44,14 @@ String getTabs(int n, {String? customSeperateCharacter}) {
   return response;
 }
 
-String getRightAlignedText(String text, int maxLength) {
+String getRightAlignedText(
+  String text,
+  int maxLength, {
+  bool trailingSpace = false,
+}) {
   if (text.length >= maxLength) return text;
 
-  return getTabs(maxLength - text.length, customSeperateCharacter: ' ') +
-      text +
-      ' ';
+  return getTabs(maxLength - text.length, customSeperateCharacter: ' ') + text;
 }
 
 Future<Uint8List> getThaiEncoded(String text) async =>

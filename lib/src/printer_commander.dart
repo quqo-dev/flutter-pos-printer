@@ -365,17 +365,17 @@ class PrinterCommander {
     bytes += generator.row([
       PosColumn(width: 1, text: 'NO'),
       PosColumn(width: 1, text: 'DATE'),
-      PosColumn(width: 1, text: getTabs(3) + ' ' + 'CUST'),
-      PosColumn(width: 1, text: getTabs(2) + ' ' + 'NAME'),
-      PosColumn(width: 1, text: getTabs(7) + getRightAlignedText('PRICE', 11)),
+      PosColumn(width: 1, text: ' CUST'),
+      PosColumn(width: 1, text: 'NAME'),
       PosColumn(
-          width: 1, text: getTabs(8) + ' ' + getRightAlignedText('D/I', 8)),
+          width: 1, text: getTabs(3) + ' ' + getRightAlignedText('PRICE', 12)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 9)),
       PosColumn(
-          width: 1, text: getTabs(6) + ' ' + getRightAlignedText('D/O', 8)),
+          width: 1, text: getTabs(3) + ' ' + getRightAlignedText('D/O', 8)),
       PosColumn(
-          width: 1, text: getTabs(5) + getRightAlignedText('NET_AMT', 10)),
-      PosColumn(
-          width: 1, text: getTabs(5) + ' ' + getRightAlignedText('TAX', 8)),
+          width: 1,
+          text: getTabs(2) + ' ' + getRightAlignedText('NET_AMT', 12)),
+      PosColumn(width: 1, text: getTabs(4) + getRightAlignedText('TAX', 9)),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TOT', 9)),
       PosColumn(width: 1, text: getTabs(4) + ' ' + 'ST'),
       PosColumn(width: 1, text: ' ' + 'L'),
@@ -388,15 +388,15 @@ class PrinterCommander {
       bytes += generator.textEncoded(
         await getThaiEncoded(
           '${fillSpaceText(customerPrice.no.replaceAll(' ', ''), 10)}' +
-              '${fillSpaceText(customerPrice.date, 16)}${getTabs(1)}' +
+              '${fillSpaceText(customerPrice.date, 10)} ' +
               '${fillSpaceText(customerPrice.customerId, 7)} ' +
               '${fillSpaceText(customerPrice.customerName, 20)}' +
-              '${getRightAlignedText(customerPrice.price, 11)}' +
-              '${getRightAlignedText(customerPrice.diValue, 9)}' +
-              '${getRightAlignedText(customerPrice.doValue, 5)}' +
-              '${getRightAlignedText(customerPrice.netAmount, 9)}' +
-              '${getRightAlignedText(customerPrice.tax, 8)}' +
-              '${getRightAlignedText(customerPrice.total, 9)}' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.price, 12), 12)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.diValue, 9), 9)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.doValue, 5), 5)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.netAmount, 12), 12)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.tax, 9), 9)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.total, 12, trailingSpace: true), 12)} ' +
               '${customerPrice.st} ${fillSpaceText(customerPrice.l, 4)}',
         ),
       );
@@ -409,24 +409,23 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(width: 1, text: 'STATUS ${bill.name}'),
         PosColumn(width: 1, text: '${bill.quantity} BILL'),
-        PosColumn(width: 1, text: getTabs(3) + ' ' + 'TOTAL==>'),
+        PosColumn(width: 1, text: ' TOTAL==>'),
         PosColumn(width: 1),
         PosColumn(
-            width: 1, text: getTabs(7) + getRightAlignedText(bill.price, 11)),
+            width: 1,
+            text: getTabs(3) + ' ' + getRightAlignedText(bill.price, 12)),
+        PosColumn(
+            width: 1, text: getTabs(5) + getRightAlignedText(bill.diValue, 9)),
         PosColumn(
             width: 1,
-            text: getTabs(8) + ' ' + getRightAlignedText(bill.diValue, 8)),
+            text: getTabs(3) + ' ' + getRightAlignedText(bill.doValue, 8)),
         PosColumn(
             width: 1,
-            text: getTabs(6) + ' ' + getRightAlignedText(bill.doValue, 8)),
+            text: getTabs(2) + ' ' + getRightAlignedText(bill.netAmount, 12)),
         PosColumn(
-            width: 1,
-            text: getTabs(5) + getRightAlignedText(bill.netAmount, 10)),
+            width: 1, text: getTabs(4) + getRightAlignedText(bill.tax, 9)),
         PosColumn(
-            width: 1,
-            text: getTabs(5) + ' ' + getRightAlignedText(bill.tax, 8)),
-        PosColumn(
-            width: 1, text: getTabs(5) + getRightAlignedText(bill.total, 9)),
+            width: 1, text: getTabs(5) + getRightAlignedText(bill.total, 12)),
         PosColumn(width: 1),
         PosColumn(width: 1, text: ' ' + getRightAlignedText(bill.quantity, 2)),
       ]);
@@ -439,27 +438,26 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(width: 1, text: payment.name),
         PosColumn(width: 1),
-        PosColumn(
-            width: 1,
-            text: getTabs(3) + ' TOTAL==>BATCH NO.:${payment.batchNo}'),
+        PosColumn(width: 1, text: ' TOTAL==>BATCH NO.:${payment.batchNo}'),
         PosColumn(width: 1),
         PosColumn(
             width: 1,
-            text: getTabs(7) + getRightAlignedText(payment.price, 11)),
+            text: getTabs(3) + ' ' + getRightAlignedText(payment.price, 12)),
         PosColumn(
             width: 1,
-            text: getTabs(8) + ' ' + getRightAlignedText(payment.diValue, 8)),
+            text: getTabs(5) + getRightAlignedText(payment.diValue, 9)),
         PosColumn(
             width: 1,
-            text: getTabs(6) + ' ' + getRightAlignedText(payment.doValue, 8)),
+            text: getTabs(3) + ' ' + getRightAlignedText(payment.doValue, 8)),
         PosColumn(
             width: 1,
-            text: getTabs(5) + getRightAlignedText(payment.netAmount, 10)),
+            text:
+                getTabs(2) + ' ' + getRightAlignedText(payment.netAmount, 12)),
+        PosColumn(
+            width: 1, text: getTabs(4) + getRightAlignedText(payment.tax, 9)),
         PosColumn(
             width: 1,
-            text: getTabs(5) + ' ' + getRightAlignedText(payment.tax, 8)),
-        PosColumn(
-            width: 1, text: getTabs(5) + getRightAlignedText(payment.total, 9)),
+            text: getTabs(5) + getRightAlignedText(payment.total, 12)),
         PosColumn(width: 1),
         PosColumn(width: 1, text: ' ' + getRightAlignedText(payment.l, 3)),
       ]);
@@ -469,7 +467,7 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(width: 1, text: visitCustomer.name),
         PosColumn(width: 1),
-        PosColumn(width: 1, text: getTabs(3) + ' TOTAL==>'),
+        PosColumn(width: 1, text: ' TOTAL==>'),
         PosColumn(width: 1),
         PosColumn(
           width: 8,
