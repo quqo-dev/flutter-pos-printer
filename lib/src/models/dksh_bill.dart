@@ -27,6 +27,7 @@ class DkshBillModel {
   final String contactInfo;
   final String storeName;
   final String address;
+  final String addressTwo;
   final String taxPayerIdNumber;
   final String orderNumber;
   final String section;
@@ -53,6 +54,7 @@ class DkshBillModel {
     required this.contactInfo,
     required this.storeName,
     required this.address,
+    required this.addressTwo,
     required this.taxPayerIdNumber,
     required this.orderNumber,
     required this.section,

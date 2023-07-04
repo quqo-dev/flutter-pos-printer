@@ -25,7 +25,7 @@ const int MAX_ROW_PER_PAGE = 64;
 const int GAP_END_PAGE = 3;
 
 const int MAX_ADDRESS_CHAR_PER_ROW = 40;
-const int MAX_BILLING_PRODUCT_PER_PAGE = 8;
+const int MAX_BILLING_PRODUCT_PER_PAGE = 7;
 const int MAX_CCLR_ROW_PER_PAGE = 50;
 const int MAX_DSSR_ROW_PER_PAGE = 50;
 const int MAX_BTL_ROW_PER_PAGE = 50;
@@ -188,11 +188,7 @@ class PrinterCommander {
         PosColumn(width: 1),
         PosColumn(
           width: 5,
-          textEncoded: await getThaiEncoded(
-            data.address.length <= MAX_ADDRESS_CHAR_PER_ROW
-                ? data.address
-                : data.address.substring(0, MAX_ADDRESS_CHAR_PER_ROW),
-          ),
+          textEncoded: await getThaiEncoded(data.address),
         ),
         PosColumn(
           width: 2,
@@ -210,18 +206,17 @@ class PrinterCommander {
       ]);
 
       // address 2
-      if (data.address.length > MAX_ADDRESS_CHAR_PER_ROW) {
-        bytes += generator.row([
-          PosColumn(width: 1),
-          PosColumn(
-            width: 11,
-            textEncoded: await getThaiEncoded(
-                data.address.substring(MAX_ADDRESS_CHAR_PER_ROW)),
-          ),
-        ]);
-      } else {
-        bytes += generator.emptyLines(1);
-      }
+      // if (data.address.length > MAX_ADDRESS_CHAR_PER_ROW) {
+      bytes += generator.row([
+        PosColumn(width: 1),
+        PosColumn(
+          width: 11,
+          textEncoded: await getThaiEncoded(data.addressTwo),
+        ),
+      ]);
+      // } else {
+      //   bytes += generator.emptyLines(1);
+      // }
 
       bytes += generator.row([
         PosColumn(width: 2),
@@ -273,7 +268,7 @@ class PrinterCommander {
       );
 
       // Spacing for the next row
-      bytes += generator.emptyLines(2);
+      bytes += generator.emptyLines(3);
 
       bytes += generator.textEncoded(
         await getThaiEncoded(
