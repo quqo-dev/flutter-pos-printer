@@ -307,7 +307,7 @@ class PrinterCommander {
       //   PosColumn(width: 4)
       // ]);
 
-      bytes += generator.emptyLines(3);
+      bytes += generator.emptyLines(4);
 
       bytes += generator
           .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAt));
@@ -315,7 +315,7 @@ class PrinterCommander {
           .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAddress));
 
       if (outerIdx < totalPages - 1) {
-        bytes += generator.emptyLines(4);
+        bytes += generator.emptyLines(3);
       }
     }
 
