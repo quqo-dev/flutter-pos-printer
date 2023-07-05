@@ -254,10 +254,10 @@ class PrinterCommander {
 
         bytes += generator.textEncoded(
           await getThaiEncoded(
-            ' ${fillSpaceText(item.productCode, 9)} ${fillSpaceText(item.productList, 28)}' +
-                ' ${getRightAlignedText(item.soldAmount, 5)} ${getRightAlignedText(item.freeAmount, 5)}' +
-                '${getRightAlignedText(item.amountBeforeVAT, 11)} ${getRightAlignedText(item.discountBeforeVAT, 8)}' +
-                '${getRightAlignedText(item.amountAfterVAT, 11)}${getRightAlignedText(item.pricePerCanAfterVAT, 8)}',
+            ' ${fillSpaceText(item.productCode, 9)} ${fillSpaceText(item.productList, 28)} ' +
+                '${getRightAlignedText(item.soldAmount, 5)} ${getRightAlignedText(item.freeAmount, 5)} ' +
+                '${fillSpaceText(getRightAlignedText(item.amountBeforeVAT, 12), 12)} ${fillSpaceText(getRightAlignedText(item.discountBeforeVAT, 9), 9)}' +
+                '${fillSpaceText(getRightAlignedText(item.amountAfterVAT, 12), 12)}${fillSpaceText(getRightAlignedText(item.pricePerCanAfterVAT, 9), 9)}',
           ),
         );
       }
@@ -396,7 +396,7 @@ class PrinterCommander {
               '${fillSpaceText(getRightAlignedText(customerPrice.doValue, 5), 5)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.netAmount, 12), 12)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.tax, 9), 9)} ' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.total, 12, trailingSpace: true), 12)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.total, 12), 12)} ' +
               '${customerPrice.st} ${fillSpaceText(customerPrice.l, 4)}',
         ),
       );

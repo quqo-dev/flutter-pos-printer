@@ -44,11 +44,7 @@ String getTabs(int n, {String? customSeperateCharacter}) {
   return response;
 }
 
-String getRightAlignedText(
-  String text,
-  int maxLength, {
-  bool trailingSpace = false,
-}) {
+String getRightAlignedText(String text, int maxLength) {
   if (text.length >= maxLength) return text;
 
   return getTabs(maxLength - text.length, customSeperateCharacter: ' ') + text;
