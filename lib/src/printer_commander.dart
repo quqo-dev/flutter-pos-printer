@@ -1040,12 +1040,12 @@ class PrinterCommander {
               '${fillSpaceText(transferData.locTo, 4)}${getTabs(2)}' +
               '${fillSpaceText(transferData.productCode, 9)} ${getTabs(1)}' +
               '${fillSpaceText(transferData.description, 30)}${getTabs(1)}' +
-              '${getRightAlignedText(transferData.unitCode, 4)} ${getTabs(1)}' +
-              '${getRightAlignedText(transferData.perPack, 4)}' +
-              '${getRightAlignedText(transferData.quantity, 6)}' +
-              '${getRightAlignedText(transferData.unitPrice, 9)}' +
-              '${getRightAlignedText(transferData.amount, 10)}' +
-              '${getRightAlignedText(transferData.status, 2)}',
+              '${fillSpaceText(getRightAlignedText(transferData.unitCode, 4), 4)}${getTabs(2)}' +
+              '${fillSpaceText(getRightAlignedText(transferData.perPack, 4), 4)} ' +
+              '${fillSpaceText(getRightAlignedText(transferData.quantity, 6), 6)}' +
+              '${fillSpaceText(getRightAlignedText(transferData.unitPrice, 10), 10)}' +
+              '${fillSpaceText(getRightAlignedText(transferData.amount, 11), 11)} ' +
+              '${fillSpaceText(getRightAlignedText(transferData.status, 2), 2)}',
         ),
       );
 
