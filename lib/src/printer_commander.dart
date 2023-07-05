@@ -853,13 +853,13 @@ class PrinterCommander {
           '${fillSpaceText(transaction.firstRowData.noProduct.replaceAll(' ', ''), 10)}${getTabs(1)}' +
               '${fillSpaceText(transaction.firstRowData.effectiveDate, 10)}${getTabs(1)}' +
               '${fillSpaceText(transaction.firstRowData.createdDate, 10)}${getTabs(1)} ' +
-              '${fillSpaceText(transaction.firstRowData.customerName, 22)}' +
-              '${getRightAlignedText(transaction.firstRowData.price, 11)} ' +
-              '${getRightAlignedText(transaction.firstRowData.discount, 8)}${getTabs(1)}' +
-              '${getRightAlignedText(transaction.firstRowData.deliveryOrderFee, 8)}' +
-              '${getRightAlignedText(transaction.firstRowData.tax, 7)} ' +
-              '${getRightAlignedText(transaction.firstRowData.total, 9)}' +
-              '${getRightAlignedText(transaction.firstRowData.sts, 8)}',
+              '${fillSpaceText(transaction.firstRowData.customerName, 21)}' +
+              '${fillSpaceText(getRightAlignedText(transaction.firstRowData.price, 12), 12)}${getTabs(1)}' +
+              '${fillSpaceText(getRightAlignedText(transaction.firstRowData.discount, 9), 9)}${getTabs(1)}' +
+              '${fillSpaceText(getRightAlignedText(transaction.firstRowData.deliveryOrderFee, 9), 9)}' +
+              '${fillSpaceText(getRightAlignedText(transaction.firstRowData.tax, 9), 9)}' +
+              '${fillSpaceText(getRightAlignedText(transaction.firstRowData.total, 10), 10)}' +
+              '${fillSpaceText(getRightAlignedText(transaction.firstRowData.sts, 9), 9)}',
         ),
       );
 
@@ -871,14 +871,14 @@ class PrinterCommander {
           await getThaiEncoded(
             '${fillSpaceText(tableItem.product, 10)}${getTabs(1)}' +
                 '${fillSpaceText(tableItem.name, 34)}${getTabs(1)}' +
-                '${getRightAlignedText(tableItem.pack, 4)}' +
-                '${getRightAlignedText(tableItem.order, 7)} ' +
-                '${getRightAlignedText(tableItem.foc, 8)}' +
-                '${getRightAlignedText(tableItem.pricePerUnit, 9)}${getTabs(1)}' +
-                '${getRightAlignedText(tableItem.price, 8)} ' +
-                '${getRightAlignedText(tableItem.percentDiscount, 7)} ' +
-                '${getRightAlignedText(tableItem.discount, 9)}' +
-                '${getRightAlignedText(tableItem.total, 8)}',
+                '${fillSpaceText(getRightAlignedText(tableItem.pack, 4), 4)}' +
+                '${fillSpaceText(getRightAlignedText(tableItem.order, 6), 6)}' +
+                '${fillSpaceText(getRightAlignedText(tableItem.foc, 12), 12)}${getTabs(1)}' +
+                '${fillSpaceText(getRightAlignedText(tableItem.pricePerUnit, 9), 9)}${getTabs(1)}' +
+                '${fillSpaceText(getRightAlignedText(tableItem.price, 9), 9)}' +
+                '${fillSpaceText(getRightAlignedText(tableItem.percentDiscount, 9), 9)}' +
+                '${fillSpaceText(getRightAlignedText(tableItem.discount, 10), 10)}' +
+                '${fillSpaceText(getRightAlignedText(tableItem.total, 9), 9)}',
           ),
         );
 
@@ -899,17 +899,20 @@ class PrinterCommander {
           text: getTabs(4) + ' ' + getRightAlignedText(data.totalRow.price, 9)),
       PosColumn(
           width: 1,
-          text: getTabs(5) + getRightAlignedText(data.totalRow.discount, 8)),
+          text: getTabs(5) +
+              ' ' +
+              getRightAlignedText(data.totalRow.discount, 8)),
       PosColumn(
           width: 1,
           text: getTabs(5) +
+              ' ' +
               getRightAlignedText(data.totalRow.deliveryOrderFee, 8)),
       PosColumn(
           width: 1,
-          text: getTabs(4) + ' ' + getRightAlignedText(data.totalRow.tax, 7)),
+          text: getTabs(5) + getRightAlignedText(data.totalRow.tax, 7)),
       PosColumn(
           width: 3,
-          text: getTabs(4) + getRightAlignedText(data.totalRow.total, 8)),
+          text: getTabs(4) + ' ' + getRightAlignedText(data.totalRow.total, 8)),
     ]);
 
     bytes += generator.hr(len: 120);
@@ -973,13 +976,11 @@ class PrinterCommander {
       PosColumn(width: 1, text: getTabs(3) + 'CUST. NAME'),
       PosColumn(width: 1),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('PRICE', 8)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 8)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/O', 8)),
-      PosColumn(
-          width: 1, text: getTabs(4) + ' ' + getRightAlignedText('TAX', 7)),
-      PosColumn(width: 1, text: getTabs(4) + getRightAlignedText('TOTAL', 8)),
-      PosColumn(
-          width: 2, text: getTabs(3) + ' ' + getRightAlignedText('STS', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' D/I', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' D/O', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' TAX', 7)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TOTAL', 8)),
+      PosColumn(width: 2, text: getTabs(4) + getRightAlignedText('STS', 8)),
     ]);
 
     bytes += generator.row([
@@ -994,14 +995,12 @@ class PrinterCommander {
               getTabs(1) +
               getRightAlignedText('ORDER', 5)),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('FOC', 8)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('PRC/U', 8)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('PRICE', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' PRC/U', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' PRICE', 8)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' %DI', 7)),
       PosColumn(
-          width: 1, text: getTabs(4) + ' ' + getRightAlignedText('%DI', 7)),
-      PosColumn(
-          width: 1, text: getTabs(4) + getRightAlignedText('DISCOUNT', 8)),
-      PosColumn(
-          width: 2, text: getTabs(3) + ' ' + getRightAlignedText('TOTAL', 8)),
+          width: 1, text: getTabs(5) + getRightAlignedText('DISCOUNT', 8)),
+      PosColumn(width: 2, text: getTabs(4) + getRightAlignedText('TOTAL', 8)),
     ]);
 
     bytes += generator.hr(len: 120, ch: '=');
