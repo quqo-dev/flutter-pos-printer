@@ -378,7 +378,7 @@ class PrinterCommander {
       PosColumn(width: 1, text: getTabs(4) + getRightAlignedText('TAX', 9)),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TOT', 9)),
       PosColumn(width: 1, text: getTabs(4) + ' ' + 'ST'),
-      PosColumn(width: 1, text: ' ' + 'L'),
+      PosColumn(width: 1, text: getTabs(1) + 'L'),
     ]);
 
     bytes += generator.hr(len: 120);
@@ -468,10 +468,10 @@ class PrinterCommander {
         PosColumn(width: 1, text: visitCustomer.name),
         PosColumn(width: 1),
         PosColumn(width: 1, text: ' TOTAL==>'),
-        PosColumn(width: 1),
         PosColumn(
           width: 8,
-          text: getRightAlignedText(visitCustomer.soldAmount, 4) +
+          text: getTabs(2) +
+              getRightAlignedText(visitCustomer.soldAmount, 4) +
               getRightAlignedText('(${visitCustomer.soldPercent}%)', 9) +
               'SOLD  ' +
               getRightAlignedText(visitCustomer.orderAmount, 4) +
@@ -482,6 +482,7 @@ class PrinterCommander {
               'NOT SOLD/ ' +
               visitCustomer.total,
         ),
+        PosColumn(width: 1),
       ]);
     }
 

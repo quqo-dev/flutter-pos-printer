@@ -176,8 +176,8 @@ class _MyAppState extends State<MyApp> {
     if (selectedPrinter == null) return;
 
     PrinterCommander.printBill(
-      billType: BillType.Btl,
-      data: sampleBtlBillModel,
+      billType: BillType.Ddc,
+      data: sampleDdcBillModel,
       bluetoothPrinter: selectedPrinter!,
     );
   }
