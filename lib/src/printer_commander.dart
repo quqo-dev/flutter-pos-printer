@@ -599,8 +599,8 @@ class PrinterCommander {
               '${getRightAlignedText(stock.openBal, 6)}${getRightAlignedText(stock.sale, 6)}' +
               '${getRightAlignedText(stock.goodsReturn, 8)}${getRightAlignedText(stock.transfIn, 7)}' +
               '${getRightAlignedText(stock.transfOut, 7)}${getRightAlignedText(stock.focX, 5)}' +
-              '${getRightAlignedText(stock.focY, 5)}${getRightAlignedText(stock.closeBal, 6)}' +
-              '${getRightAlignedText(stock.onhand, 6)}',
+              '${getRightAlignedText(stock.focY, 5)}${getTabs(1)}${getRightAlignedText(stock.closeBal, 8)}' +
+              '${getTabs(1)}${getRightAlignedText(stock.onhand, 8)}',
         ),
       );
 
@@ -673,6 +673,7 @@ class PrinterCommander {
         width: 9,
         text: getTabs(6) +
             getRightAlignedText('W/H', 5) +
+            ' ' +
             getRightAlignedText('PER', 5) +
             getRightAlignedText('OPEN', 6) +
             getRightAlignedText('SALE', 6) +
@@ -681,7 +682,9 @@ class PrinterCommander {
             getRightAlignedText('TRANSF', 7) +
             getRightAlignedText('FOC', 5) +
             getRightAlignedText('', 5) +
+            getTabs(2) +
             getRightAlignedText('CLOSE', 6) +
+            ' ${getTabs(1)}' +
             getRightAlignedText('ONHAND', 7),
       ),
     ]);
@@ -693,6 +696,7 @@ class PrinterCommander {
         width: 9,
         text: getTabs(6) +
             getRightAlignedText('', 5) +
+            ' ' +
             getRightAlignedText('PACK', 5) +
             getRightAlignedText('BAL', 6) +
             getRightAlignedText('', 6) +
@@ -701,6 +705,7 @@ class PrinterCommander {
             getRightAlignedText('OUT', 7) +
             getRightAlignedText('X', 5) +
             getRightAlignedText('Y', 5) +
+            getTabs(2) +
             getRightAlignedText('BAL', 6),
       ),
     ]);
