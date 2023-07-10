@@ -397,7 +397,8 @@ class PrinterCommander {
               '${fillSpaceText(getRightAlignedText(customerPrice.netAmount, 12), 12)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.tax, 9), 9)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.total, 12), 12)} ' +
-              '${customerPrice.st} ${fillSpaceText(customerPrice.l, 4)}',
+              '${customerPrice.st}${fillSpaceText(getRightAlignedText(customerPrice.l, 3), 3)}' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.productQuantity, 2), 2)}',
         ),
       );
     }

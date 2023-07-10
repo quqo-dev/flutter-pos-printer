@@ -11,6 +11,7 @@ class CustomerPriceModel {
   final String total;
   final String st;
   final String l;
+  final String productQuantity;
 
   CustomerPriceModel({
     required this.no,
@@ -25,11 +26,12 @@ class CustomerPriceModel {
     required this.total,
     required this.st,
     required this.l,
+    required this.productQuantity,
   });
 
   @override
   String toString() =>
-      "${no};${date};${customerId};${customerName};${price};${diValue};${doValue};${netAmount};${tax};${total};${st};${l};";
+      "${no};${date};${customerId};${customerName};${price};${diValue};${doValue};${netAmount};${tax};${total};${st};${l};${productQuantity};";
 }
 
 class BillStatusModel {
