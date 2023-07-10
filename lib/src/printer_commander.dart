@@ -1184,42 +1184,17 @@ class PrinterCommander {
     currentRow += OSR_HEADER_ROW;
 
     for (final orderData in data.orderList) {
-      bytes += generator.row([
-        PosColumn(width: 1, text: orderData.partNo),
-        PosColumn(
-          width: 1,
-          textEncoded: await getThaiEncoded(orderData.description),
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+          '${fillSpaceText(orderData.partNo, 9)} ${fillSpaceText(orderData.description, 30)}' +
+              '${getTabs(1)} ${fillSpaceText(orderData.unit, 3)}' +
+              '${getTabs(3)}${fillSpaceText(getRightAlignedText(orderData.perPack, 4), 4)} ' +
+              '${fillSpaceText(getRightAlignedText(orderData.price, 12), 12)} ${fillSpaceText(getRightAlignedText(orderData.quantity, 5), 5)} ' +
+              '${fillSpaceText(getRightAlignedText(orderData.foc, 4), 4)} ${fillSpaceText(getRightAlignedText(orderData.discount, 10), 10)} ' +
+              '${fillSpaceText(getRightAlignedText(orderData.tax, 10), 10)} ${fillSpaceText(getRightAlignedText(orderData.amount, 12), 12)} ' +
+              '${fillSpaceText(getRightAlignedText(orderData.lite, 4), 4)}',
         ),
-        PosColumn(
-          width: 1,
-          textEncoded: await getThaiEncoded(getTabs(12) + ' ' + orderData.unit),
-        ),
-        PosColumn(
-            width: 1,
-            text: getTabs(10) + getRightAlignedText(orderData.perPack, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(10) + getRightAlignedText(orderData.price, 10)),
-        PosColumn(
-            width: 1,
-            text:
-                getTabs(9) + ' ' + getRightAlignedText(orderData.quantity, 6)),
-        PosColumn(
-            width: 1, text: getTabs(7) + getRightAlignedText(orderData.foc, 6)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) + getRightAlignedText(orderData.discount, 10)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) + getRightAlignedText(orderData.tax, 10)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) + getRightAlignedText(orderData.amount, 10)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) + getRightAlignedText(orderData.lite, 5)),
-        PosColumn(width: 1),
-      ]);
+      );
 
       currentRow++;
       _checkEndPage();
@@ -1321,17 +1296,21 @@ class PrinterCommander {
     bytes += generator.row([
       PosColumn(width: 1, text: 'PART NO'),
       PosColumn(width: 1, text: 'DESCRIPTION'),
-      PosColumn(width: 1, text: getTabs(12) + ' ' + 'UNIT'),
+      PosColumn(width: 1, text: getTabs(11) + 'UNIT'),
       PosColumn(
-          width: 1, text: getTabs(10) + getRightAlignedText('PERPACK', 8)),
-      PosColumn(width: 1, text: getTabs(10) + getRightAlignedText('PRICE', 10)),
+          width: 1, text: getTabs(8) + ' ' + getRightAlignedText('PERPACK', 8)),
       PosColumn(
-          width: 1, text: getTabs(9) + ' ' + getRightAlignedText('QTY', 6)),
-      PosColumn(width: 1, text: getTabs(7) + getRightAlignedText('FOC', 6)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 10)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TAX', 10)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('AMOUNT', 10)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('LITE', 5)),
+          width: 1, text: getTabs(8) + ' ' + getRightAlignedText('PRICE', 10)),
+      PosColumn(
+          width: 1, text: getTabs(8) + ' ' + getRightAlignedText('QTY', 6)),
+      PosColumn(width: 1, text: getTabs(6) + getRightAlignedText('FOC', 6)),
+      PosColumn(width: 1, text: getTabs(4) + getRightAlignedText('D/I', 10)),
+      PosColumn(
+          width: 1, text: getTabs(4) + ' ' + getRightAlignedText('TAX', 10)),
+      PosColumn(
+          width: 1, text: getTabs(5) + ' ' + getRightAlignedText('AMOUNT', 10)),
+      PosColumn(
+          width: 1, text: getTabs(5) + ' ' + getRightAlignedText('LITE', 5)),
       PosColumn(width: 1),
     ]);
 
