@@ -1446,7 +1446,26 @@ class PrinterCommander {
     Future<void> _checkEndPage() async {
       if (currentRow >= MAX_RRSR_ROW_PER_PAGE) {
         // add the footer to every end of page
-        bytes += _getRrsrFooter(generator);
+        bytes += generator.emptyLines(2);
+
+        bytes += generator.text(
+          'S/M :............................' +
+              getTabs(3) +
+              'A/M :............................' +
+              getTabs(3) +
+              'W/H OR ADM :............................',
+        );
+
+        bytes += generator.emptyLines(2);
+
+        bytes += generator.text(
+          'Date:............................' +
+              getTabs(3) +
+              'Date:............................' +
+              getTabs(3) +
+              'Date:...................................',
+        );
+
         currentRow += 6;
         bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow);
 
@@ -1475,21 +1494,14 @@ class PrinterCommander {
       await _checkEndPage();
 
       for (final product in rrData.productList) {
-        bytes += generator.row([
-          PosColumn(width: 1, text: product.productCode),
-          PosColumn(
-            width: 3,
-            textEncoded: await getThaiEncoded(product.description),
+        bytes += generator.textEncoded(
+          await getThaiEncoded(
+            "${fillSpaceText(product.productCode, 9)} ${fillSpaceText(product.description, 30)}${getTabs(2)} " +
+                "${fillSpaceText(getRightAlignedText(product.perPack, 4), 4)}${getTabs(4)}" +
+                "${fillSpaceText(getRightAlignedText(product.unitCode, 4), 4)}${getTabs(3)}" +
+                "${fillSpaceText(getRightAlignedText(product.quantity, 8), 8)}",
           ),
-          PosColumn(width: 1, text: getRightAlignedText(product.perPack, 8)),
-          PosColumn(
-            width: 1,
-            textEncoded:
-                await getThaiEncoded(getRightAlignedText(product.unitCode, 10)),
-          ),
-          PosColumn(width: 2, text: getRightAlignedText(product.quantity, 12)),
-          PosColumn(width: 4),
-        ]);
+        );
 
         bytes += generator.hr(len: 120);
 
@@ -1499,7 +1511,38 @@ class PrinterCommander {
     }
 
     // last page's footer section
-    bytes += _getRrsrFooter(generator);
+    bytes += generator.emptyLines(2);
+    currentRow += 2;
+    await _checkEndPage();
+
+    bytes += generator.text(
+      'S/M :............................' +
+          getTabs(3) +
+          'A/M :............................' +
+          getTabs(3) +
+          'W/H OR ADM :............................',
+    );
+    currentRow++;
+    await _checkEndPage();
+
+    bytes += generator.emptyLines(2);
+    currentRow += 2;
+    await _checkEndPage();
+
+    bytes += generator.text(
+      'Date:............................' +
+          getTabs(3) +
+          'Date:............................' +
+          getTabs(3) +
+          'Date:...................................',
+    );
+    currentRow++;
+    await _checkEndPage();
+
+    // move to a new page when finish
+    if (currentRow < MAX_ROW_PER_PAGE) {
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 2);
+    }
 
     return bytes;
   }
@@ -1562,31 +1605,31 @@ class PrinterCommander {
     return bytes;
   }
 
-  static List<int> _getRrsrFooter(Generator generator) {
-    List<int> bytes = [];
+  // static List<int> _getRrsrFooter(Generator generator) {
+  //   List<int> bytes = [];
 
-    bytes += generator.emptyLines(2);
+  //   bytes += generator.emptyLines(2);
 
-    bytes += generator.text(
-      'S/M :............................' +
-          getTabs(3) +
-          'A/M :............................' +
-          getTabs(3) +
-          'W/H OR ADM :............................',
-    );
+  //   bytes += generator.text(
+  //     'S/M :............................' +
+  //         getTabs(3) +
+  //         'A/M :............................' +
+  //         getTabs(3) +
+  //         'W/H OR ADM :............................',
+  //   );
 
-    bytes += generator.emptyLines(2);
+  //   bytes += generator.emptyLines(2);
 
-    bytes += generator.text(
-      'Date:............................' +
-          getTabs(3) +
-          'Date:............................' +
-          getTabs(3) +
-          'Date:...................................',
-    );
+  //   bytes += generator.text(
+  //     'Date:............................' +
+  //         getTabs(3) +
+  //         'Date:............................' +
+  //         getTabs(3) +
+  //         'Date:...................................',
+  //   );
 
-    return bytes;
-  }
+  //   return bytes;
+  // }
 
   static void _printEscPos(
     List<int> bytes,
