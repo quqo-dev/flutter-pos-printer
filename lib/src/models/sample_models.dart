@@ -475,14 +475,14 @@ final sampleCsrBillModel = CsrReportModel(
   date: '08/02/02023',
   time: '08:34:37',
   stockList: List<StockItem>.generate(
-    56,
+    1,
     (index) => StockItem(
       productCode: '100844799',
       description: 'ADVANCE 4T ULTRA10W40 12X1L',
       perPack: (index + 1).toString(),
       unitCode: 'TIN',
-      onHandGood: '2/3',
-      onCarGood: '2/3',
+      onHandGood: '122/33',
+      onCarGood: '32/13',
       location: '8A46',
     ),
   ),

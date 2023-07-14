@@ -1343,34 +1343,16 @@ class PrinterCommander {
     currentRow = CSR_HEADER_ROW;
 
     for (final stockData in data.stockList) {
-      bytes += generator.row([
-        PosColumn(width: 1, text: stockData.productCode),
-        PosColumn(
-          width: 3,
-          textEncoded: await getThaiEncoded(stockData.description),
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+          "${fillSpaceText(stockData.productCode, 9)} ${fillSpaceText(stockData.description, 30)}${getTabs(2)} " +
+              "${fillSpaceText(getRightAlignedText(stockData.perPack, 4), 4)}${getTabs(4)}" +
+              "${fillSpaceText(getRightAlignedText(stockData.unitCode, 4), 4)}${getTabs(6)}" +
+              "${fillSpaceText(getRightAlignedText(stockData.onHandGood, 8), 8)}${getTabs(5)} " +
+              "${fillSpaceText(getRightAlignedText(stockData.onCarGood, 8), 8)}${getTabs(5)} " +
+              "${fillSpaceText(getRightAlignedText(stockData.location, 6), 6)}",
         ),
-        PosColumn(width: 1, text: getRightAlignedText(stockData.perPack, 8)),
-        PosColumn(
-          width: 1,
-          textEncoded:
-              await getThaiEncoded(getRightAlignedText(stockData.unitCode, 10)),
-        ),
-        PosColumn(
-            width: 2,
-            text: getTabs(3) +
-                ' ' +
-                getRightAlignedText(stockData.onHandGood, 12)),
-        PosColumn(
-            width: 2,
-            text: getTabs(2) +
-                ' ' +
-                getRightAlignedText(stockData.onCarGood, 12)),
-        PosColumn(
-            width: 1,
-            text:
-                getTabs(1) + ' ' + getRightAlignedText(stockData.location, 10)),
-        PosColumn(width: 1),
-      ]);
+      );
 
       currentRow++;
       _checkEndPage();
