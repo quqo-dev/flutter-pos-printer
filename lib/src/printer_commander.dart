@@ -35,6 +35,7 @@ const int MAX_RRSR_ROW_PER_PAGE = 50;
 
 const int DSSR_HEADER_ROW = 7;
 const int BTR_HEADER_ROW = 7;
+const int DDC_HEADER_ROW = 6;
 const int CCLR_HEADER_ROW = 6;
 const int BTL_HEADER_ROW = 6;
 const int OSR_HEADER_ROW = 6;
@@ -327,14 +328,271 @@ class PrinterCommander {
     DdcReportModel data,
   ) async {
     List<int> bytes = [];
+    int currentPage = 1;
+    int currentRow = 0;
+
+    // call this function whenever add a new line
+    void _checkEndPage() {
+      if (currentRow >= MAX_ROW_PER_PAGE - GAP_END_PAGE) {
+        currentPage++;
+        bytes += generator.emptyLines(4);
+        currentRow = 0;
+        bytes += _getDdcHeader(generator, currentPage, data);
+        currentRow += DDC_HEADER_ROW;
+      }
+    }
 
     // Header section
+    bytes += _getDdcHeader(generator, currentPage, data);
+    currentRow += DDC_HEADER_ROW;
+
+    // 1st table
+    for (final customerPrice in data.customerPriceList) {
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+          '${fillSpaceText(customerPrice.no.replaceAll(' ', ''), 10)}' +
+              '${fillSpaceText(customerPrice.date, 10)} ' +
+              '${fillSpaceText(customerPrice.customerId, 7)} ' +
+              '${fillSpaceText(customerPrice.customerName, 20)}' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.price, 12), 12)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.diValue, 9), 9)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.doValue, 5), 5)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.netAmount, 12), 12)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.tax, 9), 9)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.total, 12), 12)} ' +
+              '${customerPrice.st}${fillSpaceText(getRightAlignedText(customerPrice.l, 3), 3)}' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.productQuantity, 2), 2)}',
+        ),
+      );
+
+      currentRow++;
+      _checkEndPage();
+    }
+
+    bytes += generator.hr(len: 120);
+    currentRow++;
+    _checkEndPage();
+
+    // 2nd table
+    for (final bill in data.billStatusList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: 'STATUS ${bill.name}'),
+        PosColumn(width: 1, text: '${bill.quantity} BILL'),
+        PosColumn(width: 1, text: ' TOTAL==>'),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1,
+            text: getTabs(3) + ' ' + getRightAlignedText(bill.price, 12)),
+        PosColumn(
+            width: 1, text: getTabs(5) + getRightAlignedText(bill.diValue, 9)),
+        PosColumn(
+            width: 1,
+            text: getTabs(3) + ' ' + getRightAlignedText(bill.doValue, 8)),
+        PosColumn(
+            width: 1,
+            text: getTabs(2) + ' ' + getRightAlignedText(bill.netAmount, 12)),
+        PosColumn(
+            width: 1, text: getTabs(4) + getRightAlignedText(bill.tax, 9)),
+        PosColumn(
+            width: 1, text: getTabs(5) + getRightAlignedText(bill.total, 12)),
+        PosColumn(width: 1),
+        PosColumn(width: 1, text: ' ' + getRightAlignedText(bill.quantity, 2)),
+      ]);
+
+      currentRow++;
+      _checkEndPage();
+    }
+
+    bytes += generator.hr(len: 120);
+    currentRow++;
+    _checkEndPage();
+
+    // 3rd table
+    for (final payment in data.paymentTypeList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: payment.name),
+        PosColumn(width: 1),
+        PosColumn(width: 1, text: ' TOTAL==>BATCH NO.:${payment.batchNo}'),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1,
+            text: getTabs(3) + ' ' + getRightAlignedText(payment.price, 12)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(payment.diValue, 9)),
+        PosColumn(
+            width: 1,
+            text: getTabs(3) + ' ' + getRightAlignedText(payment.doValue, 8)),
+        PosColumn(
+            width: 1,
+            text:
+                getTabs(2) + ' ' + getRightAlignedText(payment.netAmount, 12)),
+        PosColumn(
+            width: 1, text: getTabs(4) + getRightAlignedText(payment.tax, 9)),
+        PosColumn(
+            width: 1,
+            text: getTabs(5) + getRightAlignedText(payment.total, 12)),
+        PosColumn(width: 1),
+        PosColumn(width: 1, text: ' ' + getRightAlignedText(payment.l, 3)),
+      ]);
+
+      currentRow++;
+      _checkEndPage();
+    }
+
+    for (final visitCustomer in data.visitCustomerList) {
+      bytes += generator.row([
+        PosColumn(width: 1, text: visitCustomer.name),
+        PosColumn(width: 1),
+        PosColumn(width: 1, text: ' TOTAL==>'),
+        PosColumn(
+          width: 8,
+          text: getTabs(2) +
+              getRightAlignedText(visitCustomer.soldAmount, 4) +
+              getRightAlignedText('(${visitCustomer.soldPercent}%)', 9) +
+              'SOLD  ' +
+              getRightAlignedText(visitCustomer.orderAmount, 4) +
+              getRightAlignedText('(${visitCustomer.orderPercent}%)', 9) +
+              'ORDER  ' +
+              getRightAlignedText(visitCustomer.notSoldAmount, 4) +
+              getRightAlignedText('(${visitCustomer.notSoldPercent}%)', 9) +
+              'NOT SOLD/ ' +
+              visitCustomer.total,
+        ),
+        PosColumn(width: 1),
+      ]);
+
+      currentRow++;
+      _checkEndPage();
+    }
+
+    bytes += generator.hr(len: 120);
+    currentRow++;
+    _checkEndPage();
+
+    // 4th table
+    bytes += generator.text(
+      'ADJ = ${data.adjCode}' +
+          getTabs(2) +
+          'BILL = ${data.billCode}' +
+          getTabs(2) +
+          'BILLD = ${data.billDCode}' +
+          getTabs(2) +
+          'INT = ${data.intCode}' +
+          getTabs(2) +
+          'TRN = ${data.trnCode}',
+    );
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('*** Payment by Transporter(s) ***');
+    currentRow++;
+    _checkEndPage();
+
+    for (final paymentByTransporter in data.paymentByTransporterList) {
+      // last row
+      if (paymentByTransporter.secondName == 'Total') {
+        bytes += generator.hr(len: 120);
+      }
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: paymentByTransporter.firstName),
+        PosColumn(width: 1, text: paymentByTransporter.secondName),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1,
+            text: paymentByTransporter.quantity.isEmpty
+                ? ''
+                : '(${paymentByTransporter.quantity})'),
+        PosColumn(
+            width: 1,
+            text: getRightAlignedText(paymentByTransporter.price, 12)),
+        PosColumn(
+            width: 7, text: getTabs(4) + '(${paymentByTransporter.total})'),
+      ]);
+
+      currentRow++;
+      _checkEndPage();
+    }
+
+    bytes += generator.text('*** Order Summary(s) ***');
+    currentRow++;
+    _checkEndPage();
+
+    for (final orderSummary in data.orderSummaryList) {
+      // last row
+      if (orderSummary.secondName == 'Total') {
+        bytes += generator.hr(len: 120);
+        currentRow++;
+        _checkEndPage();
+      }
+
+      bytes += generator.row([
+        PosColumn(width: 1, text: orderSummary.firstName),
+        PosColumn(width: 1, text: orderSummary.secondName),
+        PosColumn(width: 1),
+        PosColumn(
+            width: 1,
+            text: orderSummary.quantity.isEmpty
+                ? ''
+                : '(${orderSummary.quantity})'),
+        PosColumn(width: 1, text: getRightAlignedText(orderSummary.price, 12)),
+        PosColumn(width: 7, text: getTabs(4) + '(${orderSummary.total})'),
+      ]);
+      currentRow++;
+      _checkEndPage();
+    }
+
+    bytes += generator.hr(len: 120);
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('Total balance  ${data.totalBalance}  baht');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('Total cash balance  ${data.cashBalance}  baht' +
+        getTabs(2) +
+        'Cash payment........................................................baht');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('Total credit balance  ${data.creditBalance}  baht' +
+        getTabs(2) +
+        'Credit card payment slip amount........  Leaves value...............baht');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text('Total QR balance  ${data.qrBalance}  baht');
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text(
+        'Pay by............................  Get paid by............................');
+    currentRow++;
+    _checkEndPage();
+
+    // move to a new page when finish
+    if (currentRow < MAX_ROW_PER_PAGE) {
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 2);
+    }
+
+    return bytes;
+  }
+
+  static List<int> _getDdcHeader(
+    Generator generator,
+    int page,
+    DdcReportModel data,
+  ) {
+    List<int> bytes = [];
+
     bytes += generator.row([
       PosColumn(width: 1, text: 'DKSH (THAILAND) LIMITED'),
       PosColumn(width: 9),
       PosColumn(
         width: 2,
-        text: getRightAlignedText('Page ${data.page}', 14),
+        text: getRightAlignedText('Page ${page}', 14),
       ),
     ]);
 
@@ -380,187 +638,6 @@ class PrinterCommander {
       PosColumn(width: 1, text: getTabs(4) + ' ' + 'ST'),
       PosColumn(width: 1, text: getTabs(1) + 'L'),
     ]);
-
-    bytes += generator.hr(len: 120);
-
-    // 1st table
-    for (final customerPrice in data.customerPriceList) {
-      bytes += generator.textEncoded(
-        await getThaiEncoded(
-          '${fillSpaceText(customerPrice.no.replaceAll(' ', ''), 10)}' +
-              '${fillSpaceText(customerPrice.date, 10)} ' +
-              '${fillSpaceText(customerPrice.customerId, 7)} ' +
-              '${fillSpaceText(customerPrice.customerName, 20)}' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.price, 12), 12)} ' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.diValue, 9), 9)} ' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.doValue, 5), 5)} ' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.netAmount, 12), 12)} ' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.tax, 9), 9)} ' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.total, 12), 12)} ' +
-              '${customerPrice.st}${fillSpaceText(getRightAlignedText(customerPrice.l, 3), 3)}' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.productQuantity, 2), 2)}',
-        ),
-      );
-    }
-
-    bytes += generator.hr(len: 120);
-
-    // 2nd table
-    for (final bill in data.billStatusList) {
-      bytes += generator.row([
-        PosColumn(width: 1, text: 'STATUS ${bill.name}'),
-        PosColumn(width: 1, text: '${bill.quantity} BILL'),
-        PosColumn(width: 1, text: ' TOTAL==>'),
-        PosColumn(width: 1),
-        PosColumn(
-            width: 1,
-            text: getTabs(3) + ' ' + getRightAlignedText(bill.price, 12)),
-        PosColumn(
-            width: 1, text: getTabs(5) + getRightAlignedText(bill.diValue, 9)),
-        PosColumn(
-            width: 1,
-            text: getTabs(3) + ' ' + getRightAlignedText(bill.doValue, 8)),
-        PosColumn(
-            width: 1,
-            text: getTabs(2) + ' ' + getRightAlignedText(bill.netAmount, 12)),
-        PosColumn(
-            width: 1, text: getTabs(4) + getRightAlignedText(bill.tax, 9)),
-        PosColumn(
-            width: 1, text: getTabs(5) + getRightAlignedText(bill.total, 12)),
-        PosColumn(width: 1),
-        PosColumn(width: 1, text: ' ' + getRightAlignedText(bill.quantity, 2)),
-      ]);
-    }
-
-    bytes += generator.hr(len: 120);
-
-    // 3rd table
-    for (final payment in data.paymentTypeList) {
-      bytes += generator.row([
-        PosColumn(width: 1, text: payment.name),
-        PosColumn(width: 1),
-        PosColumn(width: 1, text: ' TOTAL==>BATCH NO.:${payment.batchNo}'),
-        PosColumn(width: 1),
-        PosColumn(
-            width: 1,
-            text: getTabs(3) + ' ' + getRightAlignedText(payment.price, 12)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) + getRightAlignedText(payment.diValue, 9)),
-        PosColumn(
-            width: 1,
-            text: getTabs(3) + ' ' + getRightAlignedText(payment.doValue, 8)),
-        PosColumn(
-            width: 1,
-            text:
-                getTabs(2) + ' ' + getRightAlignedText(payment.netAmount, 12)),
-        PosColumn(
-            width: 1, text: getTabs(4) + getRightAlignedText(payment.tax, 9)),
-        PosColumn(
-            width: 1,
-            text: getTabs(5) + getRightAlignedText(payment.total, 12)),
-        PosColumn(width: 1),
-        PosColumn(width: 1, text: ' ' + getRightAlignedText(payment.l, 3)),
-      ]);
-    }
-
-    for (final visitCustomer in data.visitCustomerList) {
-      bytes += generator.row([
-        PosColumn(width: 1, text: visitCustomer.name),
-        PosColumn(width: 1),
-        PosColumn(width: 1, text: ' TOTAL==>'),
-        PosColumn(
-          width: 8,
-          text: getTabs(2) +
-              getRightAlignedText(visitCustomer.soldAmount, 4) +
-              getRightAlignedText('(${visitCustomer.soldPercent}%)', 9) +
-              'SOLD  ' +
-              getRightAlignedText(visitCustomer.orderAmount, 4) +
-              getRightAlignedText('(${visitCustomer.orderPercent}%)', 9) +
-              'ORDER  ' +
-              getRightAlignedText(visitCustomer.notSoldAmount, 4) +
-              getRightAlignedText('(${visitCustomer.notSoldPercent}%)', 9) +
-              'NOT SOLD/ ' +
-              visitCustomer.total,
-        ),
-        PosColumn(width: 1),
-      ]);
-    }
-
-    bytes += generator.hr(len: 120);
-
-    // 4th table
-    bytes += generator.text(
-      'ADJ = ${data.adjCode}' +
-          getTabs(2) +
-          'BILL = ${data.billCode}' +
-          getTabs(2) +
-          'BILLD = ${data.billDCode}' +
-          getTabs(2) +
-          'INT = ${data.intCode}' +
-          getTabs(2) +
-          'TRN = ${data.trnCode}',
-    );
-
-    bytes += generator.text('*** Payment by Transporter(s) ***');
-
-    for (final paymentByTransporter in data.paymentByTransporterList) {
-      // last row
-      if (paymentByTransporter.secondName == 'Total') {
-        bytes += generator.hr(len: 120);
-      }
-
-      bytes += generator.row([
-        PosColumn(width: 1, text: paymentByTransporter.firstName),
-        PosColumn(width: 1, text: paymentByTransporter.secondName),
-        PosColumn(width: 1),
-        PosColumn(
-            width: 1,
-            text: paymentByTransporter.quantity.isEmpty
-                ? ''
-                : '(${paymentByTransporter.quantity})'),
-        PosColumn(
-            width: 1,
-            text: getRightAlignedText(paymentByTransporter.price, 12)),
-        PosColumn(
-            width: 7, text: getTabs(4) + '(${paymentByTransporter.total})'),
-      ]);
-    }
-
-    bytes += generator.text('*** Order Summary(s) ***');
-
-    for (final orderSummary in data.orderSummaryList) {
-      // last row
-      if (orderSummary.secondName == 'Total') {
-        bytes += generator.hr(len: 120);
-      }
-
-      bytes += generator.row([
-        PosColumn(width: 1, text: orderSummary.firstName),
-        PosColumn(width: 1, text: orderSummary.secondName),
-        PosColumn(width: 1),
-        PosColumn(
-            width: 1,
-            text: orderSummary.quantity.isEmpty
-                ? ''
-                : '(${orderSummary.quantity})'),
-        PosColumn(width: 1, text: getRightAlignedText(orderSummary.price, 12)),
-        PosColumn(width: 7, text: getTabs(4) + '(${orderSummary.total})'),
-      ]);
-    }
-
-    bytes += generator.hr(len: 120);
-
-    bytes += generator.text('Total balance  ${data.totalBalance}  baht');
-    bytes += generator.text('Total cash balance  ${data.cashBalance}  baht' +
-        getTabs(2) +
-        'Cash payment........................................................baht');
-    bytes += generator.text('Total credit balance  ${data.creditBalance}  baht' +
-        getTabs(2) +
-        'Credit card payment slip amount........  Leaves value...............baht');
-    bytes += generator.text('Total QR balance  ${data.qrBalance}  baht');
-    bytes += generator.text(
-        'Pay by............................  Get paid by............................');
 
     bytes += generator.hr(len: 120);
 
@@ -841,10 +918,10 @@ class PrinterCommander {
 
     // call this function whenever add a new line
     void _checkEndPage() {
-      if (currentRow >= MAX_ROW_PER_PAGE) {
+      if (currentRow >= MAX_ROW_PER_PAGE - GAP_END_PAGE) {
         currentPage++;
-        bytes += generator.emptyLines(1);
-        currentRow = 1;
+        bytes += generator.emptyLines(4);
+        currentRow = 0;
         bytes += _getBtrHeader(generator, currentPage, data);
         currentRow += BTR_HEADER_ROW;
       }
@@ -927,7 +1004,7 @@ class PrinterCommander {
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
-      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 1);
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 2);
     }
 
     return bytes;
