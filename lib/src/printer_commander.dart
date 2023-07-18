@@ -394,7 +394,8 @@ class PrinterCommander {
         PosColumn(
             width: 1, text: getTabs(4) + getRightAlignedText(bill.tax, 9)),
         PosColumn(
-            width: 1, text: getTabs(5) + getRightAlignedText(bill.total, 12)),
+            width: 1,
+            text: getTabs(3) + ' ' + getRightAlignedText(bill.total, 12)),
         PosColumn(width: 1),
         PosColumn(width: 1, text: ' ' + getRightAlignedText(bill.quantity, 2)),
       ]);
@@ -431,7 +432,7 @@ class PrinterCommander {
             width: 1, text: getTabs(4) + getRightAlignedText(payment.tax, 9)),
         PosColumn(
             width: 1,
-            text: getTabs(5) + getRightAlignedText(payment.total, 12)),
+            text: getTabs(3) + ' ' + getRightAlignedText(payment.total, 12)),
         PosColumn(width: 1),
         PosColumn(width: 1, text: ' ' + getRightAlignedText(payment.l, 3)),
       ]);
