@@ -673,12 +673,14 @@ class PrinterCommander {
       bytes += generator.textEncoded(
         await getThaiEncoded(
           '${fillSpaceText(stock.id, 9)} ${fillSpaceText(stock.name, 30)} ' +
-              '${getTabs(1)} ${stock.wh} ${getRightAlignedText(stock.perPack, 5)}' +
-              '${getRightAlignedText(stock.openBal, 6)}${getRightAlignedText(stock.sale, 6)}' +
-              '${getRightAlignedText(stock.goodsReturn, 8)}${getRightAlignedText(stock.transfIn, 7)}' +
-              '${getRightAlignedText(stock.transfOut, 7)}${getRightAlignedText(stock.focX, 5)}' +
-              '${getRightAlignedText(stock.focY, 5)}${getTabs(1)}${getRightAlignedText(stock.closeBal, 8)}' +
-              '${getTabs(1)}${getRightAlignedText(stock.onhand, 8)}',
+              '${getTabs(1)} ${stock.wh} ${getRightAlignedText(stock.perPack, 5)} ' +
+              '${getRightAlignedText(stock.openBal, 8)} ' +
+              '${getRightAlignedText(stock.sale, 8)} ' +
+              '${getRightAlignedText(stock.goodsReturn, 8)} ' +
+              '${getRightAlignedText(stock.transfIn, 8)} ' +
+              '${getRightAlignedText(stock.transfOut, 8)} ' +
+              '${getRightAlignedText(stock.closeBal, 8)} ' +
+              '${getRightAlignedText(stock.onhand, 8)}',
         ),
       );
 
@@ -753,17 +755,13 @@ class PrinterCommander {
             getRightAlignedText('W/H', 5) +
             ' ' +
             getRightAlignedText('PER', 5) +
-            getRightAlignedText('OPEN', 6) +
-            getRightAlignedText('SALE', 6) +
-            getRightAlignedText('GOODS', 8) +
-            getRightAlignedText('TRANSF', 7) +
-            getRightAlignedText('TRANSF', 7) +
-            getRightAlignedText('FOC', 5) +
-            getRightAlignedText('', 5) +
-            getTabs(2) +
-            getRightAlignedText('CLOSE', 6) +
-            ' ${getTabs(1)}' +
-            getRightAlignedText('ONHAND', 7),
+            getRightAlignedText('OPEN', 9) +
+            getRightAlignedText('SALE', 9) +
+            getRightAlignedText('GOODS', 9) +
+            getRightAlignedText('TRANSF', 9) +
+            getRightAlignedText('TRANSF', 9) +
+            getRightAlignedText('CLOSE', 9) +
+            getRightAlignedText('ONHAND', 9),
       ),
     ]);
 
@@ -776,15 +774,12 @@ class PrinterCommander {
             getRightAlignedText('', 5) +
             ' ' +
             getRightAlignedText('PACK', 5) +
-            getRightAlignedText('BAL', 6) +
-            getRightAlignedText('', 6) +
-            getRightAlignedText('RETURNS', 8) +
-            getRightAlignedText('IN', 7) +
-            getRightAlignedText('OUT', 7) +
-            getRightAlignedText('X', 5) +
-            getRightAlignedText('Y', 5) +
-            getTabs(2) +
-            getRightAlignedText('BAL', 6),
+            getRightAlignedText('BAL', 9) +
+            getRightAlignedText('', 9) +
+            getRightAlignedText('RETURNS', 9) +
+            getRightAlignedText('IN', 9) +
+            getRightAlignedText('OUT', 9) +
+            getRightAlignedText('BAL', 9),
       ),
     ]);
 
