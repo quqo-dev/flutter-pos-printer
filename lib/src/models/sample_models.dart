@@ -79,7 +79,7 @@ final sampleDdcBillModel = DdcReportModel(
   status: 'ALL',
   customerPriceList: <CustomerPriceModel>[
     CustomerPriceModel(
-      no: 'S32467-27',
+      no: 'Q1234567-012',
       date: '07/02/2023',
       customerId: 'A700743',
       customerName: 'บริษัท ชัยเจริญ 1992 จำกัด',
@@ -94,7 +94,7 @@ final sampleDdcBillModel = DdcReportModel(
       productQuantity: '10',
     ),
     CustomerPriceModel(
-      no: 'S32467-27',
+      no: 'Q1234567-012',
       date: '07/02/2023',
       customerId: 'A244437',
       customerName: 'บริษัท ชัยเจริญเทรดดิ้ง 1992 จำกัด',

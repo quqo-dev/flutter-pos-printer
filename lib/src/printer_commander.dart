@@ -350,10 +350,10 @@ class PrinterCommander {
     for (final customerPrice in data.customerPriceList) {
       bytes += generator.textEncoded(
         await getThaiEncoded(
-          '${fillSpaceText(customerPrice.no.replaceAll(' ', ''), 10)}' +
+          '${fillSpaceText(customerPrice.no.replaceAll(' ', ''), 12)} ' +
               '${fillSpaceText(customerPrice.date, 10)} ' +
               '${fillSpaceText(customerPrice.customerId, 7)} ' +
-              '${fillSpaceText(customerPrice.customerName, 20)}' +
+              '${fillSpaceText(customerPrice.customerName, 17)}' +
               '${fillSpaceText(getRightAlignedText(customerPrice.price, 12), 12)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.diValue, 9), 9)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.doValue, 5), 5)} ' +
@@ -377,8 +377,8 @@ class PrinterCommander {
     for (final bill in data.billStatusList) {
       bytes += generator.row([
         PosColumn(width: 1, text: 'STATUS ${bill.name}'),
-        PosColumn(width: 1, text: '${bill.quantity} BILL'),
-        PosColumn(width: 1, text: ' TOTAL==>'),
+        PosColumn(width: 1, text: '   ${bill.quantity} BILL'),
+        PosColumn(width: 1, text: '    TOTAL==>'),
         PosColumn(width: 1),
         PosColumn(
             width: 1,
@@ -413,7 +413,7 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(width: 1, text: payment.name),
         PosColumn(width: 1),
-        PosColumn(width: 1, text: ' TOTAL==>BATCH NO.:${payment.batchNo}'),
+        PosColumn(width: 1, text: '    TOTAL==>BATCH NO.:${payment.batchNo}'),
         PosColumn(width: 1),
         PosColumn(
             width: 1,
@@ -445,7 +445,7 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(width: 1, text: visitCustomer.name),
         PosColumn(width: 1),
-        PosColumn(width: 1, text: ' TOTAL==>'),
+        PosColumn(width: 1, text: '    TOTAL==>'),
         PosColumn(
           width: 8,
           text: getTabs(2) +
@@ -564,7 +564,9 @@ class PrinterCommander {
     currentRow++;
     _checkEndPage();
 
-    bytes += generator.text('Total QR balance  ${data.qrBalance}  baht');
+    bytes += generator.text('Total QR balance  ${data.qrBalance}  baht' +
+        getTabs(2) +
+        'QR payment..........................................................baht');
     currentRow++;
     _checkEndPage();
 
@@ -623,9 +625,9 @@ class PrinterCommander {
 
     bytes += generator.row([
       PosColumn(width: 1, text: 'NO'),
-      PosColumn(width: 1, text: 'DATE'),
-      PosColumn(width: 1, text: ' CUST'),
-      PosColumn(width: 1, text: 'NAME'),
+      PosColumn(width: 1, text: '   DATE'),
+      PosColumn(width: 1, text: '    CUST'),
+      PosColumn(width: 1, text: '  NAME'),
       PosColumn(
           width: 1, text: getTabs(3) + ' ' + getRightAlignedText('PRICE', 12)),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 9)),
