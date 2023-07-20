@@ -577,7 +577,7 @@ class PrinterCommander {
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
-      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 4);
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 3);
     }
 
     return bytes;
@@ -703,7 +703,7 @@ class PrinterCommander {
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
-      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 4);
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 3);
     }
 
     return bytes;
@@ -846,7 +846,7 @@ class PrinterCommander {
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
-      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 4);
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 3);
     }
 
     return bytes;
@@ -1002,7 +1002,7 @@ class PrinterCommander {
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
-      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 4);
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 3);
     }
 
     return bytes;
@@ -1161,7 +1161,7 @@ class PrinterCommander {
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
-      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 4);
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 3);
     }
 
     return bytes;
@@ -1322,7 +1322,7 @@ class PrinterCommander {
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
-      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 4);
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 3);
     }
 
     return bytes;
@@ -1442,7 +1442,7 @@ class PrinterCommander {
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
-      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 4);
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 3);
     }
 
     return bytes;
@@ -1616,7 +1616,7 @@ class PrinterCommander {
 
     // move to a new page when finish
     if (currentRow < MAX_ROW_PER_PAGE) {
-      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 4);
+      bytes += generator.emptyLines(MAX_ROW_PER_PAGE - currentRow - 3);
     }
 
     return bytes;
