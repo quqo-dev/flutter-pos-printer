@@ -109,8 +109,9 @@ final sampleDdcBillModel = DdcReportModel(
       productQuantity: '21',
     ),
   ],
-  billStatusList: <BillStatusModel>[
-    BillStatusModel(
+  billStatusList: List<BillStatusModel>.generate(
+    45,
+    (index) => BillStatusModel(
       name: 'B',
       quantity: '0',
       price: '0.00',
@@ -122,55 +123,7 @@ final sampleDdcBillModel = DdcReportModel(
       st: '0.00',
       l: '0',
     ),
-    BillStatusModel(
-      name: 'C',
-      quantity: '7',
-      price: '1,014,719.30',
-      diValue: '20,511.56',
-      doValue: '0.00',
-      netAmount: '994,207.74',
-      tax: '69,594.54',
-      total: '1,063,802.28',
-      st: '165',
-      l: '',
-    ),
-    BillStatusModel(
-      name: 'X',
-      quantity: '0',
-      price: '0.00',
-      diValue: '0.00',
-      doValue: '0.00',
-      netAmount: '0.00',
-      tax: '0.00',
-      total: '0.00',
-      st: '0.00',
-      l: '0',
-    ),
-    BillStatusModel(
-      name: 'Z',
-      quantity: '0',
-      price: '0.00',
-      diValue: '0.00',
-      doValue: '0.00',
-      netAmount: '0.00',
-      tax: '0.00',
-      total: '0.00',
-      st: '0.00',
-      l: '0',
-    ),
-    BillStatusModel(
-      name: 'ALL',
-      quantity: '7',
-      price: '28,448.64',
-      diValue: '4,115.84',
-      doValue: '0.00',
-      netAmount: '24,332.80',
-      tax: '1,703.30',
-      total: '26,036.10',
-      st: '165',
-      l: '',
-    ),
-  ],
+  ),
   paymentTypeList: <PaymentTypeModel>[
     PaymentTypeModel(
       name: 'CASH 7 BILL',
@@ -250,6 +203,13 @@ final sampleDdcBillModel = DdcReportModel(
     ),
   ],
   orderSummaryList: <SummaryModel>[
+    SummaryModel(
+      firstName: 'L',
+      secondName: 'SM',
+      quantity: '7',
+      price: '26,036.10',
+      total: '165',
+    ),
     SummaryModel(
       firstName: '',
       secondName: 'Total',

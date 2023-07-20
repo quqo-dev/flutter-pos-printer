@@ -142,7 +142,7 @@ class PrinterCommander {
         throw UnimplementedError();
     }
 
-    _printEscPos(bytes, generator, bluetoothPrinter);
+    _printEscPos(bytes, generator, bluetoothPrinter, billType);
   }
 
   static Future<List<int>> _getDkshBillingContent(
@@ -291,33 +291,14 @@ class PrinterCommander {
         ),
       );
 
-      bytes += generator.emptyLines(1);
-
-      // bytes += generator.row([
-      //   PosColumn(width: 6),
-      //   PosColumn(
-      //     width: 1,
-      //     text: getTabs(6) + data.percentSpecialDiscount,
-      //   ),
-      //   PosColumn(
-      //     width: 1,
-      //     text:
-      //         getTabs(6) + getRightAlignedText(data.amountSpecialDiscount, 11),
-      //     styles: const PosStyles(align: PosAlign.right),
-      //   ),
-      //   PosColumn(width: 4)
-      // ]);
-
-      bytes += generator.emptyLines(4);
+      bytes += generator.emptyLines(5);
 
       bytes += generator
           .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAt));
       bytes += generator
           .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAddress));
 
-      if (outerIdx < totalPages - 1) {
-        bytes += generator.emptyLines(3);
-      }
+      bytes += generator.emptyLines(3);
     }
 
     return bytes;
@@ -1710,8 +1691,11 @@ class PrinterCommander {
     List<int> bytes,
     Generator generator,
     BluetoothPrinter bluetoothPrinter,
+    BillType billType,
   ) async {
-    bytes += generator.cut();
+    if (billType != BillType.Dksh) {
+      bytes += generator.cut();
+    }
 
     switch (bluetoothPrinter.typePrinter) {
       case PrinterType.usb:
