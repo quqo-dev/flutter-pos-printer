@@ -6,6 +6,7 @@ import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/generato
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_column.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/src/pos_styles.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
+import "package:numbers_to_words/number_to_thai_words.dart";
 
 /*
   BILL TYPE DESCRIPTION:
@@ -178,7 +179,10 @@ class PrinterCommander {
           textEncoded: await getThaiEncoded(data.storeName),
         ),
         PosColumn(width: 2),
-        PosColumn(width: 2),
+        PosColumn(
+          width: 2,
+          text: getTabs(3) + data.section,
+        ),
         PosColumn(
           width: 2,
           text: data.no,
@@ -196,10 +200,7 @@ class PrinterCommander {
           text: data.orderNumber,
           styles: const PosStyles(align: PosAlign.center),
         ),
-        PosColumn(
-          width: 2,
-          text: getTabs(2) + data.section,
-        ),
+        PosColumn(width: 2),
         PosColumn(
           width: 2,
           text: data.date,
@@ -207,7 +208,6 @@ class PrinterCommander {
       ]);
 
       // address 2
-      // if (data.address.length > MAX_ADDRESS_CHAR_PER_ROW) {
       bytes += generator.row([
         PosColumn(width: 1),
         PosColumn(
@@ -215,9 +215,6 @@ class PrinterCommander {
           textEncoded: await getThaiEncoded(data.addressTwo),
         ),
       ]);
-      // } else {
-      //   bytes += generator.emptyLines(1);
-      // }
 
       bytes += generator.row([
         PosColumn(width: 2),
@@ -243,6 +240,7 @@ class PrinterCommander {
       bytes += generator.emptyLines(3);
 
       int currentListItem = 0;
+      double netSalesAfterVAT = 0;
 
       for (int listIdx = 0; listIdx < MAX_BILLING_PRODUCT_PER_PAGE; listIdx++) {
         final int currentListIdx =
@@ -252,6 +250,8 @@ class PrinterCommander {
 
         currentListItem++;
         final DkshProductModel item = data.productList[currentListIdx];
+
+        netSalesAfterVAT += getDoubleFromFormattedString(item.amountAfterVAT);
 
         bytes += generator.textEncoded(
           await getThaiEncoded(
@@ -263,6 +263,13 @@ class PrinterCommander {
         );
       }
 
+      netSalesAfterVAT = double.parse(netSalesAfterVAT.toStringAsFixed(2));
+
+      String priceByLetter = NumberToThaiWords.getText(netSalesAfterVAT);
+      double netSalesBeforeVAT =
+          double.parse((netSalesAfterVAT / 1.07).toStringAsFixed(2));
+      double valueOfVAT = netSalesAfterVAT - netSalesBeforeVAT;
+
       // The rest empty lines of table
       bytes += generator.emptyLines(
         MAX_BILLING_PRODUCT_PER_PAGE - currentListItem,
@@ -273,21 +280,21 @@ class PrinterCommander {
 
       bytes += generator.textEncoded(
         await getThaiEncoded(
-            "${getTabs(37)} ${getRightAlignedText(data.netSalesAfterVAT, 11)}"),
+            "${getTabs(37)} ${getRightAlignedText(formatCurrencyValue(netSalesAfterVAT.toStringAsFixed(2)), 11)}"),
       );
 
       bytes += generator.emptyLines(1);
 
       bytes += generator.textEncoded(
         await getThaiEncoded(
-            "${getTabs(1)}${fillSpaceText(data.totalMoneyByLetters, 73)}${getRightAlignedText(data.netSalesBeforeVAT, 11)}"),
+            "${getTabs(1)}${fillSpaceText(priceByLetter, 73)}${getRightAlignedText(formatCurrencyValue(netSalesBeforeVAT.toStringAsFixed(2)), 11)}"),
       );
 
       bytes += generator.emptyLines(1);
 
       bytes += generator.textEncoded(
         await getThaiEncoded(
-          "${getTabs(31)}${fillSpaceText(data.percentVAT, 4)}${getTabs(4)} ${getRightAlignedText(data.amountVAT, 11)}",
+          "${getTabs(31)}${fillSpaceText(data.percentVAT, 4)}${getTabs(4)} ${getRightAlignedText(formatCurrencyValue(valueOfVAT.toStringAsFixed(2)), 11)}",
         ),
       );
 
