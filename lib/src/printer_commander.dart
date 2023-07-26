@@ -333,12 +333,12 @@ class PrinterCommander {
       bytes += generator.textEncoded(
         await getThaiEncoded(
           '${fillSpaceText(customerPrice.no.replaceAll(' ', ''), 12)} ' +
-              '${fillSpaceText(customerPrice.date, 10)} ' +
+              '${fillSpaceText(customerPrice.date, 16)} ' +
               '${fillSpaceText(customerPrice.customerId, 7)} ' +
-              '${fillSpaceText(customerPrice.customerName, 17)}' +
+              '${fillSpaceText(customerPrice.customerName, 13)}' +
               '${fillSpaceText(getRightAlignedText(customerPrice.price, 12), 12)} ' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.diValue, 9), 9)} ' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.doValue, 5), 5)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.diValue, 8), 8)} ' +
+              '${fillSpaceText(getRightAlignedText(customerPrice.doValue, 4), 4)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.netAmount, 12), 12)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.tax, 9), 9)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.total, 12), 12)} ' +
@@ -360,13 +360,14 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(width: 1, text: 'STATUS ${bill.name}'),
         PosColumn(width: 1, text: '   ${bill.quantity} BILL'),
-        PosColumn(width: 1, text: '    TOTAL==>'),
+        PosColumn(width: 1, text: '    TOTAL=>'),
         PosColumn(width: 1),
         PosColumn(
             width: 1,
-            text: getTabs(3) + ' ' + getRightAlignedText(bill.price, 12)),
+            text: getTabs(4) + ' ' + getRightAlignedText(bill.price, 12)),
         PosColumn(
-            width: 1, text: getTabs(5) + getRightAlignedText(bill.diValue, 9)),
+            width: 1,
+            text: getTabs(5) + ' ' + getRightAlignedText(bill.diValue, 9)),
         PosColumn(
             width: 1,
             text: getTabs(3) + ' ' + getRightAlignedText(bill.doValue, 8)),
@@ -395,14 +396,17 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(width: 1, text: payment.name),
         PosColumn(width: 1),
-        PosColumn(width: 1, text: '    TOTAL==>BATCH NO.:${payment.batchNo}'),
+        PosColumn(
+            width: 1,
+            text:
+                '    TOTAL=>${payment.name.isNotEmpty ? 'BATCH NO.:${payment.batchNo}' : ''}'),
         PosColumn(width: 1),
         PosColumn(
             width: 1,
-            text: getTabs(3) + ' ' + getRightAlignedText(payment.price, 12)),
+            text: getTabs(4) + ' ' + getRightAlignedText(payment.price, 12)),
         PosColumn(
             width: 1,
-            text: getTabs(5) + getRightAlignedText(payment.diValue, 9)),
+            text: getTabs(5) + ' ' + getRightAlignedText(payment.diValue, 9)),
         PosColumn(
             width: 1,
             text: getTabs(3) + ' ' + getRightAlignedText(payment.doValue, 8)),
@@ -427,7 +431,7 @@ class PrinterCommander {
       bytes += generator.row([
         PosColumn(width: 1, text: visitCustomer.name),
         PosColumn(width: 1),
-        PosColumn(width: 1, text: '    TOTAL==>'),
+        PosColumn(width: 1, text: '    TOTAL=>'),
         PosColumn(
           width: 8,
           text: getTabs(2) +
@@ -608,11 +612,11 @@ class PrinterCommander {
     bytes += generator.row([
       PosColumn(width: 1, text: 'NO'),
       PosColumn(width: 1, text: '   DATE'),
-      PosColumn(width: 1, text: '    CUST'),
-      PosColumn(width: 1, text: '  NAME'),
+      PosColumn(width: 1, text: '         CUST'),
+      PosColumn(width: 1, text: '       NAME'),
       PosColumn(
-          width: 1, text: getTabs(3) + ' ' + getRightAlignedText('PRICE', 12)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('D/I', 9)),
+          width: 1, text: getTabs(4) + ' ' + getRightAlignedText('PRICE', 12)),
+      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' D/I', 9)),
       PosColumn(
           width: 1, text: getTabs(3) + ' ' + getRightAlignedText('D/O', 8)),
       PosColumn(

@@ -60,7 +60,7 @@ final sampleDdcBillModel = DdcReportModel(
   customerPriceList: <CustomerPriceModel>[
     CustomerPriceModel(
       no: 'Q1234567-012',
-      date: '07/02/2023',
+      date: '07/02/2023 12:12',
       customerId: 'A700743',
       customerName: 'บริษัท ชัยเจริญ 1992 จำกัด',
       price: '36,147.00',
@@ -75,7 +75,7 @@ final sampleDdcBillModel = DdcReportModel(
     ),
     CustomerPriceModel(
       no: 'Q1234567-012',
-      date: '07/02/2023',
+      date: '07/02/2023 12:12',
       customerId: 'A244437',
       customerName: 'บริษัท ชัยเจริญเทรดดิ้ง 1992 จำกัด',
       price: '998,136.00',
@@ -90,7 +90,7 @@ final sampleDdcBillModel = DdcReportModel(
     ),
   ],
   billStatusList: List<BillStatusModel>.generate(
-    45,
+    1,
     (index) => BillStatusModel(
       name: 'B',
       quantity: '0',
