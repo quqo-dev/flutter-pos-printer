@@ -180,7 +180,7 @@ class PrinterCommander {
         PosColumn(width: 2),
         PosColumn(
           width: 2,
-          text: getTabs(3) + data.section,
+          text: getTabs(2) + data.section,
         ),
         PosColumn(
           width: 2,
@@ -253,8 +253,8 @@ class PrinterCommander {
           await getThaiEncoded(
             ' ${fillSpaceText(item.productCode, 9)} ${fillSpaceText(item.productList, 28)} ' +
                 '${getRightAlignedText(item.soldAmount, 5)} ${getRightAlignedText(item.freeAmount, 5)} ' +
-                '${fillSpaceText(getRightAlignedText(item.amountBeforeVAT, 12), 12)} ${fillSpaceText(getRightAlignedText(item.discountBeforeVAT, 9), 9)}' +
-                '${fillSpaceText(getRightAlignedText(item.amountAfterVAT, 12), 12)}${fillSpaceText(getRightAlignedText(item.pricePerCanAfterVAT, 9), 9)}',
+                '${fillSpaceText(getRightAlignedText(item.amountBeforeVAT, 12), 12)} ${fillSpaceText(getRightAlignedText(item.discountBeforeVAT, 9), 9)} ' +
+                '${fillSpaceText(getRightAlignedText(item.amountAfterVAT, 11), 11)}${fillSpaceText(getRightAlignedText(item.pricePerCanAfterVAT, 9), 9)}',
           ),
         );
       }
@@ -542,7 +542,7 @@ class PrinterCommander {
 
     bytes += generator.text('Total credit balance  ${data.creditBalance}  baht' +
         getTabs(2) +
-        'Credit card payment slip amount........  Leaves value...............baht');
+        'Credit card payment Slip amount........  Slip value...............baht');
     currentRow++;
     _checkEndPage();
 

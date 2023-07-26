@@ -3,6 +3,7 @@ import 'package:charset_converter/charset_converter.dart';
 import 'package:unicode_data/unicode_data.dart';
 
 const String TEXT_SPACE = '  ';
+const String DEFAULT_FREE_TEXT = "ไม่คิดมูลค่า";
 
 class ImageData {
   final int width;
