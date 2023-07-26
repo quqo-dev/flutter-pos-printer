@@ -285,7 +285,7 @@ final sampleBtrBillModel = BtrReportModel(
     1,
     (index) => TransactionModel(
       firstRowData: FirstRowModel(
-        noProduct: 'QD042001 - 1',
+        noProduct: 'Q0000005-012',
         effectiveDate: '07/02/2023',
         createdDate: '07/02/2023',
         customerName: 'คุณพรรัตน์  ประภานวรัตน์',

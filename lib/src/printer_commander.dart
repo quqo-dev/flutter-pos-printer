@@ -914,10 +914,10 @@ class PrinterCommander {
     for (final transaction in data.transactionList) {
       bytes += generator.textEncoded(
         await getThaiEncoded(
-          '${fillSpaceText(transaction.firstRowData.noProduct.replaceAll(' ', ''), 10)}${getTabs(1)}' +
+          '${fillSpaceText(transaction.firstRowData.noProduct.replaceAll(' ', ''), 12)}${getTabs(1)}' +
               '${fillSpaceText(transaction.firstRowData.effectiveDate, 10)}${getTabs(1)}' +
               '${fillSpaceText(transaction.firstRowData.createdDate, 10)}${getTabs(1)} ' +
-              '${fillSpaceText(transaction.firstRowData.customerName, 21)}' +
+              '${fillSpaceText(transaction.firstRowData.customerName, 19)}' +
               '${fillSpaceText(getRightAlignedText(transaction.firstRowData.price, 12), 12)}${getTabs(1)}' +
               '${fillSpaceText(getRightAlignedText(transaction.firstRowData.discount, 9), 9)}${getTabs(1)}' +
               '${fillSpaceText(getRightAlignedText(transaction.firstRowData.deliveryOrderFee, 9), 9)}' +
@@ -933,8 +933,8 @@ class PrinterCommander {
       for (final tableItem in transaction.tableData) {
         bytes += generator.textEncoded(
           await getThaiEncoded(
-            '${fillSpaceText(tableItem.product, 10)}${getTabs(1)}' +
-                '${fillSpaceText(tableItem.name, 34)}${getTabs(1)}' +
+            '${fillSpaceText(tableItem.product, 12)}${getTabs(1)}' +
+                '${fillSpaceText(tableItem.name, 32)}${getTabs(1)}' +
                 '${fillSpaceText(getRightAlignedText(tableItem.pack, 4), 4)}' +
                 '${fillSpaceText(getRightAlignedText(tableItem.order, 6), 6)}' +
                 '${fillSpaceText(getRightAlignedText(tableItem.foc, 12), 12)}${getTabs(1)}' +
@@ -1035,21 +1035,21 @@ class PrinterCommander {
 
     bytes += generator.row([
       PosColumn(width: 1, text: 'NO PRODUCT'),
-      PosColumn(width: 1, text: getTabs(1) + 'EFF. DATE'),
-      PosColumn(width: 1, text: getTabs(2) + 'CRT. DATE'),
-      PosColumn(width: 1, text: getTabs(3) + 'CUST. NAME'),
+      PosColumn(width: 1, text: getTabs(2) + 'EFF. DATE'),
+      PosColumn(width: 1, text: getTabs(3) + 'CRT. DATE'),
+      PosColumn(width: 1, text: getTabs(4) + 'CUST. NAME'),
       PosColumn(width: 1),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('PRICE', 8)),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' D/I', 8)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' D/O', 8)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' TAX', 7)),
+      PosColumn(width: 1, text: getTabs(6) + getRightAlignedText('D/O', 8)),
+      PosColumn(width: 1, text: getTabs(6) + getRightAlignedText('TAX', 7)),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TOTAL', 8)),
       PosColumn(width: 2, text: getTabs(4) + getRightAlignedText('STS', 8)),
     ]);
 
     bytes += generator.row([
       PosColumn(width: 1, text: 'PRODUCT'),
-      PosColumn(width: 1, text: getTabs(1) + 'NAME'),
+      PosColumn(width: 1, text: getTabs(2) + 'NAME'),
       PosColumn(width: 1),
       PosColumn(width: 1),
       PosColumn(
@@ -1060,8 +1060,8 @@ class PrinterCommander {
               getRightAlignedText('ORDER', 5)),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('FOC', 8)),
       PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' PRC/U', 8)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' PRICE', 8)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText(' %DI', 7)),
+      PosColumn(width: 1, text: getTabs(6) + getRightAlignedText('PRICE', 8)),
+      PosColumn(width: 1, text: getTabs(6) + getRightAlignedText('%DI', 7)),
       PosColumn(
           width: 1, text: getTabs(5) + getRightAlignedText('DISCOUNT', 8)),
       PosColumn(width: 2, text: getTabs(4) + getRightAlignedText('TOTAL', 8)),
