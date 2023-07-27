@@ -74,4 +74,8 @@ class DkshBillModel {
     required this.deliveryAt,
     required this.deliveryAddress,
   });
+
+  @override
+  String toString() =>
+      "${page};${time};${issuedBranch};${contactInfo};${storeName};${address};${addressTwo};${taxPayerIdNumber};${orderNumber};${section};${no};${date};${customerId};${salespersonCode};${billingCode};${productList};${totalMoneyByLetters};${netSalesAfterVAT};${netSalesBeforeVAT};${percentVAT};${percentSpecialDiscount};${amountVAT};${amountSpecialDiscount};${deliveryAt};${deliveryAddress};";
 }
