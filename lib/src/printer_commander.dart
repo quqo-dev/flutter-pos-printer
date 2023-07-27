@@ -589,7 +589,7 @@ class PrinterCommander {
       PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
       PosColumn(
         width: 9,
-        text: getTabs(19) + 'BILL REGISTER REPORT (DDC)',
+        text: getTabs(19) + 'BILL REGISTER REPORT (APD)',
       ),
       PosColumn(
         width: 2,
