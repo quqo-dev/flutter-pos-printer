@@ -18,6 +18,10 @@ class DkshProductModel {
     required this.amountAfterVAT,
     required this.pricePerCanAfterVAT,
   });
+
+  @override
+  String toString() =>
+      "${productCode};,${productList};${soldAmount};${freeAmount};${amountBeforeVAT};${discountBeforeVAT};${amountAfterVAT};${pricePerCanAfterVAT};";
 }
 
 class DkshBillModel {
