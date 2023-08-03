@@ -35,7 +35,7 @@ final sampleDkshBillModel = DkshBillModel(
       amountBeforeVAT: '1,380.00',
       discountBeforeVAT: '441.60',
       amountAfterVAT: 'ไม่คิดมูลค่า',
-      pricePerCanAfterVAT: '83.67',
+      pricePerCanAfterVAT: '0.00',
     ),
   ],
   totalMoneyByLetters: 'สี่พันหนึ่งร้อยแปด​สิบห้าบาทแปด​สิบสี่สตางค์',

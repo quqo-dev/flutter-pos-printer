@@ -4,6 +4,7 @@ import 'package:unicode_data/unicode_data.dart';
 
 const String TEXT_SPACE = '  ';
 const String DEFAULT_FREE_TEXT = "ไม่คิดมูลค่า";
+const String DEFAULT_FREE_PRICE = "0.00";
 
 class ImageData {
   final int width;

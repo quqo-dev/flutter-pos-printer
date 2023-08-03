@@ -249,12 +249,19 @@ class PrinterCommander {
         currentListItem++;
         final DkshProductModel item = data.productList[currentListIdx];
 
+        String amountAfterVATAndUnitPrice = item.amountAfterVAT ==
+                DEFAULT_FREE_TEXT
+            ? '   ' + DEFAULT_FREE_TEXT + '  ' + DEFAULT_FREE_PRICE
+            : fillSpaceText(getRightAlignedText(item.amountAfterVAT, 12), 12) +
+                fillSpaceText(
+                    getRightAlignedText(item.pricePerCanAfterVAT, 9), 9);
+
         bytes += generator.textEncoded(
           await getThaiEncoded(
             ' ${fillSpaceText(item.productCode, 9)} ${fillSpaceText(item.productList, 28)} ' +
                 '${getRightAlignedText(item.soldAmount, 5)} ${getRightAlignedText(item.freeAmount, 5)} ' +
-                '${fillSpaceText(getRightAlignedText(item.amountBeforeVAT, 12), 12)} ${fillSpaceText(getRightAlignedText(item.discountBeforeVAT, 9), 9)} ' +
-                '${fillSpaceText(getRightAlignedText(item.amountAfterVAT, 11), 11)}${fillSpaceText(getRightAlignedText(item.pricePerCanAfterVAT, 9), 9)}',
+                '${fillSpaceText(getRightAlignedText(item.amountBeforeVAT, 12), 12)} ${fillSpaceText(getRightAlignedText(item.discountBeforeVAT, 9), 9)}' +
+                '$amountAfterVATAndUnitPrice',
           ),
         );
       }
