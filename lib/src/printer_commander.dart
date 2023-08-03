@@ -630,9 +630,9 @@ class PrinterCommander {
           width: 1,
           text: getTabs(2) + ' ' + getRightAlignedText('NET_AMT', 12)),
       PosColumn(width: 1, text: getTabs(4) + getRightAlignedText('TAX', 9)),
-      PosColumn(width: 1, text: getTabs(5) + getRightAlignedText('TOT', 9)),
-      PosColumn(width: 1, text: getTabs(4) + ' ' + 'ST'),
-      PosColumn(width: 1, text: getTabs(1) + 'L'),
+      PosColumn(width: 1, text: getTabs(4) + getRightAlignedText(' TOT', 9)),
+      PosColumn(width: 1, text: getTabs(4) + 'ST'),
+      PosColumn(width: 1, text: ' LITER'),
     ]);
 
     bytes += generator.hr(len: 120);
