@@ -3,6 +3,7 @@ class CustomerPriceModel {
   final String date;
   final String customerId;
   final String customerName;
+  final String smCode;
   final String price;
   final String diValue;
   final String doValue;
@@ -18,6 +19,7 @@ class CustomerPriceModel {
     required this.date,
     required this.customerId,
     required this.customerName,
+    required this.smCode,
     required this.price,
     required this.diValue,
     required this.doValue,
