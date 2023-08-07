@@ -761,7 +761,7 @@ class PrinterCommander {
             getRightAlignedText('PER', 5) +
             getRightAlignedText('OPEN', 9) +
             getRightAlignedText('SALE', 9) +
-            getRightAlignedText('GOODS', 9) +
+            getRightAlignedText('CANCEL', 9) +
             getRightAlignedText('TRANSF', 9) +
             getRightAlignedText('TRANSF', 9) +
             getRightAlignedText('CLOSE', 9) +
@@ -780,7 +780,7 @@ class PrinterCommander {
             getRightAlignedText('PACK', 5) +
             getRightAlignedText('BAL', 9) +
             getRightAlignedText('', 9) +
-            getRightAlignedText('RETURNS', 9) +
+            getRightAlignedText('BILL', 9) +
             getRightAlignedText('IN', 9) +
             getRightAlignedText('OUT', 9) +
             getRightAlignedText('BAL', 9),
