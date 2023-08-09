@@ -15,7 +15,7 @@ import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
     "Cclr": CUSTOMER CALLING LISTING REPORT
     "Btr": BILL TRANSACTION REPORT
     "Btl": BILL TRANSFER LISTING
-    "Osr": ORDER SUMMARY REPORT
+    "Osr": BILLING SUMMARY REPORT
     "Csr": CHECKING STOCK REPORT
     "Rrsr": RETURN & RECEIPT STOCK REPORT
  */
@@ -1350,7 +1350,7 @@ class PrinterCommander {
       PosColumn(width: 1, text: 'Date ${data.date} Time ${data.time}'),
       PosColumn(
         width: 9,
-        text: getTabs(21) + 'ORDER SUMMARY REPORT',
+        text: getTabs(21) + 'BILLING SUMMARY REPORT',
       ),
       PosColumn(
         width: 2,
