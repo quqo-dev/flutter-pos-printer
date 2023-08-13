@@ -295,11 +295,19 @@ class PrinterCommander {
             "${getTabs(31)}${fillSpaceText(data.percentVAT, 4)}${getTabs(4)} ${getRightAlignedText(data.amountVAT, 11)}",
           ),
         );
+
+        bytes += generator.emptyLines(1);
+
+        bytes += generator.textEncoded(
+          await getThaiEncoded(
+            "${getTabs(31)}${fillSpaceText(data.percentSpecialDiscount, 4)}${getTabs(4)} ${getRightAlignedText(data.amountSpecialDiscount, 11)}",
+          ),
+        );
       } else {
-        bytes += generator.emptyLines(5);
+        bytes += generator.emptyLines(7);
       }
 
-      bytes += generator.emptyLines(5);
+      bytes += generator.emptyLines(3);
 
       bytes += generator
           .textEncoded(await getThaiEncoded(getTabs(4) + data.deliveryAt));
