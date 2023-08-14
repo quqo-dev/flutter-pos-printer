@@ -12,6 +12,7 @@ class StockModel {
   final String focY;
   final String closeBal;
   final String onhand;
+  final String sortSequence;
 
   StockModel({
     required this.id,
@@ -27,6 +28,7 @@ class StockModel {
     required this.focY,
     required this.closeBal,
     required this.onhand,
+    required this.sortSequence,
   });
 }
 

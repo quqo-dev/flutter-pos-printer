@@ -227,6 +227,7 @@ final sampleDssrBillModel = DssrReportModel(
       focY: '0/0',
       closeBal: '1243/537',
       onhand: '1243/537',
+      sortSequence: '',
     ),
     StockModel(
       id: '100845611',
@@ -242,6 +243,7 @@ final sampleDssrBillModel = DssrReportModel(
       focY: '0/0',
       closeBal: '12/0',
       onhand: '0/8',
+      sortSequence: '',
     )
   ],
   total: '65',
