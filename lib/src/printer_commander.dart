@@ -395,7 +395,7 @@ class PrinterCommander {
             text: getTabs(2) +
                 getRightAlignedText(bill.total, 12) +
                 ' ' +
-                getRightAlignedText(bill.quantity, 5)),
+                getRightAlignedText(bill.l, 5)),
         PosColumn(width: 2),
       ]);
 
