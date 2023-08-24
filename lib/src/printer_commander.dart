@@ -828,8 +828,8 @@ class PrinterCommander {
       bytes += generator.textEncoded(
         await getThaiEncoded(
           '${callingItem.date}${getTabs(1)}${callingItem.custCode}' +
-              '${getTabs(1)} ${fillSpaceText(callingItem.custName, 41)}' +
-              '${fillSpaceText(callingItem.reason, 19)}' +
+              '${getTabs(1)} ${fillSpaceText(callingItem.custName, 29)} ' +
+              '${fillSpaceText(callingItem.reason, 30)}' +
               '${getTabs(2)}${fillSpaceText(callingItem.typeOfShop, 24)}' +
               '${callingItem.time}',
         ),
@@ -905,8 +905,8 @@ class PrinterCommander {
     bytes += generator.row([
       PosColumn(width: 1, text: 'DATE'),
       PosColumn(width: 1, text: getTabs(1) + 'CUST.CODE'),
-      PosColumn(width: 4, text: getTabs(1) + 'CUSTOMER NAME'),
-      PosColumn(width: 2, text: getTabs(1) + 'REASON'),
+      PosColumn(width: 3, text: getTabs(1) + 'CUSTOMER NAME'),
+      PosColumn(width: 3, text: getTabs(1) + 'REASON'),
       PosColumn(width: 2, text: getTabs(2) + 'TYPE OF SHOP'),
       PosColumn(width: 2, text: getTabs(3) + ' ' + 'TIME'),
     ]);
