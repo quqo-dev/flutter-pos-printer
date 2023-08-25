@@ -828,7 +828,7 @@ class PrinterCommander {
       bytes += generator.textEncoded(
         await getThaiEncoded(
           '${callingItem.date}${getTabs(1)}${callingItem.custCode}' +
-              '${getTabs(1)} ${fillSpaceText(callingItem.custName, 29)} ' +
+              '${getTabs(1)}${fillSpaceText(callingItem.custName, 27)}${fillSpaceText(' ', 4)}' +
               '${fillSpaceText(callingItem.reason, 34)} ' +
               '${fillSpaceText(callingItem.typeOfShop, 23)} ' +
               '${callingItem.time}',

@@ -268,7 +268,7 @@ final sampleCclrBillModel = CclrReportModel(
     CallingModel(
       date: '07/02/2023',
       custCode: 'CA244687',
-      custName: 'ห้างหุ้นส่วนจำกัด มงคลเจริญ',
+      custName: 'ห้างหุ้นส่วนจำกัด มงคลเจริญ (มี) น๊อต 2020',
       reason: '15 ไม่ใช่อู่ซ่อม/ไม่มีเปลี่ยนถ่าย',
       typeOfShop: 'C6 Branded IWS Car6',
       time: '11:36:11',
