@@ -393,6 +393,7 @@ final sampleOsrBillModel = OsrReportModel(
       amount: '3,208.26',
       lite: '12',
       invisiblePartNo: "",
+      invisibleOrderNumber: "",
     ),
     OrderSummanyItem(
       partNo: '100844799',
@@ -408,6 +409,7 @@ final sampleOsrBillModel = OsrReportModel(
       amount: '343,208.26',
       lite: '120',
       invisiblePartNo: "",
+      invisibleOrderNumber: "",
     ),
   ],
   totalAmount: '100,432.44',

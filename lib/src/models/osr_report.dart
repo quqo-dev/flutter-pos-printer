@@ -12,6 +12,7 @@ class OrderSummanyItem {
   final String amount;
   final String lite;
   final String invisiblePartNo; // not use to print
+  final String invisibleOrderNumber; // not use to print
 
   OrderSummanyItem({
     required this.partNo,
@@ -27,6 +28,7 @@ class OrderSummanyItem {
     required this.amount,
     required this.lite,
     required this.invisiblePartNo,
+    required this.invisibleOrderNumber,
   });
 }
 
