@@ -15,8 +15,8 @@ const cInit = '$esc@'; // Initialize printer
 const cBeep = '${esc}B'; // Beeper [count] [duration]
 
 // Mech. Control
-const cCutFull = '${gs}V0'; // Full cut
-const cCutPart = '${gs}V1'; // Partial cut
+const cCutFull = '${gs}'; // Full cut
+const cCutPart = '${gs}'; // Partial cut
 
 // Character
 const cReverseOn = '${gs}B\x01'; // Turn white/black reverse print mode on
