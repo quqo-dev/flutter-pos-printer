@@ -285,7 +285,7 @@ class PrinterCommander {
 
         bytes += generator.textEncoded(
           await getThaiEncoded(
-              "${getTabs(1)}${fillSpaceText(data.totalMoneyByLetters, 73)}${getRightAlignedText(data.netSalesBeforeVAT, 11)}"),
+              " ${fillSpaceText(data.totalMoneyByLetters, 72)} ${getRightAlignedText(' ', 1)}${getRightAlignedText(data.netSalesBeforeVAT, 11)}"),
         );
 
         bytes += generator.emptyLines(1);
