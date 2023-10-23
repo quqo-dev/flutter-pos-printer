@@ -83,7 +83,7 @@ final sampleDdcBillModel = DdcReportModel(
       smCode: "1199",
       price: '3,136.00',
       diValue: '18,406.08',
-      doValue: '0.00',
+      doValue: '336.14',
       netAmount: '979,729.92',
       tax: '68,681.09',
       total: '1,048,311.01',

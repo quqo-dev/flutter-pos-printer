@@ -345,6 +345,8 @@ class PrinterCommander {
 
     // 1st table
     for (final customerPrice in data.customerPriceList) {
+      bool hasDoPromo = customerPrice.doValue != DEFAULT_FREE_PRICE;
+
       bytes += generator.textEncoded(
         await getThaiEncoded(
           '${fillSpaceText(customerPrice.no.replaceAll(' ', ''), 12)} ' +
@@ -354,7 +356,7 @@ class PrinterCommander {
               '${fillSpaceText(customerPrice.smCode, 4)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.price, 12), 12)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.diValue, 8), 8)} ' +
-              '${fillSpaceText(getRightAlignedText(customerPrice.doValue, 4), 4)} ' +
+              '${fillSpaceText(getRightAlignedText(hasDoPromo ? '' : customerPrice.doValue, 4), 4)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.netAmount, 12), 12)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.tax, 9), 9)} ' +
               '${fillSpaceText(getRightAlignedText(customerPrice.total, 12), 12)} ' +
@@ -365,6 +367,17 @@ class PrinterCommander {
 
       currentRow++;
       _checkEndPage();
+
+      // print new line for DO promotion
+      if (hasDoPromo) {
+        bytes += generator.textEncoded(
+          await getThaiEncoded(
+              '${getTabs(29)} ${fillSpaceText(getRightAlignedText(customerPrice.doValue, 14), 14)}'),
+        );
+
+        currentRow++;
+        _checkEndPage();
+      }
     }
 
     bytes += generator.hr(len: 120);
