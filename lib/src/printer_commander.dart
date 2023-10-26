@@ -171,22 +171,12 @@ class PrinterCommander {
 
       bytes += generator.emptyLines(1);
 
-      bytes += generator.row([
-        PosColumn(width: 1),
-        PosColumn(
-          width: 5,
-          textEncoded: await getThaiEncoded(data.storeName),
+      bytes += generator.textEncoded(
+        await getThaiEncoded(
+          '${getTabs(4)}${fillSpaceText(data.storeName, 64)}${getRightAlignedText(' ', 1)} ${fillSpaceText(data.section, 4)} ' +
+              '${getTabs(2)}${fillSpaceText(data.no, 8)}',
         ),
-        PosColumn(width: 2),
-        PosColumn(
-          width: 2,
-          text: getTabs(2) + data.section,
-        ),
-        PosColumn(
-          width: 2,
-          text: data.no,
-        ),
-      ]);
+      );
 
       bytes += generator.row([
         PosColumn(width: 1),
