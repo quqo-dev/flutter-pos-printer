@@ -209,7 +209,9 @@ class PrinterCommander {
         PosColumn(width: 2),
         PosColumn(
           width: 4,
-          textEncoded: await getThaiEncoded(data.taxPayerIdNumber),
+          textEncoded: data.taxPayerIdNumber.isNotEmpty
+              ? await getThaiEncoded(data.taxPayerIdNumber)
+              : null,
         ),
         PosColumn(
           width: 2,

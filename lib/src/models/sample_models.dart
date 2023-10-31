@@ -8,7 +8,7 @@ final sampleDkshBillModel = DkshBillModel(
   storeName: 'บริษัท ปิติ ดิสทริบิวชั่น ซีสเท็มส์ จำกัด',
   address: '156-157  ม.2 ต.กังแอน อ.ปราสาท',
   addressTwo: 'จ.กำแพงเพชร',
-  taxPayerIdNumber: '0115544009090 / sample text',
+  taxPayerIdNumber: '',
   orderNumber: 'A0',
   section: '27',
   no: 'S32467',
