@@ -201,6 +201,7 @@ final sampleDdcBillModel = DdcReportModel(
       total: '0.00',
     ),
   ],
+  smSummaryList: null,
   totalBalance: '26,036.10',
   cashBalance: '26,036.10',
   creditBalance: '0.00',

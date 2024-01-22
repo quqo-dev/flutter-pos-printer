@@ -287,6 +287,7 @@ class DdcReportModel {
   final String trnCode;
   final List<SummaryModel> paymentByTransporterList;
   final List<SummaryModel> orderSummaryList;
+  final List<SummaryModel>? smSummaryList;
   final String totalBalance;
   final String cashBalance;
   final String creditBalance;
@@ -311,6 +312,7 @@ class DdcReportModel {
     required this.trnCode,
     required this.paymentByTransporterList,
     required this.orderSummaryList,
+    required this.smSummaryList,
     required this.totalBalance,
     required this.cashBalance,
     required this.creditBalance,

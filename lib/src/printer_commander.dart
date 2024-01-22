@@ -518,7 +518,10 @@ class PrinterCommander {
             width: 1,
             text: getRightAlignedText(paymentByTransporter.price, 12)),
         PosColumn(
-            width: 7, text: getTabs(4) + '(${paymentByTransporter.total})'),
+          width: 7,
+          text: getTabs(4) +
+              getRightAlignedText('(${paymentByTransporter.total})', 6),
+        ),
       ]);
 
       currentRow++;
@@ -547,10 +550,43 @@ class PrinterCommander {
                 ? ''
                 : '(${orderSummary.quantity})'),
         PosColumn(width: 1, text: getRightAlignedText(orderSummary.price, 12)),
-        PosColumn(width: 7, text: getTabs(4) + '(${orderSummary.total})'),
+        PosColumn(
+          width: 7,
+          text: getTabs(4) + getRightAlignedText('(${orderSummary.total})', 6),
+        ),
       ]);
       currentRow++;
       _checkEndPage();
+    }
+
+    if (data.smSummaryList != null) {
+      bytes += generator.hr(len: 120);
+      currentRow++;
+      _checkEndPage();
+
+      bytes += generator.text('*** Summary by S/M ***');
+      currentRow++;
+      _checkEndPage();
+
+      for (final smSummary in data.smSummaryList!) {
+        bytes += generator.row([
+          PosColumn(width: 1, text: smSummary.firstName),
+          PosColumn(width: 1, text: smSummary.secondName),
+          PosColumn(width: 1),
+          PosColumn(
+              width: 1,
+              text:
+                  smSummary.quantity.isEmpty ? '' : '(${smSummary.quantity})'),
+          PosColumn(width: 1, text: getRightAlignedText(smSummary.price, 12)),
+          PosColumn(
+            width: 7,
+            text: getTabs(4) + getRightAlignedText('(${smSummary.total})', 6),
+          ),
+        ]);
+
+        currentRow++;
+        _checkEndPage();
+      }
     }
 
     bytes += generator.hr(len: 120);
