@@ -3,6 +3,7 @@ class StockItem {
   final String description;
   final String perPack;
   final String unitCode;
+  final String baseUnit;
   final String onHandGood;
   final String onCarGood;
   final String location;
@@ -12,6 +13,7 @@ class StockItem {
     required this.description,
     required this.perPack,
     required this.unitCode,
+    required this.baseUnit,
     required this.onHandGood,
     required this.onCarGood,
     required this.location,
@@ -23,6 +25,7 @@ class CsrReportModel {
   final String smNumber;
   final String date;
   final String time;
+  final String createDate;
   final List<StockItem> stockList;
   final String totalRecord;
 
@@ -31,6 +34,7 @@ class CsrReportModel {
     required this.smNumber,
     required this.date,
     required this.time,
+    required this.createDate,
     required this.stockList,
     required this.totalRecord,
   });

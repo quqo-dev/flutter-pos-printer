@@ -1473,9 +1473,10 @@ class PrinterCommander {
         await getThaiEncoded(
           "${fillSpaceText(stockData.productCode, 9)} ${fillSpaceText(stockData.description, 30)}${getTabs(2)} " +
               "${fillSpaceText(getRightAlignedText(stockData.perPack, 4), 4)}${getTabs(4)}" +
-              "${fillSpaceText(getRightAlignedText(stockData.unitCode, 4), 4)}${getTabs(6)}" +
-              "${fillSpaceText(getRightAlignedText(stockData.onHandGood, 8), 8)}${getTabs(5)} " +
-              "${fillSpaceText(getRightAlignedText(stockData.onCarGood, 8), 8)}${getTabs(5)} " +
+              "${fillSpaceText(getRightAlignedText(stockData.unitCode, 4), 4)}${getTabs(4)}" +
+              "${fillSpaceText(getRightAlignedText(stockData.baseUnit, 4), 4)}${getTabs(4)}" +
+              "${fillSpaceText(getRightAlignedText(stockData.onHandGood, 8), 8)}${getTabs(5)}" +
+              "${fillSpaceText(getRightAlignedText(stockData.onCarGood, 8), 8)}${getTabs(4)}" +
               "${fillSpaceText(getRightAlignedText(stockData.location, 6), 6)}",
         ),
       );
@@ -1531,7 +1532,7 @@ class PrinterCommander {
       PosColumn(width: 1),
       PosColumn(
         width: 10,
-        text: getTabs(21) + 'Product Group: To',
+        text: getTabs(18) + 'Time created: ${data.createDate}',
       ),
       PosColumn(width: 1),
     ]);
@@ -1543,16 +1544,12 @@ class PrinterCommander {
       PosColumn(width: 3, text: 'DESCRIPTION'),
       PosColumn(width: 1, text: getRightAlignedText('PERPACK', 8)),
       PosColumn(width: 1, text: getRightAlignedText('UNIT CODE', 10)),
+      PosColumn(width: 1, text: getRightAlignedText('BASE UNIT', 12)),
       PosColumn(
-          width: 2,
-          text: getTabs(3) + ' ' + getRightAlignedText('ON_HAND_GOOD', 12)),
+          width: 2, text: getTabs(2) + getRightAlignedText('ON_HAND_GOOD', 13)),
       PosColumn(
-          width: 2,
-          text: getTabs(2) + ' ' + getRightAlignedText('ON_CAR_GOOD', 12)),
-      PosColumn(
-          width: 1,
-          text: getTabs(1) + ' ' + getRightAlignedText('LOCATION', 10)),
-      PosColumn(width: 1),
+          width: 2, text: getTabs(1) + getRightAlignedText('ON_CAR_GOOD', 12)),
+      PosColumn(width: 1, text: getRightAlignedText('LOCATION', 8)),
     ]);
 
     bytes += generator.hr(len: 120);
