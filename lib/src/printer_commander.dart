@@ -1474,10 +1474,10 @@ class PrinterCommander {
           "${fillSpaceText(stockData.productCode, 9)} ${fillSpaceText(stockData.description, 30)}${getTabs(2)} " +
               "${fillSpaceText(getRightAlignedText(stockData.perPack, 4), 4)}${getTabs(4)}" +
               "${fillSpaceText(getRightAlignedText(stockData.unitCode, 4), 4)}${getTabs(4)}" +
-              "${fillSpaceText(getRightAlignedText(stockData.baseUnit, 4), 4)}${getTabs(4)}" +
-              "${fillSpaceText(getRightAlignedText(stockData.onHandGood, 8), 8)}${getTabs(5)}" +
-              "${fillSpaceText(getRightAlignedText(stockData.onCarGood, 8), 8)}${getTabs(4)}" +
-              "${fillSpaceText(getRightAlignedText(stockData.location, 6), 6)}",
+              "${fillSpaceText(getRightAlignedText(stockData.baseUnit, 4), 4)}${getTabs(3)}" +
+              "${fillSpaceText(getRightAlignedText(stockData.onHandGood, 8), 8)}${getTabs(4)}" +
+              "${fillSpaceText(getRightAlignedText(stockData.onCarGood, 8), 8)}${getTabs(5)}" +
+              "${fillSpaceText(getRightAlignedText(stockData.location, 4), 4)}",
         ),
       );
 
@@ -1546,10 +1546,9 @@ class PrinterCommander {
       PosColumn(width: 1, text: getRightAlignedText('UNIT CODE', 10)),
       PosColumn(width: 1, text: getRightAlignedText('BASE UNIT', 12)),
       PosColumn(
-          width: 2, text: getTabs(2) + getRightAlignedText('ON_HAND_GOOD', 13)),
-      PosColumn(
-          width: 2, text: getTabs(1) + getRightAlignedText('ON_CAR_GOOD', 12)),
-      PosColumn(width: 1, text: getRightAlignedText('LOCATION', 8)),
+          width: 2, text: getTabs(2) + getRightAlignedText('ON_HAND_GOOD', 12)),
+      PosColumn(width: 2, text: getRightAlignedText('ON_CAR_GOOD', 11)),
+      PosColumn(width: 1, text: getRightAlignedText('SLOC', 4)),
     ]);
 
     bytes += generator.hr(len: 120);
