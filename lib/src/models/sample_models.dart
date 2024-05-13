@@ -206,6 +206,7 @@ final sampleDdcBillModel = DdcReportModel(
   cashBalance: '26,036.10',
   creditBalance: '0.00',
   qrBalance: '0.00',
+  bankBalance: '0.00',
 );
 
 final sampleDssrBillModel = DssrReportModel(

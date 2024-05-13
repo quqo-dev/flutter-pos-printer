@@ -624,6 +624,14 @@ class PrinterCommander {
     _checkEndPage();
 
     bytes += generator.text(
+      'Total bank balance   ${getRightAlignedText(data.bankBalance, 16)}  baht' +
+          getTabs(2) +
+          'Bank payment........................................................baht',
+    );
+    currentRow++;
+    _checkEndPage();
+
+    bytes += generator.text(
         'Pay by............................  Get paid by............................');
     currentRow++;
     _checkEndPage();
