@@ -50,6 +50,7 @@ class DkshBillModel {
   final String amountSpecialDiscount;
   final String deliveryAt;
   final String deliveryAddress;
+  final String shareOrder;
 
   DkshBillModel({
     required this.page,
@@ -77,9 +78,10 @@ class DkshBillModel {
     required this.amountSpecialDiscount,
     required this.deliveryAt,
     required this.deliveryAddress,
+    required this.shareOrder,
   });
 
   @override
   String toString() =>
-      "${page};${time};${issuedBranch};${contactInfo};${storeName};${address};${addressTwo};${taxPayerIdNumber};${orderNumber};${section};${no};${date};${customerId};${salespersonCode};${billingCode};${productList};${totalMoneyByLetters};${netSalesAfterVAT};${netSalesBeforeVAT};${percentVAT};${percentSpecialDiscount};${amountVAT};${amountSpecialDiscount};${deliveryAt};${deliveryAddress};";
+      "${page};${time};${issuedBranch};${contactInfo};${storeName};${address};${addressTwo};${taxPayerIdNumber};${orderNumber};${section};${no};${date};${customerId};${salespersonCode};${billingCode};${productList};${totalMoneyByLetters};${netSalesAfterVAT};${netSalesBeforeVAT};${percentVAT};${percentSpecialDiscount};${amountVAT};${amountSpecialDiscount};${deliveryAt};${deliveryAddress};${shareOrder};";
 }

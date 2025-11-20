@@ -25,7 +25,7 @@ const int MAX_ROW_PER_PAGE = 64;
 const int GAP_END_PAGE = 3;
 
 const int MAX_ADDRESS_CHAR_PER_ROW = 40;
-const int MAX_BILLING_PRODUCT_PER_PAGE = 7;
+const int MAX_BILLING_PRODUCT_PER_PAGE = 5;
 const int MAX_CCLR_ROW_PER_PAGE = 50;
 const int MAX_DSSR_ROW_PER_PAGE = 50;
 const int MAX_BTL_ROW_PER_PAGE = 50;
@@ -259,9 +259,19 @@ class PrinterCommander {
       }
 
       // The rest empty lines of table
+      // minus 1 line for Shared Order text
       bytes += generator.emptyLines(
-        MAX_BILLING_PRODUCT_PER_PAGE - currentListItem,
+        MAX_BILLING_PRODUCT_PER_PAGE - currentListItem - 1,
       );
+      if (data.shareOrder.isEmpty) {
+        bytes += generator.emptyLines(1);
+      } else {
+        bytes += generator.textEncoded(
+          await getThaiEncoded(
+            ' ${fillSpaceText("", 9)} ${data.shareOrder}'
+          ),
+        );
+      }
 
       // Spacing for the next row
       bytes += generator.emptyLines(3);

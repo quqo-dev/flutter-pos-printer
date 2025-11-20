@@ -48,6 +48,7 @@ final sampleDkshBillModel = DkshBillModel(
   amountSpecialDiscount: '0.00',
   deliveryAt: 'This is a sample text',
   deliveryAddress: 'This is a sample text also',
+  shareOrder: '12345',
 );
 
 final sampleDdcBillModel = DdcReportModel(
