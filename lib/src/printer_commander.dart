@@ -25,7 +25,7 @@ const int MAX_ROW_PER_PAGE = 64;
 const int GAP_END_PAGE = 3;
 
 const int MAX_ADDRESS_CHAR_PER_ROW = 40;
-const int MAX_BILLING_PRODUCT_PER_PAGE = 5;
+const int MAX_BILLING_PRODUCT_PER_PAGE = 7;
 const int MAX_CCLR_ROW_PER_PAGE = 50;
 const int MAX_DSSR_ROW_PER_PAGE = 50;
 const int MAX_BTL_ROW_PER_PAGE = 50;
