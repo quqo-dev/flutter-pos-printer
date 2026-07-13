@@ -37,7 +37,7 @@ class BluetoothConnection constructor(handler: Handler) : IBluetoothConnection {
 
 
     // Member fields
-    private val mAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    private val mAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private val mHandler: Handler
     private var mConnectThread: ConnectThread? = null
     private var mConnectedThread: ConnectedThread? = null
@@ -78,8 +78,12 @@ class BluetoothConnection constructor(handler: Handler) : IBluetoothConnection {
     @Synchronized
     override fun connect(address: String, result: MethodChannel.Result) {
         if (!address.matches(Regex(BluetoothConstants.BLUETOOTH_REGEX))) return
+        val adapter = mAdapter ?: run {
+            connectionFailed(result)
+            return
+        }
         Log.d(TAG, "connect to: $address")
-        val device = mAdapter.getRemoteDevice(address)
+        val device = adapter.getRemoteDevice(address)
 
         // Cancel any thread attempting to make a connection
         if (mState == BluetoothConstants.STATE_CONNECTING) {
@@ -231,7 +235,7 @@ class BluetoothConnection constructor(handler: Handler) : IBluetoothConnection {
             }
 
             // Always cancel discovery because it will slow down a connection
-            mAdapter.cancelDiscovery()
+            mAdapter?.cancelDiscovery()
 
             // Make a connection to the BluetoothSocket
             try {
