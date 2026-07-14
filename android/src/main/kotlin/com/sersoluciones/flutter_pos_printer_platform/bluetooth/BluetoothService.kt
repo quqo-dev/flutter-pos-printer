@@ -131,13 +131,15 @@ class BluetoothService(private var bluetoothHandler: Handler?) {
                     address = deviceHardwareAddress
                 )
                 val deviceMap: HashMap<String?, String?> = HashMap()
-                deviceMap["name"] = deviceName
+                deviceMap["name"] = deviceBT.name
                 deviceMap["address"] = deviceHardwareAddress
-                if (result.device?.name != null)
+                
+                handler.post {
                     mmChannel?.invokeMethod("ScanResult", deviceMap)
+                }
+                
                 devicesBle.add(deviceBT)
-                Log.d(TAG, "deviceName ${result.device.name} deviceHardwareAddress ${result.device.address}")
-
+                Log.d(TAG, "deviceName $deviceName deviceHardwareAddress $deviceHardwareAddress")
             }
         }
     }

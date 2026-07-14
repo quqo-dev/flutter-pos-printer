@@ -319,6 +319,9 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, Plugin
      */
 
     private fun verifyIsBluetoothIsOn(): Boolean {
+        if (!::bluetoothService.isInitialized) {
+            bluetoothService = BluetoothService.getInstance(bluetoothHandler)
+        }
         if (checkPermissions()) {
             val adapter = bluetoothService.mBluetoothAdapter
             if (adapter == null) return false
