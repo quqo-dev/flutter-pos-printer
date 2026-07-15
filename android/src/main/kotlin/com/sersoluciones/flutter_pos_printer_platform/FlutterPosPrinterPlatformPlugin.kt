@@ -159,15 +159,21 @@ class FlutterPosPrinterPlatformPlugin : FlutterPlugin, MethodCallHandler, Plugin
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        channel.setMethodCallHandler(null)
+        if (this::channel.isInitialized) {
+            channel.setMethodCallHandler(null)
+        }
         messageChannel?.setStreamHandler(null)
         messageUSBChannel?.setStreamHandler(null)
 
         messageChannel = null
         messageUSBChannel = null
 
-        bluetoothService.setHandler(null)
-        adapter.setHandler(null)
+        if (this::bluetoothService.isInitialized) {
+            bluetoothService.setHandler(null)
+        }
+        if (this::adapter.isInitialized) {
+            adapter.setHandler(null)
+        }
     }
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
