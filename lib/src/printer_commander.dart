@@ -259,22 +259,23 @@ class PrinterCommander {
       }
 
       // The rest empty lines of table
-      // minus 1 line for Shared Order text
       bytes += generator.emptyLines(
-        MAX_BILLING_PRODUCT_PER_PAGE - currentListItem - 1,
+        MAX_BILLING_PRODUCT_PER_PAGE - currentListItem,
       );
+
+      // shared order annotation
       if (data.shareOrder.isEmpty) {
         bytes += generator.emptyLines(1);
       } else {
         bytes += generator.textEncoded(
           await getThaiEncoded(
-            ' ${fillSpaceText("", 9)} ${data.shareOrder}'
+              ' ${fillSpaceText("", 9)} ${data.shareOrder}'
           ),
         );
       }
 
       // Spacing for the next row
-      bytes += generator.emptyLines(3);
+      bytes += generator.emptyLines(2);
 
       // print summary section only in the last page
       if (outerIdx == totalPages - 1) {
